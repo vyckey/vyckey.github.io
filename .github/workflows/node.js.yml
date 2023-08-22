@@ -27,7 +27,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - name: install packages with yarn
-      uses: rm -rf node_modules && yarn install --frozen-lockfile
+      run: rm -rf node_modules && yarn install --frozen-lockfile
     - name: build and deploy with gh-pages
       run: |
         git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git

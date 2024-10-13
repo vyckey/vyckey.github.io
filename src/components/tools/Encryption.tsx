@@ -149,6 +149,11 @@ const EncryptionTabs: React.FC = () => {
             label: 'Base64',
             children: <Base64Form />,
           },
+          {
+            key: 'datetime_tab',
+            label: 'DateTime',
+            children: <Base64Form />,
+          },
         ]}
       />
     </>

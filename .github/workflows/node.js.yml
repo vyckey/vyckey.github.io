@@ -5,9 +5,9 @@ name: build & deploy vyckey.github.io to GitHub Pages
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "gh-pages" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "gh-pages" ]
 
 jobs:
   build:

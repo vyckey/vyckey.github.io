@@ -81,6 +81,16 @@ interface DateConvertFormData {
 const TimeConverter: React.FC = () => {
   const [dateValue, setDateValue] = useState('');
   const [timeValue, setTimeValue] = useState<number | null>(null);
+  const timeOptions = [
+    {
+      value: 'millis',
+      label: '毫秒(ms)',
+    },
+    {
+      value: 'second',
+      label: '秒(s)',
+    },
+  ];
 
   function convertTimeToDate(data: TimeConvertFormData) {
     const ts = data.type === 'millis' ? data.timestamp : data.timestamp * 1000;
@@ -122,18 +132,7 @@ const TimeConverter: React.FC = () => {
             <InputNumber style={{ width: 150 }} />
           </Form.Item>
           <Form.Item name="type" required={true}>
-            <Select
-              options={[
-                {
-                  value: 'millis',
-                  label: '毫秒(s)',
-                },
-                {
-                  value: 'second',
-                  label: '秒(s)',
-                },
-              ]}
-            />
+            <Select options={timeOptions} />
           </Form.Item>
           <Form.Item name="timezone" required={true}>
             <Select
@@ -176,18 +175,7 @@ const TimeConverter: React.FC = () => {
             <Input style={{ width: 180 }} />
           </Form.Item>
           <Form.Item name="type" required={true}>
-            <Select
-              options={[
-                {
-                  value: 'millis',
-                  label: '毫秒(s)',
-                },
-                {
-                  value: 'second',
-                  label: '秒(s)',
-                },
-              ]}
-            />
+            <Select options={timeOptions} />
           </Form.Item>
           <Form.Item name="timezone" required={true}>
             <Select

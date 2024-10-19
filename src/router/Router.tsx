@@ -5,6 +5,8 @@ import ToolsLayout from '../pages/ToolsLayout';
 import EncryptionTabs from '../components/tools/Encryption';
 import QRCodeGenerator from '../components/tools/QRCodeGenerator';
 import TimestampPanel from '../components/tools/Timestamp';
+import TextDiffView from '../components/tools/TextDiffView';
+import TimerPanel from '../components/tools/TimerPanel';
 
 const router = createBrowserRouter([
   {
@@ -22,6 +24,14 @@ const router = createBrowserRouter([
       {
         path: 'timestamp',
         element: <TimestampPanel />,
+      },
+      {
+        path: 'timer',
+        element: <TimerPanel />,
+      },
+      {
+        path: 'textdiff',
+        element: <TextDiffView />,
       },
       {
         path: 'encryption',

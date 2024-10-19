@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   ClockCircleOutlined,
+  DiffOutlined,
   LockOutlined,
   QrcodeOutlined,
 } from '@ant-design/icons';
@@ -17,6 +18,16 @@ const topItems: MenuItem[] = [
     key: 'timestamp',
     label: '时间戳',
     icon: <ClockCircleOutlined />,
+  },
+  {
+    key: 'timer',
+    label: '计时器',
+    icon: <ClockCircleOutlined />,
+  },
+  {
+    key: 'textdiff',
+    label: '文本对比',
+    icon: <DiffOutlined />,
   },
   {
     key: 'encryption',

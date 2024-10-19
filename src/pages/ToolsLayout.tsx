@@ -1,5 +1,9 @@
 import React from 'react';
-import { LockOutlined, QrcodeOutlined } from '@ant-design/icons';
+import {
+  ClockCircleOutlined,
+  LockOutlined,
+  QrcodeOutlined,
+} from '@ant-design/icons';
 import { Layout, Menu, MenuProps, theme } from 'antd';
 // import '../layout.css';
 import { Outlet, useNavigate } from 'react-router-dom';
@@ -9,6 +13,11 @@ const { Header, Content, Footer } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
 
 const topItems: MenuItem[] = [
+  {
+    key: 'timestamp',
+    label: '时间戳',
+    icon: <ClockCircleOutlined />,
+  },
   {
     key: 'encryption',
     label: '加密/解密',

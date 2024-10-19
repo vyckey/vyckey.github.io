@@ -4,6 +4,7 @@ import Homepage from '../pages/Homepage';
 import ToolsLayout from '../pages/ToolsLayout';
 import EncryptionTabs from '../components/tools/Encryption';
 import QRCodeGenerator from '../components/tools/QRCodeGenerator';
+import TimestampPanel from '../components/tools/Timestamp';
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
     path: 'tools',
     element: <ToolsLayout />,
     children: [
+      {
+        path: 'timestamp',
+        element: <TimestampPanel />,
+      },
       {
         path: 'encryption',
         element: <EncryptionTabs />,

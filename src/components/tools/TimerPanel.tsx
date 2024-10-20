@@ -1,4 +1,4 @@
-import { Button, Card, DatePicker, Form } from 'antd';
+import { Button, Card, DatePicker, Form, Space } from 'antd';
 import dayjs from 'dayjs';
 import moment from 'moment';
 import React, { useRef, useState } from 'react';
@@ -180,10 +180,10 @@ const CountTimer = () => {
 
 const TimerPanel = () => {
   return (
-    <>
+    <Space direction="vertical" style={{ width: '100%' }}>
       <CountDownTimer />
       <CountTimer />
-    </>
+    </Space>
   );
 };
 

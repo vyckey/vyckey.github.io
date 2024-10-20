@@ -32,11 +32,11 @@ const Timestamp: React.FC = () => {
   }, [isRunning]);
 
   return (
-    <Card title="当前时间戳" bordered={false}>
+    <Card title="当前时间戳" bordered={false} style={{ textAlign: 'center' }}>
       <Button
         color="default"
         variant="link"
-        style={{ fontSize: 40 }}
+        style={{ fontSize: 38 }}
         onClick={() => {
           const ts = isSeconds
             ? Math.ceil(nowTime.valueOf() / 1000)
@@ -47,7 +47,7 @@ const Timestamp: React.FC = () => {
         {isSeconds ? Math.ceil(nowTime.valueOf() / 1000) : nowTime.valueOf()}
       </Button>
       {isSeconds ? '秒' : '毫秒'}
-      <p style={{ fontSize: 18 }}>{nowTime.format('YYYY-MM-DD HH:mm:ss')}</p>
+      <p style={{ fontSize: 20 }}>{nowTime.format('YYYY-MM-DD HH:mm:ss')}</p>
       <Space>
         <Button onClick={() => setIsSeconds(!isSeconds)}>
           ↺切换{isSeconds ? '毫秒' : '秒'}
@@ -202,10 +202,10 @@ const TimeConverter: React.FC = () => {
 
 const TimestampPanel: React.FC = () => {
   return (
-    <>
+    <Space direction="vertical" style={{ width: '100%' }}>
       <Timestamp />
       <TimeConverter />
-    </>
+    </Space>
   );
 };
 

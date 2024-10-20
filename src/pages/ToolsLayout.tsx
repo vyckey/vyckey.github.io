@@ -36,6 +36,11 @@ const topItems: MenuItem[] = [
     icon: <LockOutlined />,
   },
   {
+    key: 'password',
+    label: '密码生成器',
+    icon: <LockOutlined />,
+  },
+  {
     key: 'json',
     label: 'JSON',
     icon: <CodeOutlined />,
@@ -77,9 +82,10 @@ const ToolsLayout: React.FC = () => {
           style={{
             padding: 24,
             margin: 0,
-            minHeight: 280,
+            minHeight: 800,
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
+            textAlign: 'left',
           }}>
           {/* 渲染当前激活的路由组件 */}
           <Outlet />
@@ -87,7 +93,7 @@ const ToolsLayout: React.FC = () => {
       </Layout>
 
       <Footer style={{ textAlign: 'center' }}>
-        Ant Design ©{new Date().getFullYear()} Created by Ant UED
+        Developer Tools ©{new Date().getFullYear()} Created by Vyckey
       </Footer>
     </Layout>
   );

@@ -8,6 +8,7 @@ import TimestampPanel from '../components/tools/Timestamp';
 import TextDiffView from '../components/tools/TextDiffView';
 import TimerPanel from '../components/tools/TimerPanel';
 import JsonTools from '../components/tools/JsonTools';
+import PasswordGenerator from '../components/tools/PasswordGenerator';
 
 const router = createBrowserRouter([
   {
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
       {
         path: 'encryption',
         element: <EncryptionTabs />,
+      },
+      {
+        path: 'password',
+        element: <PasswordGenerator />,
       },
       {
         path: 'qrcode',

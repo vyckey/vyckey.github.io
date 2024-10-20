@@ -62,7 +62,7 @@ const JsonView = () => {
 
   return (
     <>
-      <Flex gap="small">
+      <Flex gap="small" wrap>
         <Select
           defaultValue="codeschool"
           options={jsonThemes.map(theme => ({

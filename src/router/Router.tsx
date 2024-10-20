@@ -7,6 +7,7 @@ import QRCodeGenerator from '../components/tools/QRCodeGenerator';
 import TimestampPanel from '../components/tools/Timestamp';
 import TextDiffView from '../components/tools/TextDiffView';
 import TimerPanel from '../components/tools/TimerPanel';
+import JsonTools from '../components/tools/JsonTools';
 
 const router = createBrowserRouter([
   {
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
       {
         path: 'textdiff',
         element: <TextDiffView />,
+      },
+      {
+        path: 'json',
+        element: <JsonTools />,
       },
       {
         path: 'encryption',

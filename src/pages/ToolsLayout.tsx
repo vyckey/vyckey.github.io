@@ -2,6 +2,7 @@ import React from 'react';
 import {
   ClockCircleOutlined,
   DiffOutlined,
+  CodeOutlined,
   LockOutlined,
   QrcodeOutlined,
 } from '@ant-design/icons';
@@ -33,6 +34,11 @@ const topItems: MenuItem[] = [
     key: 'encryption',
     label: '加密/解密',
     icon: <LockOutlined />,
+  },
+  {
+    key: 'json',
+    label: 'JSON',
+    icon: <CodeOutlined />,
   },
   {
     key: 'qrcode',

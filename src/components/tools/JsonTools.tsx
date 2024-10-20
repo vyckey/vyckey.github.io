@@ -64,7 +64,8 @@ const JsonView = () => {
     <>
       <Flex gap="small" wrap>
         <Select
-          defaultValue="codeschool"
+          showSearch={true}
+          defaultValue={theme}
           options={jsonThemes.map(theme => ({
             label: '主题 ' + theme,
             value: theme,
@@ -130,6 +131,7 @@ const JsonView = () => {
           <Input.TextArea
             value={textValue}
             // allowClear={true}
+            placeholder="请输入JSON文本"
             style={{ height: '100%', resize: 'none' }}
             onChange={e => {
               setTextValue(e.target.value);

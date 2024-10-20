@@ -4,15 +4,19 @@ import React, { useState } from 'react';
 import { CheckOutlined, CopyOutlined } from '@ant-design/icons';
 
 interface CopyButtonProps {
-  value: string;
+  value: string | number | bigint | undefined;
 }
 
 const CopyButton: React.FC<CopyButtonProps> = ({ value }) => {
   const [copied, setCopied] = useState(false);
 
   function onClick() {
+    if (!value) {
+      message.warning('内容为空');
+      return;
+    }
     navigator.clipboard
-      .writeText(value)
+      .writeText(typeof value === 'string' ? value : value + '')
       .then(() => {
         setCopied(true);
         message.success('复制成功');

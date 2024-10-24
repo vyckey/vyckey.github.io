@@ -1,7 +1,8 @@
-import { Button, Form, Input, message, Select, Space, Tabs } from 'antd';
+import { Button, Flex, Form, Input, message, Select, Space, Tabs } from 'antd';
 import React, { useState } from 'react';
 import CopyButton from '../CopyButton';
 import CryptoJS from 'crypto-js';
+import JSEncrypt from 'jsencrypt';
 import CopyableTextArea from '../CopyableTextArea';
 
 const MD5Form: React.FC = () => {
@@ -136,13 +137,34 @@ const RSAForm: React.FC = () => {
   const [output, setOutput] = useState('');
   const [form] = Form.useForm();
 
+  function generateRSAKey() {
+    const bitCount = form.getFieldValue('bitCount');
+    const format = form.getFieldValue('format');
+
+    try {
+      const encryptor = new JSEncrypt();
+      const rsaKey = encryptor.getKey();
+      console.log('generate RSA key', bitCount, format);
+      form.setFieldValue('publicKey', rsaKey.getPublicKey());
+      form.setFieldValue('privateKey', rsaKey.getPrivateKey());
+    } catch (e) {
+      console.error('generate RSA key fail', e);
+      message.error('生成失败！');
+    }
+  }
+
   function doEncrypt() {
     form
       .validateFields()
       .then(values => {
-        console.log(values);
-        const encryptedData = CryptoJS.RSA.encrypt(values.input, values.publicKey);
-        setOutput(encryptedData);
+        const encryptor = new JSEncrypt();
+        encryptor.setPublicKey(values.publicKey);
+        const encryptedData = encryptor.encrypt(values.input);
+        if (encryptedData === false) {
+          setOutput('false');
+        } else {
+          setOutput(encryptedData);
+        }
       })
       .catch(err => {
         console.log('RSA encrypt fail', err);
@@ -154,8 +176,14 @@ const RSAForm: React.FC = () => {
     form
       .validateFields()
       .then(values => {
-        const decryptedData = CryptoJS.RSA.decrypt(values.input, values.privateKey);
-        return decryptedData;
+        const encryptor = new JSEncrypt();
+        encryptor.setPrivateKey(values.privateKey);
+        const decryptedData = encryptor.decrypt(values.input);
+        if (decryptedData === false) {
+          setOutput('false');
+        } else {
+          setOutput(decryptedData);
+        }
       })
       .catch(err => {
         console.log('RSA decrypt fail', err);
@@ -203,22 +231,21 @@ const RSAForm: React.FC = () => {
             />
           </Form.Item>
           <Form.Item>
-            <Button style={{ borderColor: 'green', color: 'green' }}>
+            <Button
+              style={{ borderColor: 'green', color: 'green' }}
+              onClick={generateRSAKey}>
               生成秘钥对
             </Button>
           </Form.Item>
         </Space>
-        <Space
-          align="center"
-          style={{ width: '100%', justifyContent: 'space-between' }}>
-          <Form.Item name="publicKey" label="公钥" style={{ width: '100%' }}>
+        <Flex>
+          <Form.Item name="publicKey" label="公钥" style={{ flex: 1 }}>
             <CopyableTextArea rows={6} placeholder="请输入公钥" />
           </Form.Item>
-          <Form.Item name="privateKey" label="私钥">
+          <Form.Item name="privateKey" label="私钥" style={{ flex: 1 }}>
             <CopyableTextArea rows={6} placeholder="请输入私钥" />
           </Form.Item>
-        </Space>
-
+        </Flex>
         <Form.Item
           name="input"
           rules={[
@@ -229,7 +256,7 @@ const RSAForm: React.FC = () => {
           ]}>
           <CopyableTextArea
             allowClear={true}
-            rows={6}
+            rows={7}
             placeholder="请输入需要进行加密或解密的文本"
             showCount={true}
           />
@@ -247,7 +274,7 @@ const RSAForm: React.FC = () => {
         </Form.Item>
         <CopyableTextArea
           value={output}
-          rows={6}
+          rows={7}
           placeholder="输出文本"
           showCount={true}
         />

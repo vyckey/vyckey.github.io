@@ -7,6 +7,24 @@ interface CopyButtonProps {
   value: string | number | bigint | undefined;
 }
 
+const clipboard = (window.isSecureContext && navigator.clipboard) || {
+  writeText: text =>
+    new Promise((resolve, reject) => {
+      const input = document.createElement('input');
+      input.value = text;
+      document.body.appendChild(input);
+      input.select();
+      try {
+        document.execCommand('copy');
+        resolve();
+      } catch (e) {
+        reject(e);
+      } finally {
+        document.body.removeChild(input);
+      }
+    }),
+};
+
 const CopyButton: React.FC<CopyButtonProps> = ({ value }) => {
   const [copied, setCopied] = useState(false);
 
@@ -15,7 +33,7 @@ const CopyButton: React.FC<CopyButtonProps> = ({ value }) => {
       message.warning('内容为空');
       return;
     }
-    navigator.clipboard
+    clipboard
       .writeText(typeof value === 'string' ? value : value + '')
       .then(() => {
         setCopied(true);

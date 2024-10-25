@@ -79,7 +79,7 @@ const TextDiffView: React.FC<TextDiffViewProps> = ({
       const diffHtml = html(diffFiles, config);
       setDiffData(diffHtml);
     }
-  }, [fileDiffList]);
+  }, [id, useUI, fileDiffList, outputFormat, fileListToggle]);
 
   return useUI ? (
     <div id={id || 'code-diff-ui'} />

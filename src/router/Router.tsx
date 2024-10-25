@@ -5,10 +5,10 @@ import ToolsLayout from '../pages/ToolsLayout';
 import EncryptionTabs from '../components/tools/Encryption';
 import QRCodeGenerator from '../components/tools/QRCodeGenerator';
 import TimestampPanel from '../components/tools/Timestamp';
-import TextDiffView from '../components/tools/TextDiffView';
 import TimerPanel from '../components/tools/TimerPanel';
 import JsonTools from '../components/tools/JsonTools';
 import PasswordGenerator from '../components/tools/PasswordGenerator';
+import TextDiffTool from '../components/tools/TextDiffTool';
 
 const router = createBrowserRouter([
   {
@@ -33,7 +33,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'textdiff',
-        element: <TextDiffView />,
+        element: <TextDiffTool />,
       },
       {
         path: 'json',

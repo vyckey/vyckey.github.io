@@ -33,10 +33,6 @@ const TextDiffView: React.FC<TextDiffViewProps> = ({
   const [diffData, setDiffData] = useState('');
 
   useEffect(() => {
-    createDiffView(fileDiffList);
-  }, [fileDiffList]);
-
-  const createDiffView = (fileDiffList: FileDiffProps[]) => {
     const diffFiles: DiffFile[] = [];
     for (const diffItem of fileDiffList) {
       const { fileName, oldHeader, newHeader, prevData, newData, isJson } =
@@ -83,7 +79,7 @@ const TextDiffView: React.FC<TextDiffViewProps> = ({
       const diffHtml = html(diffFiles, config);
       setDiffData(diffHtml);
     }
-  };
+  }, [fileDiffList]);
 
   return useUI ? (
     <div id={id || 'code-diff-ui'} />

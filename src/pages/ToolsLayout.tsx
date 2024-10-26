@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   ClockCircleOutlined,
   DiffOutlined,
@@ -36,11 +36,6 @@ const topItems: MenuItem[] = [
     icon: <LockOutlined />,
   },
   {
-    key: 'password',
-    label: '密码生成器',
-    icon: <LockOutlined />,
-  },
-  {
     key: 'json',
     label: 'JSON',
     icon: <CodeOutlined />,
@@ -59,6 +54,10 @@ const ToolsLayout: React.FC = () => {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    navigate('timestamp');
+  }, []);
+
   const onClickMenu: MenuProps['onClick'] = e => {
     console.log('click ', e);
     // const path = e.keyPath.reverse().join('/')
@@ -71,7 +70,7 @@ const ToolsLayout: React.FC = () => {
         <Menu
           theme="light"
           mode="horizontal"
-          defaultSelectedKeys={['2']}
+          defaultSelectedKeys={['timestamp']}
           style={{ flex: 1, minWidth: 0 }}
           items={topItems}
           onClick={onClickMenu}

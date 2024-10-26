@@ -56,6 +56,7 @@ export default function PasswordGenerator() {
           punctuation: true,
           capital: true,
         }}
+        style={{ marginLeft: 10, marginRight: 10, marginTop: 40 }}
         onFinish={onGeneratePassword}>
         <Form.Item
           name="password"
@@ -72,7 +73,10 @@ export default function PasswordGenerator() {
             { required: true, message: '请输入区分代码' },
             { min: 3, message: '区分代码过短!' },
           ]}>
-          <Input allowClear placeholder="建议使用网站名，比如weixin,taobao,zhihu" />
+          <Input
+            allowClear
+            placeholder="建议使用网站名，比如weixin,taobao,zhihu"
+          />
         </Form.Item>
         <Flex gap="large">
           <Form.Item name="length" label="密码长度">
@@ -107,7 +111,7 @@ export default function PasswordGenerator() {
           <Input value={password} placeholder="请点击生成密码按钮" />
           <Button
             type="primary"
-            style={{ backgroundColor: '#00b4f4' }}
+            style={{ backgroundColor: '#3498db' }}
             onClick={copyPassword}>
             复制密码
           </Button>

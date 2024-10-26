@@ -20,6 +20,10 @@ const router = createBrowserRouter([
     element: <Homepage />,
   },
   {
+    path: 'tools/password',
+    element: <PasswordGenerator />,
+  },
+  {
     path: 'tools',
     element: <ToolsLayout />,
     children: [
@@ -42,10 +46,6 @@ const router = createBrowserRouter([
       {
         path: 'encryption',
         element: <EncryptionTabs />,
-      },
-      {
-        path: 'password',
-        element: <PasswordGenerator />,
       },
       {
         path: 'qrcode',

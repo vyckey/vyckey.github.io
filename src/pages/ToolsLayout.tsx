@@ -56,7 +56,7 @@ const ToolsLayout: React.FC = () => {
 
   useEffect(() => {
     navigate('timestamp');
-  }, []);
+  }, [navigate]);
 
   const onClickMenu: MenuProps['onClick'] = e => {
     console.log('click ', e);

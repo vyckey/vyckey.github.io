@@ -4,6 +4,11 @@ import Homepage from '../pages/Homepage';
 import ToolsLayout from '../pages/ToolsLayout';
 import EncryptionTabs from '../components/tools/Encryption';
 import QRCodeGenerator from '../components/tools/QRCodeGenerator';
+import TimestampPanel from '../components/tools/Timestamp';
+import TimerPanel from '../components/tools/TimerPanel';
+import JsonTools from '../components/tools/JsonTools';
+import PasswordGenerator from '../components/tools/PasswordGenerator';
+import TextDiffTool from '../components/tools/TextDiffTool';
 
 const router = createBrowserRouter([
   {
@@ -15,9 +20,29 @@ const router = createBrowserRouter([
     element: <Homepage />,
   },
   {
+    path: 'tools/password',
+    element: <PasswordGenerator />,
+  },
+  {
     path: 'tools',
     element: <ToolsLayout />,
     children: [
+      {
+        path: 'timestamp',
+        element: <TimestampPanel />,
+      },
+      {
+        path: 'timer',
+        element: <TimerPanel />,
+      },
+      {
+        path: 'textdiff',
+        element: <TextDiffTool />,
+      },
+      {
+        path: 'json',
+        element: <JsonTools />,
+      },
       {
         path: 'encryption',
         element: <EncryptionTabs />,

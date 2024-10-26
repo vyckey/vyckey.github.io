@@ -1,5 +1,11 @@
-import React from 'react';
-import { LockOutlined, QrcodeOutlined } from '@ant-design/icons';
+import React, { useEffect } from 'react';
+import {
+  ClockCircleOutlined,
+  DiffOutlined,
+  CodeOutlined,
+  LockOutlined,
+  QrcodeOutlined,
+} from '@ant-design/icons';
 import { Layout, Menu, MenuProps, theme } from 'antd';
 // import '../layout.css';
 import { Outlet, useNavigate } from 'react-router-dom';
@@ -10,9 +16,29 @@ type MenuItem = Required<MenuProps>['items'][number];
 
 const topItems: MenuItem[] = [
   {
+    key: 'timestamp',
+    label: '时间戳',
+    icon: <ClockCircleOutlined />,
+  },
+  {
+    key: 'timer',
+    label: '计时器',
+    icon: <ClockCircleOutlined />,
+  },
+  {
+    key: 'textdiff',
+    label: '文本对比',
+    icon: <DiffOutlined />,
+  },
+  {
     key: 'encryption',
     label: '加密/解密',
     icon: <LockOutlined />,
+  },
+  {
+    key: 'json',
+    label: 'JSON',
+    icon: <CodeOutlined />,
   },
   {
     key: 'qrcode',
@@ -28,6 +54,10 @@ const ToolsLayout: React.FC = () => {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    navigate('timestamp');
+  }, [navigate]);
+
   const onClickMenu: MenuProps['onClick'] = e => {
     console.log('click ', e);
     // const path = e.keyPath.reverse().join('/')
@@ -40,7 +70,7 @@ const ToolsLayout: React.FC = () => {
         <Menu
           theme="light"
           mode="horizontal"
-          defaultSelectedKeys={['2']}
+          defaultSelectedKeys={['timestamp']}
           style={{ flex: 1, minWidth: 0 }}
           items={topItems}
           onClick={onClickMenu}
@@ -51,9 +81,10 @@ const ToolsLayout: React.FC = () => {
           style={{
             padding: 24,
             margin: 0,
-            minHeight: 280,
+            minHeight: 800,
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
+            textAlign: 'left',
           }}>
           {/* 渲染当前激活的路由组件 */}
           <Outlet />
@@ -61,7 +92,7 @@ const ToolsLayout: React.FC = () => {
       </Layout>
 
       <Footer style={{ textAlign: 'center' }}>
-        Ant Design ©{new Date().getFullYear()} Created by Ant UED
+        Developer Tools ©{new Date().getFullYear()} Created by Vyckey
       </Footer>
     </Layout>
   );

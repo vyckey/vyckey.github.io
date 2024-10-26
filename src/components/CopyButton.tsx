@@ -4,15 +4,37 @@ import React, { useState } from 'react';
 import { CheckOutlined, CopyOutlined } from '@ant-design/icons';
 
 interface CopyButtonProps {
-  value: string;
+  value: string | number | bigint | undefined;
 }
+
+const clipboard = (window.isSecureContext && navigator.clipboard) || {
+  writeText: text =>
+    new Promise((resolve, reject) => {
+      const input = document.createElement('input');
+      input.value = text;
+      document.body.appendChild(input);
+      input.select();
+      try {
+        document.execCommand('copy');
+        resolve();
+      } catch (e) {
+        reject(e);
+      } finally {
+        document.body.removeChild(input);
+      }
+    }),
+};
 
 const CopyButton: React.FC<CopyButtonProps> = ({ value }) => {
   const [copied, setCopied] = useState(false);
 
   function onClick() {
-    navigator.clipboard
-      .writeText(value)
+    if (!value) {
+      message.warning('内容为空');
+      return;
+    }
+    clipboard
+      .writeText(typeof value === 'string' ? value : value + '')
       .then(() => {
         setCopied(true);
         message.success('复制成功');

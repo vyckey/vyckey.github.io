@@ -5,7 +5,7 @@ name: build & deploy vyckey.github.io to GitHub Pages
 
 on:
   push:
-    branches: [ "main"]
+    branches: [ "main", "test"]
   pull_request:
     branches: [ "main" ]
 
@@ -28,7 +28,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - name: Install Packages
-      run: rm -rf node_modules && npm ci
+      run: rm -rf node_modules && npm ci --legacy-peer-deps
     - name: Build
       run: npm run build
     - name: Deploy

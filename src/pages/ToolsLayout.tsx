@@ -5,6 +5,7 @@ import {
   CodeOutlined,
   LockOutlined,
   QrcodeOutlined,
+  HomeOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, MenuProps, theme } from 'antd';
 // import '../layout.css';
@@ -31,6 +32,11 @@ const topItems: MenuItem[] = [
     icon: <DiffOutlined />,
   },
   {
+    key: 'encoder_decoder',
+    label: '编码/解码',
+    icon: <CodeOutlined />,
+  },
+  {
     key: 'encryption',
     label: '加密/解密',
     icon: <LockOutlined />,
@@ -44,6 +50,11 @@ const topItems: MenuItem[] = [
     key: 'qrcode',
     label: '二维码生成',
     icon: <QrcodeOutlined />,
+  },
+  {
+    key: 'ipaddress',
+    label: 'IP地址查询',
+    icon: <HomeOutlined />,
   },
 ];
 
@@ -66,7 +77,7 @@ const ToolsLayout: React.FC = () => {
 
   return (
     <Layout>
-      <Header style={{ display: 'flex', alignItems: 'center' }}>
+      <Header style={{ display: 'flex', alignItems: 'center', padding: '0 0' }}>
         <Menu
           theme="light"
           mode="horizontal"

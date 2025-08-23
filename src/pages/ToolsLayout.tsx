@@ -6,6 +6,7 @@ import {
   LockOutlined,
   QrcodeOutlined,
   HomeOutlined,
+  ScheduleOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, MenuProps, theme } from 'antd';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
@@ -54,6 +55,11 @@ const topItems: MenuItem[] = [
     key: 'ipaddress',
     label: 'IP地址查询',
     icon: <HomeOutlined />,
+  },
+  {
+    key: 'cron',
+    label: 'Cron表达式',
+    icon: <ScheduleOutlined />,
   },
 ];
 

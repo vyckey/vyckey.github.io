@@ -11,6 +11,7 @@ import PasswordGenerator from '../components/tools/PasswordGenerator';
 import TextDiffTool from '../components/tools/TextDiffTool';
 import IPAddressView from '../components/tools/IPAddressView';
 import EncoderDecoderTabs from '../components/tools/EncoderDecoder';
+import CronTool from '../components/tools/CronTool';
 
 const router = createBrowserRouter([
   {
@@ -60,6 +61,10 @@ const router = createBrowserRouter([
       {
         path: 'ipaddress',
         element: <IPAddressView />,
+      },
+      {
+        path: 'cron',
+        element: <CronTool />,
       },
     ],
   },

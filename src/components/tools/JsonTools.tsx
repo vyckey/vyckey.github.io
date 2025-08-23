@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Button, Flex, Input, message, Select, Switch, Tabs } from 'antd';
+import { Button, Flex, Input, message, Select, Switch, Tabs, InputRef } from 'antd';
 import { Splitter } from 'antd';
 import ReactJson, { InteractionProps, OnSelectProps, ThemeKeys } from 'react-json-view';
 
@@ -57,6 +57,8 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
   const [collapsed, setCollapsed] = useState<boolean | number>(false);
   const [enableEditing, setEnableEditing] = useState<boolean>(true);
   const jsonViewRef = useRef<HTMLDivElement>(null);
+  const textAreaRef = useRef<InputRef>(null);
+  const lineNumbersRef = useRef<HTMLDivElement>(null);
 
   // Initialize with sample data if no initialData provided
   useEffect(() => {
@@ -79,6 +81,39 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
       setTextValue(JSON.stringify(initialData, null, indentWidth));
     }
   }, [initialData]);
+
+  // Synchronize scrolling between textarea and line numbers
+  useEffect(() => {
+    const textAreaElement = textAreaRef.current?.input;
+    const lineNumbersElement = lineNumbersRef.current;
+
+    if (textAreaElement && lineNumbersElement) {
+      // Get computed styles to match line heights
+      const computedStyle = window.getComputedStyle(textAreaElement);
+      const lineHeight = computedStyle.lineHeight;
+      const fontSize = computedStyle.fontSize;
+      const fontFamily = computedStyle.fontFamily;
+      const paddingTop = computedStyle.paddingTop;
+
+      // Apply the same styles to line numbers
+      if (lineNumbersElement) {
+        lineNumbersElement.style.lineHeight = lineHeight;
+        lineNumbersElement.style.fontSize = fontSize;
+        lineNumbersElement.style.fontFamily = fontFamily;
+        lineNumbersElement.style.paddingTop = paddingTop;
+      }
+
+      const handleScroll = () => {
+        lineNumbersElement.scrollTop = textAreaElement.scrollTop;
+      };
+
+      textAreaElement.addEventListener('scroll', handleScroll);
+
+      return () => {
+        textAreaElement.removeEventListener('scroll', handleScroll);
+      };
+    }
+  }, [textValue]);
 
   function parseJson(text: string) {
     try {
@@ -245,14 +280,44 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
       <Splitter
         style={{ minHeight: 600, boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)', marginTop: 16 }}>
         <Splitter.Panel defaultSize="40%" min="20%" max="70%">
-          <Input.TextArea
-            value={textValue}
-            placeholder="请输入JSON文本"
-            style={{ height: '100%', resize: 'none' }}
-            onChange={e => {
-              setTextValue(e.target.value);
-            }}
-          />
+          <div style={{ display: 'flex', height: '100%' }}>
+            {/* Line numbers */}
+            <div
+              ref={lineNumbersRef}
+              style={{
+                width: '40px',
+                backgroundColor: '#f5f5f5',
+                borderRight: '1px solid #d9d9d9',
+                textAlign: 'right',
+                color: '#999',
+                overflow: 'hidden',
+                userSelect: 'none'
+              }}
+            >
+              {textValue ? textValue.split('\n').map((_, index) => (
+                <div key={index} style={{ padding: '0 4px' }}>
+                  {index + 1}
+                </div>
+              )) : <div style={{ padding: '0 4px' }}>1</div>}
+            </div>
+            {/* Text area */}
+            <Input.TextArea
+              ref={textAreaRef}
+              value={textValue}
+              placeholder="请输入JSON文本"
+              style={{
+                whiteSpace: 'nowrap',
+                overflowX: 'auto',
+                height: '100%',
+                resize: 'none',
+                borderLeft: 'none',
+                borderRadius: '0 6px 6px 0'
+              }}
+              onChange={e => {
+                setTextValue(e.target.value);
+              }}
+            />
+          </div>
         </Splitter.Panel>
         <Splitter.Panel>
           <div ref={jsonViewRef} style={{ height: '100%', overflow: 'auto' }}>

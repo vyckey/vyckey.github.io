@@ -80,7 +80,7 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
     } else {
       setTextValue(JSON.stringify(initialData, null, indentWidth));
     }
-  }, [initialData]);
+  }, [initialData, indentWidth]);
 
   // Synchronize scrolling between textarea and line numbers
   useEffect(() => {

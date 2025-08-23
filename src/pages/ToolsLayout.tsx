@@ -83,7 +83,7 @@ const ToolsLayout: React.FC = () => {
 
   useEffect(() => {
     setSelectedKey(getCurrentTabKey());
-  }, [location]);
+  }, [location, getCurrentTabKey]);
 
   const onClickMenu: MenuProps['onClick'] = e => {
     console.log('click ', e);

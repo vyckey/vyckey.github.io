@@ -9,6 +9,9 @@ import TimerPanel from '../components/tools/TimerPanel';
 import JsonTools from '../components/tools/JsonTools';
 import PasswordGenerator from '../components/tools/PasswordGenerator';
 import TextDiffTool from '../components/tools/TextDiffTool';
+import IPAddressView from '../components/tools/IPAddressView';
+import EncoderDecoderTabs from '../components/tools/EncoderDecoder';
+import CronTool from '../components/tools/CronTool';
 
 const router = createBrowserRouter([
   {
@@ -44,12 +47,24 @@ const router = createBrowserRouter([
         element: <JsonTools />,
       },
       {
+        path: 'encoder_decoder',
+        element: <EncoderDecoderTabs />,
+      },
+      {
         path: 'encryption',
         element: <EncryptionTabs />,
       },
       {
         path: 'qrcode',
         element: <QRCodeGenerator />,
+      },
+      {
+        path: 'ipaddress',
+        element: <IPAddressView />,
+      },
+      {
+        path: 'cron',
+        element: <CronTool />,
       },
     ],
   },

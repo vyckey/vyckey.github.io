@@ -1,14 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ClockCircleOutlined,
   DiffOutlined,
   CodeOutlined,
   LockOutlined,
   QrcodeOutlined,
+  HomeOutlined,
+  ScheduleOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, MenuProps, theme } from 'antd';
-// import '../layout.css';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 const { Header, Content, Footer } = Layout;
 
@@ -31,6 +32,11 @@ const topItems: MenuItem[] = [
     icon: <DiffOutlined />,
   },
   {
+    key: 'encoder_decoder',
+    label: '编码/解码',
+    icon: <CodeOutlined />,
+  },
+  {
     key: 'encryption',
     label: '加密/解密',
     icon: <LockOutlined />,
@@ -45,6 +51,16 @@ const topItems: MenuItem[] = [
     label: '二维码生成',
     icon: <QrcodeOutlined />,
   },
+  {
+    key: 'ipaddress',
+    label: 'IP地址查询',
+    icon: <HomeOutlined />,
+  },
+  {
+    key: 'cron',
+    label: 'Cron表达式',
+    icon: <ScheduleOutlined />,
+  },
 ];
 
 const ToolsLayout: React.FC = () => {
@@ -53,10 +69,22 @@ const ToolsLayout: React.FC = () => {
   } = theme.useToken();
 
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // get tab key from url path
+  const getCurrentTabKey = useCallback(() => {
+    const pathParts = location.pathname.split('/');
+    const lastPart = pathParts[pathParts.length - 1];
+    // check if lastPart is in topItems
+    const validKeys = topItems.map(item => item!.key);
+    return validKeys.includes(lastPart) ? lastPart : 'timestamp';
+  }, [location]);
+
+  const [selectedKey, setSelectedKey] = useState<string>(getCurrentTabKey());
 
   useEffect(() => {
-    navigate('timestamp');
-  }, [navigate]);
+    setSelectedKey(getCurrentTabKey());
+  }, [location, getCurrentTabKey]);
 
   const onClickMenu: MenuProps['onClick'] = e => {
     console.log('click ', e);
@@ -66,11 +94,11 @@ const ToolsLayout: React.FC = () => {
 
   return (
     <Layout>
-      <Header style={{ display: 'flex', alignItems: 'center' }}>
+      <Header style={{ display: 'flex', alignItems: 'center', padding: '0 0' }}>
         <Menu
           theme="light"
           mode="horizontal"
-          defaultSelectedKeys={['timestamp']}
+          selectedKeys={[selectedKey]}
           style={{ flex: 1, minWidth: 0 }}
           items={topItems}
           onClick={onClickMenu}

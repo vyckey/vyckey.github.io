@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ClockCircleOutlined,
   DiffOutlined,
@@ -8,8 +8,7 @@ import {
   HomeOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, MenuProps, theme } from 'antd';
-// import '../layout.css';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 const { Header, Content, Footer } = Layout;
 
@@ -64,10 +63,21 @@ const ToolsLayout: React.FC = () => {
   } = theme.useToken();
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const [selectedKey, setSelectedKey] = useState<string>(getCurrentTabKey());
+
+  // get tab key from url path
+  function getCurrentTabKey() {
+    const pathParts = location.pathname.split('/');
+    const lastPart = pathParts[pathParts.length - 1];
+    // check if lastPart is in topItems
+    const validKeys = topItems.map(item => item!.key);
+    return validKeys.includes(lastPart) ? lastPart : 'timestamp';
+  }
 
   useEffect(() => {
-    navigate('timestamp');
-  }, [navigate]);
+    setSelectedKey(getCurrentTabKey());
+  }, [location]);
 
   const onClickMenu: MenuProps['onClick'] = e => {
     console.log('click ', e);
@@ -81,7 +91,7 @@ const ToolsLayout: React.FC = () => {
         <Menu
           theme="light"
           mode="horizontal"
-          defaultSelectedKeys={['timestamp']}
+          selectedKeys={[selectedKey]}
           style={{ flex: 1, minWidth: 0 }}
           items={topItems}
           onClick={onClickMenu}

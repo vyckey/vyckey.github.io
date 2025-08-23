@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ClockCircleOutlined,
   DiffOutlined,
@@ -70,16 +70,17 @@ const ToolsLayout: React.FC = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedKey, setSelectedKey] = useState<string>(getCurrentTabKey());
-
+  
   // get tab key from url path
-  function getCurrentTabKey() {
+  const getCurrentTabKey = useCallback(() => {
     const pathParts = location.pathname.split('/');
     const lastPart = pathParts[pathParts.length - 1];
     // check if lastPart is in topItems
     const validKeys = topItems.map(item => item!.key);
     return validKeys.includes(lastPart) ? lastPart : 'timestamp';
-  }
+  }, [location]);
+
+  const [selectedKey, setSelectedKey] = useState<string>(getCurrentTabKey());
 
   useEffect(() => {
     setSelectedKey(getCurrentTabKey());

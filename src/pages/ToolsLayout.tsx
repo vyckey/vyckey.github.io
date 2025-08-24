@@ -3,6 +3,7 @@ import {
   ClockCircleOutlined,
   DiffOutlined,
   CodeOutlined,
+  FontSizeOutlined,
   LockOutlined,
   QrcodeOutlined,
   HomeOutlined,
@@ -60,6 +61,11 @@ const topItems: MenuItem[] = [
     key: 'cron',
     label: 'Cron表达式',
     icon: <ScheduleOutlined />,
+  },
+  {
+    key: 'regex',
+    label: '正则表达式',
+    icon: <FontSizeOutlined />,
   },
 ];
 

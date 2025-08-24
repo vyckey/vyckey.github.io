@@ -12,6 +12,7 @@ import TextDiffTool from '../components/tools/TextDiffTool';
 import IPAddressView from '../components/tools/IPAddressView';
 import EncoderDecoderTabs from '../components/tools/EncoderDecoder';
 import CronTool from '../components/tools/CronTool';
+import RegexTool from '../components/tools/RegexTool';
 
 const router = createBrowserRouter([
   {
@@ -65,6 +66,10 @@ const router = createBrowserRouter([
       {
         path: 'cron',
         element: <CronTool />,
+      },
+      {
+        path: 'regex',
+        element: <RegexTool />,
       },
     ],
   },

@@ -2,6 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button, Flex, Input, message, Select, Switch, Tabs, InputRef } from 'antd';
 import { Splitter } from 'antd';
 import ReactJson, { InteractionProps, OnSelectProps, ThemeKeys } from 'react-json-view';
+import {
+  DownloadOutlined,
+  SortAscendingOutlined,
+} from '@ant-design/icons';
 
 interface JsonViewerProps {
   initialData?: object;
@@ -64,15 +68,15 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
   useEffect(() => {
     if (!initialData) {
       const sampleData = {
-        name: "Vyckey",
-        email: "vyckey@qq.com",
-        avatar: "https://vyckey.github.io/avatar.jpg",
-        website: "https://vyckey.github.io",
+        name: 'Vyckey',
+        email: 'vyckey@qq.com',
+        avatar: 'https://vyckey.github.io/avatar.jpg',
+        website: 'https://vyckey.github.io',
         address: {
-          city: "Shanghai",
-          country: "China"
+          city: 'Shanghai',
+          country: 'China'
         },
-        hobbies: ["reading", "coding"],
+        hobbies: ['reading', 'coding'],
         isActive: true
       };
       setJsonValue(sampleData);
@@ -217,9 +221,29 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
     // Handle selection if needed
   };
 
+  const handleExport = () => {
+    try {
+      const obj = JSON.parse(textValue);
+      const blob = new Blob([JSON.stringify(obj, null, 2)], {
+        type: 'application/json',
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'data.json';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      message.error(`JSON 格式错误: ${errorMessage}`);
+    }
+  };
+
   return (
     <>
-      <Flex gap="small" wrap align="center">
+      <Flex gap='small' wrap align='center'>
         <Select
           showSearch={true}
           defaultValue={theme}
@@ -240,7 +264,7 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
           onChange={(val: number) => handleFormat(val)}
         />
         <Button onClick={handleCompress}>压缩</Button>
-        <Button type="primary" onClick={handleParse}>解析</Button>
+        <Button type='primary' onClick={handleParse}>解析</Button>
         <Button onClick={handleStringify}>反解析</Button>
         <Select
           defaultValue={indentWidth}
@@ -250,9 +274,6 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
           }))}
           onChange={(val: number) => setIndentWidth(val)}
         />
-        <Button onClick={() => handleSortKeys(!isSortKeys)}>
-          {isSortKeys ? '取消' : ''}排序
-        </Button>
         <Select
           defaultValue={collapsed}
           value={collapsed}
@@ -269,6 +290,11 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
           onChange={(val: boolean | number) => setCollapsed(val)}
           style={{ width: 120 }}
         />
+        <Button
+          icon={<SortAscendingOutlined />}
+          onClick={() => handleSortKeys(!isSortKeys)}>
+          {isSortKeys ? '取消' : ''}排序
+        </Button>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <span style={{ marginRight: 8 }}>编辑</span>
           <Switch
@@ -276,10 +302,11 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
             onChange={setEnableEditing}
           />
         </div>
+        <Button icon={<DownloadOutlined />} onClick={handleExport} >导出文件</Button>
       </Flex>
       <Splitter
         style={{ minHeight: 600, boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)', marginTop: 16 }}>
-        <Splitter.Panel defaultSize="40%" min="20%" max="70%">
+        <Splitter.Panel defaultSize='40%' min='20%' max='70%'>
           <div style={{ display: 'flex', height: '100%' }}>
             {/* Line numbers */}
             <div
@@ -304,7 +331,7 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
             <Input.TextArea
               ref={textAreaRef}
               value={textValue}
-              placeholder="请输入JSON文本"
+              placeholder='请输入JSON文本'
               style={{
                 whiteSpace: 'nowrap',
                 overflowX: 'auto',
@@ -327,7 +354,7 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
               indentWidth={indentWidth}
               sortKeys={isSortKeys}
               collapsed={collapsed}
-              iconStyle="square"
+              iconStyle='square'
               displayDataTypes={false}
               style={{ textAlign: 'left', height: '100%' }}
               onEdit={handleEdit}
@@ -347,7 +374,7 @@ export default function JsonTools() {
   return (
     <>
       <Tabs
-        type="card"
+        type='card'
         items={[
           {
             key: 'json_view',

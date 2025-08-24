@@ -1,10 +1,10 @@
-import { Button, message, Tooltip } from 'antd';
+import { Button, ButtonProps, message, Tooltip } from 'antd';
 import React, { useState } from 'react';
 
 import { CheckOutlined, CopyOutlined } from '@ant-design/icons';
 
-interface CopyButtonProps {
-  value: string | number | bigint | undefined;
+interface CopyButtonProps extends Omit<ButtonProps, 'value' | 'onClick'> {
+  value: string | number | bigint | readonly string[] | undefined;
 }
 
 const clipboard = (window.isSecureContext && navigator.clipboard) || {
@@ -25,7 +25,7 @@ const clipboard = (window.isSecureContext && navigator.clipboard) || {
     }),
 };
 
-const CopyButton: React.FC<CopyButtonProps> = ({ value }) => {
+const CopyButton: React.FC<CopyButtonProps> = ({ value, ...props }) => {
   const [copied, setCopied] = useState(false);
 
   function onClick() {
@@ -55,6 +55,7 @@ const CopyButton: React.FC<CopyButtonProps> = ({ value }) => {
           style={{ border: 'none' }}
           icon={copied ? <CheckOutlined /> : <CopyOutlined />}
           onClick={onClick}
+          {...props}
         />
       </Tooltip>
     </>

@@ -1,95 +1,61 @@
-import { Button, Form, message, Space, Tabs } from 'antd';
-import React, { useState } from 'react';
-import CopyableTextArea from '../CopyableTextArea';
-
-const CaseConvertForm: React.FC = () => {
-  const [output, setOutput] = useState('');
-  const [form] = Form.useForm();
-
-  function doEncode() {
-    form
-      .validateFields()
-      .then(values => {
-        setOutput(values.input.toUpperCase());
-      })
-      .catch(err => {
-        console.log('encode fail', err);
-        message.error('编码失败！');
-      });
-  }
-
-  function doDecode() {
-    form
-      .validateFields()
-      .then(values => {
-        setOutput(values.input.toLowerCase());
-      })
-      .catch(err => {
-        console.log('decode fail', err);
-        message.error('解码失败！');
-      });
-  }
-
-  function doExchange() {
-    const input = form.getFieldsValue()['input'] as string | undefined;
-    form.setFieldValue('input', output);
-    setOutput(input ?? '');
-  }
-
-  return (
-    <>
-      <Form name="caseConvertForm" form={form} onFinish={doEncode}>
-        <Form.Item
-          name="input"
-          rules={[
-            {
-              required: true,
-              message: '请输入需要进行大小写转换的文本！',
-            },
-          ]}>
-          <CopyableTextArea
-            allowClear={true}
-            rows={6}
-            placeholder="请输入需要进行大小写转换的文本"
-            showCount={true}
-          />
-        </Form.Item>
-
-        <Form.Item>
-          <Space>
-            <Button type="primary" htmlType="submit">
-              大写
-            </Button>
-            <Button type="primary" onClick={doDecode}>
-              小写
-            </Button>
-            <Button onClick={doExchange}>↕ 交换</Button>
-          </Space>
-        </Form.Item>
-        <CopyableTextArea
-          value={output}
-          rows={6}
-          placeholder="输出文本"
-          showCount={true}
-        />
-      </Form>
-    </>
-  );
-};
+import React from 'react';
+import { Tabs } from 'antd';
+import CaseConvertPanel from './encoder/CaseConvertPanel';
+import Base64Panel from './encoder/Base64Panel';
+import UrlPanel from './encoder/UrlPanel';
+import HtmlPanel from './encoder/HtmlPanel';
+import HexPanel from './encoder/HexPanel';
+import RadixPanel from './encoder/RadixPanel';
+import JwtPanel from './encoder/JwtPanel';
+import HashPanel from './encoder/HashPanel';
 
 export default function EncoderDecoderTabs() {
   return (
-    <>
-      <Tabs
-        type="card"
-        items={[
-          {
-            key: 'case_convert_tab',
-            label: '大写/小写',
-            children: <CaseConvertForm />,
-          },
-        ]}
-      />
-    </>
+    <Tabs
+      type="card"
+      defaultActiveKey="case_convert"
+      items={[
+        {
+          key: 'case_convert',
+          label: '大小写转换',
+          children: <CaseConvertPanel />,
+        },
+        {
+          key: 'base64',
+          label: 'Base64',
+          children: <Base64Panel />,
+        },
+        {
+          key: 'url',
+          label: 'URL 编解码',
+          children: <UrlPanel />,
+        },
+        {
+          key: 'html',
+          label: 'HTML 实体',
+          children: <HtmlPanel />,
+        },
+        {
+          key: 'hex',
+          label: 'Hex / Unicode',
+          children: <HexPanel />,
+        },
+        {
+          key: 'radix',
+          label: '进制转换',
+          children: <RadixPanel />,
+        },
+        {
+          key: 'jwt',
+          label: 'JWT 解析',
+          children: <JwtPanel />,
+        },
+        {
+          key: 'hash',
+          label: '哈希计算',
+          children: <HashPanel />,
+        },
+      ]}
+    />
   );
 }

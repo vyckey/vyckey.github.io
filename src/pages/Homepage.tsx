@@ -40,87 +40,102 @@ function Homepage() {
     },
   ];
 
-  const onClickMenu: import('antd').MenuProps['onClick'] = (e) => {
+  const onClickMenu: import('antd').MenuProps['onClick'] = e => {
     if (e.key === 'home') {
       navigate('/');
     } else {
-      navigate(`/tools/timestamp`);
+      navigate('/tools');
     }
   };
 
   return (
-    <Layout className='bright-homepage'>
+    <Layout className="bright-homepage">
       {/* Navigation Bar */}
-      <Header className='bright-header'>
-        <div className='logo'>
-          <Title level={3} style={{ color: '#1890ff', margin: 0 }}>VYCKEY</Title>
+      <Header className="bright-header">
+        <div className="logo">
+          <Title level={3} style={{ color: '#1890ff', margin: 0 }}>
+            VYCKEY
+          </Title>
         </div>
         <Menu
-          theme='light'
-          mode='horizontal'
+          theme="light"
+          mode="horizontal"
           items={menuItems}
           onClick={onClickMenu}
           selectedKeys={['home']}
           style={{ flex: 1, minWidth: 0 }}
         />
-        <div className='nav-icons'>
+        <div className="nav-icons">
           <Button
-            type='text'
+            type="text"
             icon={<GithubOutlined />}
-            href='https://github.com/vyckey'
-            target='_blank'
-            className='nav-icon-button'
+            href="https://github.com/vyckey"
+            target="_blank"
+            className="nav-icon-button"
           />
           <Button
-            type='text'
+            type="text"
             icon={<MailOutlined />}
-            href='mailto:vyckey@qq.com'
-            className='nav-icon-button'
+            href="mailto:vyckey@qq.com"
+            className="nav-icon-button"
           />
         </div>
       </Header>
 
       {/* Main Content */}
-      <Content className='bright-content'>
-        <div className='terminal-container'>
-          <div className='terminal-header'>
-            <div className='terminal-dots'>
-              <span className='dot red'></span>
-              <span className='dot yellow'></span>
-              <span className='dot green'></span>
+      <Content className="bright-content">
+        <div className="terminal-container">
+          <div className="terminal-header">
+            <div className="terminal-dots">
+              <span className="dot red"></span>
+              <span className="dot yellow"></span>
+              <span className="dot green"></span>
             </div>
-            <div className='terminal-title'>vyckey@profile: ~</div>
+            <div className="terminal-title">vyckey@profile: ~</div>
           </div>
-          <div className='terminal-body'>
-            <div className='terminal-line'>
-              <span className='prompt'>vyckey@developer:~$</span>
-              <span className='command'>cat about.txt</span>
+          <div className="terminal-body">
+            <div className="terminal-line">
+              <span className="prompt">vyckey@developer:~$</span>
+              <span className="command">cat about.txt</span>
             </div>
-            <div className='terminal-response'>
-              <p>Hello! I&apos;m a passionate Full Stack Developer and Cyber Security Enthusiast.</p>
-              <p>I specialize in creating efficient, secure, and innovative web applications using modern technologies.</p>
-              <p>My expertise includes React, TypeScript, Node.js, and various security practices.</p>
+            <div className="terminal-response">
+              <p>
+                Hello! I&apos;m a passionate Full Stack Developer and Cyber
+                Security Enthusiast.
+              </p>
+              <p>
+                I specialize in creating efficient, secure, and innovative web
+                applications using modern technologies.
+              </p>
+              <p>
+                My expertise includes React, TypeScript, Node.js, and various
+                security practices.
+              </p>
             </div>
-            <div className='terminal-line'>
-              <span className='prompt'>vyckey@developer:~$</span>
-              <span className='command'>cat mission.txt</span>
+            <div className="terminal-line">
+              <span className="prompt">vyckey@developer:~$</span>
+              <span className="command">cat mission.txt</span>
             </div>
-            <div className='terminal-response'>
-              <p>Building secure, efficient, and innovative applications that make a positive impact on the world.</p>
+            <div className="terminal-response">
+              <p>
+                Building secure, efficient, and innovative applications that
+                make a positive impact on the world.
+              </p>
             </div>
-            <div className='terminal-line'>
-              <span className='prompt'>vyckey@developer:~$</span>
-              <span className='cursor'>_</span>
+            <div className="terminal-line">
+              <span className="prompt">vyckey@developer:~$</span>
+              <span className="cursor">_</span>
             </div>
           </div>
         </div>
       </Content>
 
       {/* Footer */}
-      <Footer className='bright-footer'>
-        <div className='footer-content'>
+      <Footer className="bright-footer">
+        <div className="footer-content">
           <Paragraph style={{ margin: 0 }}>
-            © {new Date().getFullYear()} Vyckey. Building the future with code | {currentTime.toLocaleString()}
+            © {new Date().getFullYear()} Vyckey. Building the future with code |{' '}
+            {currentTime.toLocaleString()}
           </Paragraph>
         </div>
       </Footer>

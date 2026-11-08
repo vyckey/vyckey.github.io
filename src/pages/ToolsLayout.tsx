@@ -1,73 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import {
-  ClockCircleOutlined,
-  DiffOutlined,
-  CodeOutlined,
-  FontSizeOutlined,
-  LockOutlined,
-  QrcodeOutlined,
-  HomeOutlined,
-  ScheduleOutlined,
-} from '@ant-design/icons';
-import { Layout, Menu, MenuProps, theme } from 'antd';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { AppstoreOutlined } from '@ant-design/icons';
+import { Button, Layout, Menu, MenuProps, theme } from 'antd';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { menuTools } from '../config/tools';
 
 const { Header, Content, Footer } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
-
-const topItems: MenuItem[] = [
-  {
-    key: 'timestamp',
-    label: '时间戳',
-    icon: <ClockCircleOutlined />,
-  },
-  {
-    key: 'timer',
-    label: '计时器',
-    icon: <ClockCircleOutlined />,
-  },
-  {
-    key: 'textdiff',
-    label: '文本对比',
-    icon: <DiffOutlined />,
-  },
-  {
-    key: 'encoder_decoder',
-    label: '编码/解码',
-    icon: <CodeOutlined />,
-  },
-  {
-    key: 'encryption',
-    label: '加密/解密',
-    icon: <LockOutlined />,
-  },
-  {
-    key: 'json',
-    label: 'JSON',
-    icon: <CodeOutlined />,
-  },
-  {
-    key: 'qrcode',
-    label: '二维码生成',
-    icon: <QrcodeOutlined />,
-  },
-  {
-    key: 'ipaddress',
-    label: 'IP地址查询',
-    icon: <HomeOutlined />,
-  },
-  {
-    key: 'cron',
-    label: 'Cron表达式',
-    icon: <ScheduleOutlined />,
-  },
-  {
-    key: 'regex',
-    label: '正则表达式',
-    icon: <FontSizeOutlined />,
-  },
-];
 
 const ToolsLayout: React.FC = () => {
   const {
@@ -76,14 +15,30 @@ const ToolsLayout: React.FC = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  
+  const isIndex =
+    location.pathname === '/tools' || location.pathname === '/tools/';
+
+  const topItems = useMemo<MenuItem[]>(
+    () =>
+      menuTools.map(tool => ({
+        key: tool.key,
+        label: tool.label,
+        icon: tool.icon,
+      })),
+    []
+  );
+
   // get tab key from url path
   const getCurrentTabKey = useCallback(() => {
+    if (location.pathname === '/tools' || location.pathname === '/tools/') {
+      return '';
+    }
+
     const pathParts = location.pathname.split('/');
     const lastPart = pathParts[pathParts.length - 1];
     // check if lastPart is in topItems
-    const validKeys = topItems.map(item => item!.key);
-    return validKeys.includes(lastPart) ? lastPart : 'timestamp';
+    const validKeys = menuTools.map(tool => tool.key);
+    return validKeys.includes(lastPart) ? lastPart : '';
   }, [location]);
 
   const [selectedKey, setSelectedKey] = useState<string>(getCurrentTabKey());
@@ -93,22 +48,33 @@ const ToolsLayout: React.FC = () => {
   }, [location, getCurrentTabKey]);
 
   const onClickMenu: MenuProps['onClick'] = e => {
-    console.log('click ', e);
-    // const path = e.keyPath.reverse().join('/')
-    navigate(e.keyPath[0]);
+    navigate(`/tools/${e.key}`);
   };
 
   return (
     <Layout>
-      <Header style={{ display: 'flex', alignItems: 'center', padding: '0 0' }}>
+      <Header
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 8px 0 0',
+          background: colorBgContainer,
+        }}>
         <Menu
           theme="light"
           mode="horizontal"
-          selectedKeys={[selectedKey]}
-          style={{ flex: 1, minWidth: 0 }}
+          selectedKeys={selectedKey ? [selectedKey] : []}
+          style={{ flex: 1, minWidth: 0, borderBottom: 'none' }}
           items={topItems}
           onClick={onClickMenu}
         />
+        <Button
+          type={isIndex ? 'primary' : 'text'}
+          icon={<AppstoreOutlined />}
+          style={{ flexShrink: 0 }}
+          onClick={() => navigate('/tools')}>
+          全部工具
+        </Button>
       </Header>
       <Layout>
         <Content

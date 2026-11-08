@@ -22,6 +22,14 @@ interface FormData {
   size: number;
 }
 
+interface QRCodeFormValues {
+  input: string;
+  renderType: RenderType;
+  bgColor: string | { toHexString: () => string };
+  color: string | { toHexString: () => string };
+  size: number;
+}
+
 const initialFormData: FormData = {
   input: '',
   renderType: 'canvas',
@@ -35,15 +43,22 @@ const QRCodeGenerator: React.FC = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [renderType, setRenderType] = useState<RenderType>('canvas');
 
-  function generateQRCode(values) {
-    const data = { ...values };
-    if (typeof data.bgColor !== 'string') {
-      data.bgColor = data.bgColor.toHexString();
-    }
-    if (typeof data.color !== 'string') {
-      data.color = data.color.toHexString();
-    }
-    setFormData(data);
+  function generateQRCode(values: QRCodeFormValues) {
+    const bgColor =
+      typeof values.bgColor === 'string'
+        ? values.bgColor
+        : values.bgColor.toHexString();
+    const color =
+      typeof values.color === 'string'
+        ? values.color
+        : values.color.toHexString();
+    setFormData({
+      input: values.input,
+      renderType: values.renderType,
+      bgColor,
+      color,
+      size: values.size,
+    });
   }
 
   function onReset() {
@@ -145,9 +160,7 @@ const QRCodeGenerator: React.FC = () => {
                 listType="picture-card"
                 maxCount={1}
                 accept="image/png, image/jpeg, image/svg"
-                action={file => {
-                  console.log('upload', file);
-                }}>
+                beforeUpload={() => false}>
                 <PlusOutlined />
               </Upload>
             </Form.Item>

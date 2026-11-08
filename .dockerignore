@@ -1,5 +1,7 @@
-# Dependencies
+# Dependencies and package-manager caches
 node_modules
+.pnpm-store
+.tmp-npm-cache
 
 # Build outputs
 build
@@ -100,5 +102,8 @@ Thumbs.db
 coverage/
 .nyc_output/
 
-# Documentation
+# Documentation and VCS metadata
 docs/
+.git
+.github
+.claude

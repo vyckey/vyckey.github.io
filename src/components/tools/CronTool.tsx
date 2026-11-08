@@ -57,7 +57,7 @@ const CronTool: React.FC = () => {
         </Form>
 
         {error && (
-          <Card size='small' style={{ marginTop: 16 }} danger>
+          <Card size='small' style={{ marginTop: 16 }}>
             <Text type='danger'>{error}</Text>
           </Card>
         )}

@@ -1,21 +1,20 @@
-# Multi-stage Dockerfile for React application
+# Multi-stage Dockerfile for the Vite application
 # Stage 1: Build the application
-FROM node:23-alpine AS builder
+FROM node:24-alpine AS builder
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci
+# Install pnpm and dependencies
+RUN npm install -g pnpm@11.25.0
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
 
 # Copy source code
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN pnpm build
 
 # Stage 2: Serve the application
 FROM nginx:alpine

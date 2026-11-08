@@ -4,6 +4,8 @@
 /node_modules
 /.pnp
 .pnp.js
+.pnpm-store/
+.tmp-npm-cache/
 
 # testing
 /coverage

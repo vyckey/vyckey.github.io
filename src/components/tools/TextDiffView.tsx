@@ -44,23 +44,25 @@ const TextDiffView: React.FC<TextDiffViewProps> = ({
         newString = JSON.stringify(newData, null, 2);
       }
 
-      const args = [
+      const diffStr = createPatch(
         fileName || '',
         oldString,
         newString,
         oldHeader || '',
         newHeader || '',
-        { context: 99999 },
-      ];
-      const diffStr = createPatch(...args);
+        { context: 99999 }
+      );
       diffFiles.push(parse(diffStr)[0]);
     }
 
     if (useUI) {
       const targetElement = document.getElementById(id);
+      if (!targetElement) {
+        return;
+      }
       const config = {
         drawFileList: true,
-        matching: 'lines',
+        matching: 'lines' as const,
         highlight: true,
         outputFormat: outputFormat,
       };

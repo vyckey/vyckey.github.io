@@ -16,7 +16,7 @@ const Timestamp: React.FC = () => {
   const [nowTime, setNowTime] = useState(moment());
   const [isRunning, setIsRunning] = useState(true);
   const [isSeconds, setIsSeconds] = useState(false);
-  const timerRef = useRef<NodeJS.Timer | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (isRunning) {

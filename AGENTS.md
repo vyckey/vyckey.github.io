@@ -9,7 +9,7 @@ This file describes the project architecture, directory layout, development conv
 `vyckey.github.io` is a personal website plus an online developer toolbox: a pure frontend single-page application (SPA) with no backend and no database.
 
 - Home `/`: a terminal-styled personal introduction page.
-- Tools `/tools/*`: timestamp, timer, text diff, encoder/decoder, encryption/decryption, JSON, QR code, IP lookup, Cron, regex, password generator, and more.
+- Tools `/tools/*`: timestamp, timer, text diff, Markdown preview, encoder/decoder, encryption/decryption, JSON, QR code, IP lookup, Cron, regex, password generator, and more. `/tools` itself is a searchable index of every tool.
 - All computation happens locally in the browser; the only external request is the IP lookup (`ip-api.com`).
 - UI copy is primarily in Chinese.
 
@@ -84,28 +84,31 @@ All routes are defined in `src/router/Router.tsx` with `createBrowserRouter`.
 | --- | --- | --- |
 | `/` | `pages/Homepage.tsx` | Terminal-styled home page |
 | `/home` | `pages/Homepage.tsx` | Alias of the home page |
-| `/tools` | `pages/ToolsLayout.tsx` | Tools layout; has no index child route itself |
+| `/tools` | `pages/ToolsIndex.tsx` | Searchable index of all tools, rendered inside the tools layout |
 | `/tools/timestamp` | `components/tools/Timestamp.tsx` | Timestamp/date conversion, time zones |
 | `/tools/timer` | `components/tools/TimerPanel.tsx` | Countdown and elapsed-time tools |
 | `/tools/textdiff` | `components/tools/TextDiffTool.tsx` | Text comparison; rendering delegated to `TextDiffView.tsx` |
-| `/tools/encoder_decoder` | `components/tools/EncoderDecoder.tsx` | Encoding/decoding (currently only a "case conversion" tab) |
+| `/tools/markdown` | `components/tools/MarkdownTool.tsx` | Markdown live preview (GFM), export to `.md` / `.html` |
+| `/tools/encoder_decoder` | `components/tools/EncoderDecoder.tsx` | Tabs for case conversion, Base64, URL, HTML entities, hex/Unicode, radix, JWT and hashes |
 | `/tools/encryption` | `components/tools/Encryption.tsx` | MD5, Base64, RSA encryption/decryption |
 | `/tools/json` | `components/tools/JsonTools.tsx` | JSON parsing, formatting, sorting, themes, download |
 | `/tools/qrcode` | `components/tools/QRCodeGenerator.tsx` | QR code generation with canvas/SVG, colors, size, and logo |
 | `/tools/ipaddress` | `components/tools/IPAddressView.tsx` | IPv4/IPv6 validation + `ip-api.com` lookup |
 | `/tools/cron` | `components/tools/CronTool.tsx` | Cron parsing and next-run prediction |
 | `/tools/regex` | `components/tools/RegexTool.tsx` | Regex matching, highlighting, replacement, flags, syntax reference |
-| `/tools/password` | `components/tools/PasswordGenerator.tsx` | **Special case**: mounted directly at the root router level, bypasses `ToolsLayout`, and is not in the top menu |
+| `/tools/password` | `components/tools/PasswordGenerator.tsx` | **Special case**: mounted directly at the root router level, bypasses `ToolsLayout`, and is excluded from the top menu |
+| `*` | `pages/NotFound.tsx` | 404 fallback with links to the home page and `/tools` |
 
 ### 3.3 Layout and Navigation
 
 `src/pages/ToolsLayout.tsx`:
 
 - Uses antd `Layout` (Header/Content/Footer) plus a horizontal `Menu`.
-- `topItems` defines the menu entries; **each key must match the last segment of the route path** (for example, `timestamp`).
-- The selected key is derived from the last segment of `useLocation().pathname`; unknown values fall back to `timestamp`.
-- Menu clicks navigate via `navigate(e.keyPath[0])`; tool content is rendered through `<Outlet />`.
-- When adding a tool, you must update both `Router.tsx` and `topItems`; otherwise it cannot be reached from the menu.
+- The menu is generated from `src/config/tools.tsx` (`menuTools`); each key **must match the last segment of the route path** (for example, `timestamp`).
+- The selected key is derived from the last segment of `useLocation().pathname`; on the `/tools` index nothing is selected.
+- Menu clicks navigate to `/tools/<key>`; tool content is rendered through `<Outlet />`.
+- The header's "全部工具" button links to `/tools`, the searchable tool index (`pages/ToolsIndex.tsx`).
+- `src/config/tools.tsx` is the single source of truth for labels, icons, categories, descriptions and search keywords; the menu and the index are both derived from it.
 
 ### 3.4 Tool Component Pattern
 
@@ -114,6 +117,7 @@ Each tool is a standalone function component under `src/components/tools/`:
 - State is fully local (`useState` / `useRef` / `useEffect`); there is no Redux/Zustand/Context.
 - Forms use antd `Form`, feedback uses `message`, and layout uses `Flex` / `Space` / `Card`.
 - Multi-mode tools are organized with `Tabs type="card"` (encryption, encoding, JSON, regex).
+- The encoder/decoder panels live in `components/tools/encoder/` and share `TransformPanel`; add new encoding tabs there instead of growing `EncoderDecoder.tsx`.
 - Prefer reusing `CopyableTextArea` for text input/output; use `CopyButton` for copy actions.
 - Timer logic is created in `useEffect` (or a submit handler) and cleared in the cleanup function.
 
@@ -123,6 +127,7 @@ Each tool is a standalone function component under `src/components/tools/`:
 | --- | --- |
 | `src/components/CopyButton.tsx` | Copy to clipboard using `src/utils/clipboard.ts`; shows success/failure feedback |
 | `src/components/CopyableTextArea.tsx` | `TextArea` with a copy button (placed left of antd's clear icon) |
+| `src/config/tools.tsx` | Tool registry: menu entries, index cards, categories, descriptions and search keywords |
 | `src/util/password.tsx` | Deterministic password hashing based on HMAC-SHA256 and password generation |
 | `src/utils/clipboard.ts` | Clipboard API plus `document.execCommand('copy')` fallback |
 | `src/utils/cronParser.ts` | Cron expression parsing, validation and Chinese descriptions |
@@ -131,6 +136,9 @@ Each tool is a standalone function component under `src/components/tools/`:
 | `src/utils/passwordStrength.ts` | UI strength score for generated passwords |
 | `src/utils/regex.ts` | Regex match collection and highlighting without infinite loops |
 | `src/utils/rsa.ts` | PKCS#1 → PKCS#8 private key conversion |
+| `src/utils/encoding.ts` | Base64/Base64URL, URL, HTML entity, hex, Unicode escape and radix conversion |
+| `src/utils/hash.ts` | MD5/SHA-1/SHA-256/SHA-512 hashing via `crypto-js` |
+| `src/utils/jwt.ts` | JWT decoding, HS256 verification, exp/iat/nbf formatting |
 
 > Note: utility code is split between `src/util` (singular) and `src/utils` (plural). This is historical legacy. Put new pure logic in `src/utils/` and do not widen the split.
 
@@ -200,11 +208,15 @@ vyckey.github.io/
 │   ├── App.test.tsx                # Vitest smoke test for the home page
 │   ├── setupTests.js               # jest-dom matchers + jsdom polyfills
 │   ├── logo.svg
+│   ├── config/
+│   │   └── tools.tsx               # Tool registry (menu, index, categories)
 │   ├── router/
 │   │   └── Router.tsx              # All route definitions
 │   ├── pages/
 │   │   ├── Homepage.tsx            # Terminal-styled home page
-│   │   └── ToolsLayout.tsx         # Tools layout + top menu
+│   │   ├── ToolsIndex.tsx          # Searchable tools index (/tools)
+│   │   ├── ToolsLayout.tsx         # Tools layout + top menu
+│   │   └── NotFound.tsx            # 404 fallback
 │   ├── components/
 │   │   ├── CopyButton.tsx          # Shared copy button
 │   │   ├── CopyableTextArea.tsx    # Text area with a copy button
@@ -213,7 +225,9 @@ vyckey.github.io/
 │   │       ├── TimerPanel.tsx
 │   │       ├── TextDiffTool.tsx
 │   │       ├── TextDiffView.tsx    # diff2html rendering layer
-│   │       ├── EncoderDecoder.tsx
+│   │       ├── MarkdownTool.tsx    # Markdown editor + preview
+│   │       ├── EncoderDecoder.tsx  # Encoding tabs container
+│   │       ├── encoder/            # Base64/URL/JWT/hash/... panels
 │   │       ├── Encryption.tsx
 │   │       ├── JsonTools.tsx
 │   │       ├── QRCodeGenerator.tsx
@@ -227,7 +241,10 @@ vyckey.github.io/
 │       ├── clipboard.ts            # Clipboard API + fallback
 │       ├── cronParser.ts           # Cron parsing and validation
 │       ├── cronScheduler.ts        # Cron next-run prediction
+│       ├── encoding.ts             # Base64/URL/HTML/hex/Unicode/radix helpers
+│       ├── hash.ts                 # MD5/SHA hashing
 │       ├── ip.ts                   # IPv4/IPv6 validation
+│       ├── jwt.ts                  # JWT decode + HS256 verification
 │       ├── passwordStrength.ts     # Password strength score
 │       ├── regex.ts                # Regex matching/highlighting
 │       └── rsa.ts                  # PKCS#1 to PKCS#8 conversion
@@ -257,10 +274,10 @@ vyckey.github.io/
 ### Adding a New Tool
 
 1. Create a component in `src/components/tools/` (for example, `MyTool.tsx`).
-2. Import it in `src/router/Router.tsx` and add `{ path: 'mytool', element: <MyTool /> }` to the `tools` children.
-3. Add `{ key: 'mytool', label: '<Chinese name>', icon: ... }` to `topItems` in `src/pages/ToolsLayout.tsx`; the key must exactly match the path.
+2. Add a `ToolMeta` entry to `src/config/tools.tsx` (`key`, `path`, `label`, `description`, `category`, `icon`, `keywords`); the menu and the `/tools` index pick it up automatically. Set `inMenu: false` for standalone tools such as `/tools/password`.
+3. Import it in `src/router/Router.tsx` and add `{ path: 'mytool', element: <MyTool /> }` to the `tools` children.
 4. Reuse `CopyableTextArea` / `CopyButton` and the antd form/card layout.
-5. Run `npx tsc --noEmit`, `pnpm test`, and `pnpm build`, then manually verify `/tools/mytool`. If the tool needs a standalone layout (like `/tools/password`), register it separately at the root router level and document it in this file.
+5. Run `npx tsc --noEmit`, `pnpm test`, and `pnpm build`, then manually verify `/tools/mytool` and `/tools`. If the tool needs a standalone layout (like `/tools/password`), register it separately at the root router level and document it in this file.
 
 ## 6. Verification and Self-Check
 
@@ -273,7 +290,7 @@ pnpm build         # Vite production build
 pnpm start         # Manual smoke test on http://localhost:3000
 ```
 
-Manually check `/`, `/home`, `/tools/timestamp`, `/tools/json`, and `/tools/password` after tooling or routing changes. If the change affects formatting, format only the changed files:
+Manually check `/`, `/home`, `/tools`, `/tools/timestamp`, `/tools/json`, `/tools/markdown`, `/tools/encoder_decoder`, and `/tools/password` after tooling or routing changes. If the change affects formatting, format only the changed files:
 
 ```bash
 npx prettier --write src/components/tools/MyTool.tsx
@@ -288,25 +305,21 @@ npx prettier --write src/components/tools/MyTool.tsx
    - Vite, Vitest, and `tsc --noEmit` do work with TypeScript 7.
    - Options: migrate linting to oxlint/Biome, run ESLint with a separate TypeScript 5 installation, or wait for typescript-eslint support.
 2. **Single large bundle**
-   - The production build emits one ~3.5 MB JS chunk (about 940 KB gzip) and Vite warns about the 500 kB threshold. This is not a build failure. Route-level `lazy()` imports are the natural next optimization.
+   - The production build emits one ~3.8 MB JS chunk (about 1.0 MB gzip) and Vite warns about the 500 kB threshold. This is not a build failure. Route-level `lazy()` imports are the natural next optimization.
 3. **`react-json-view` is old and needs CJS interop**
    - It declares React 17 peer dependencies while the project uses React 19. The build succeeds, but verify `/tools/json` at runtime when changing JSON tooling. Consider replacing it with a maintained viewer if issues appear.
    - Its UMD bundle assigns `module.exports.default` at runtime, which Vite's dependency optimizer cannot detect, so the default import resolves to `{ default: Component }` in dev. `JsonTools.tsx` unwraps this shape before rendering; keep that normalization when changing the import, and do not "simplify" it back to a bare default import.
 4. **`/tools/password` is a standalone route**
-   - It bypasses `ToolsLayout`, has no top navigation, and is not in `topItems`. Unifying the experience requires changing both the router structure and the menu.
-5. **No fallback route**
-   - There is no 404 / `*` route. Visiting `/tools` or an unknown path leaves the content area empty or shows React Router's default error page.
-6. **IP lookup depends on an external HTTP API**
+   - It bypasses `ToolsLayout`, has no top navigation, and is excluded from the menu via `inMenu: false` in `src/config/tools.tsx`. It is still listed on the `/tools` index.
+5. **IP lookup depends on an external HTTP API**
    - `IPAddressView.tsx` requests `http://ip-api.com/json/...`. When the site is served over HTTPS on GitHub Pages this is mixed content and may be blocked by the browser; there is no backend proxy.
-7. **`src/util` and `src/utils` coexist**
+6. **`src/util` and `src/utils` coexist**
    - Historical legacy; put new logic in `src/utils/`.
-8. **`public/playground/firework/` is a standalone static page**
+7. **`public/playground/firework/` is a standalone static page**
    - It does not participate in React routing or bundling; it is only copied with `public/`. It uses global scripts rather than modules.
-9. **Do not restore `public/index.html`**
+8. **Do not restore `public/index.html`**
    - Vite uses the root `index.html` as the entry. A second `index.html` under `public/` would be copied into the build and can overwrite the generated entry.
-10. **pnpm store is project-local in this environment**
+9. **pnpm store is project-local in this environment**
     - The sandbox cannot write the global pnpm store, so installs use `./.pnpm-store` (gitignored). CI uses its own pnpm store and `--frozen-lockfile`.
-11. **Branches and releases**
+10. **Branches and releases**
     - The current working branch may be `test`; CI deploys to `gh-pages` on pushes to both `main` and `test`. Push carefully.
-12. **Unused dependency**
-    - `react-markdown` is currently not imported anywhere. It can be removed in a cleanup change, but is harmless.

@@ -2,7 +2,7 @@
 
 ## Overview
 
-`vyckey.github.io` is a personal website and an online developer toolbox. It is a pure frontend single-page application (SPA) with no backend or database. The home page is a terminal-styled profile; the tools area provides timestamp, timer, text diff, encoder/decoder, encryption, JSON, QR code, IP lookup, Cron, regex, and password tools.
+`vyckey.github.io` is a personal website and an online developer toolbox. It is a pure frontend single-page application (SPA) with no backend or database. The home page is a terminal-styled profile; the tools area provides timestamp, timer, text diff, Markdown preview, encoder/decoder, encryption, JSON, QR code, IP lookup, Cron, regex, and password tools. `/tools` is a searchable index of every tool.
 
 ## Technology Stack
 
@@ -42,11 +42,12 @@ The Vite config is in `vite.config.ts`. The dev server runs on port 3000, produc
 | --- | --- | --- |
 | `/` | `pages/Homepage.tsx` | Terminal-styled home page |
 | `/home` | `pages/Homepage.tsx` | Home page alias |
-| `/tools` | `pages/ToolsLayout.tsx` | Tools layout (no index child) |
+| `/tools` | `pages/ToolsIndex.tsx` | Searchable index of all tools |
 | `/tools/timestamp` | `components/tools/Timestamp.tsx` | Timestamp/date conversion |
 | `/tools/timer` | `components/tools/TimerPanel.tsx` | Countdown and elapsed-time tools |
 | `/tools/textdiff` | `components/tools/TextDiffTool.tsx` | Text comparison |
-| `/tools/encoder_decoder` | `components/tools/EncoderDecoder.tsx` | Encoding/decoding |
+| `/tools/markdown` | `components/tools/MarkdownTool.tsx` | Markdown preview and export |
+| `/tools/encoder_decoder` | `components/tools/EncoderDecoder.tsx` | Encoding/decoding tabs (Base64, URL, JWT, hash, ...) |
 | `/tools/encryption` | `components/tools/Encryption.tsx` | MD5, Base64, RSA |
 | `/tools/json` | `components/tools/JsonTools.tsx` | JSON viewer and formatter |
 | `/tools/qrcode` | `components/tools/QRCodeGenerator.tsx` | QR code generator |
@@ -54,18 +55,23 @@ The Vite config is in `vite.config.ts`. The dev server runs on port 3000, produc
 | `/tools/cron` | `components/tools/CronTool.tsx` | Cron parser and predictor |
 | `/tools/regex` | `components/tools/RegexTool.tsx` | Regex tester |
 | `/tools/password` | `components/tools/PasswordGenerator.tsx` | Standalone password generator; bypasses `ToolsLayout` |
+| `*` | `pages/NotFound.tsx` | 404 fallback |
 
 ## Layout and State
 
-`ToolsLayout` renders an antd `Layout` with a horizontal menu and an `<Outlet />`. Menu keys must match the final segment of each route path. All tools manage their own local state with React hooks; there is no global store or server API.
+`ToolsLayout` renders an antd `Layout` with a horizontal menu and an `<Outlet />`. The menu is generated from the tool registry in `src/config/tools.tsx`; menu keys must match the final segment of each route path. The registry also drives the `/tools` index cards and search. All tools manage their own local state with React hooks; there is no global store or server API.
 
 ## Shared Modules
 
 - `src/components/CopyButton.tsx` — copy button backed by `src/utils/clipboard.ts`.
 - `src/components/CopyableTextArea.tsx` — text area with a copy button.
+- `src/config/tools.tsx` — tool registry for the menu and the `/tools` index.
 - `src/util/password.tsx` — password hashing/generation logic.
 - `src/utils/clipboard.ts` — Clipboard API with a legacy fallback.
 - `src/utils/cronParser.ts` — Cron expression parser and validator.
+- `src/utils/encoding.ts` — Base64/URL/HTML/hex/Unicode/radix helpers.
+- `src/utils/hash.ts` — MD5/SHA hashing.
+- `src/utils/jwt.ts` — JWT decoding and HS256 verification.
 - `src/utils/cronScheduler.ts` — next-run prediction.
 - `src/utils/ip.ts` — IPv4/IPv6 validation.
 - `src/utils/passwordStrength.ts` — password strength score.
@@ -94,6 +100,5 @@ Global styles live in `src/index.css` and `src/App.css`; the latter includes the
 
 - ESLint cannot currently run because `typescript-eslint` does not support TypeScript 7.
 - The production bundle is a single large chunk; route-level code splitting is a future improvement.
-- `/tools/password` is intentionally outside `ToolsLayout`.
-- There is no `/tools` index route or catch-all 404 route.
+- `/tools/password` is intentionally outside `ToolsLayout`; it is reachable from the `/tools` index.
 - The IP tool calls `http://ip-api.com`, which is mixed content on the HTTPS GitHub Pages site.

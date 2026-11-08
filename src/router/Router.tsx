@@ -2,6 +2,8 @@ import React from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import Homepage from '../pages/Homepage';
 import ToolsLayout from '../pages/ToolsLayout';
+import ToolsIndex from '../pages/ToolsIndex';
+import NotFound from '../pages/NotFound';
 import EncryptionTabs from '../components/tools/Encryption';
 import QRCodeGenerator from '../components/tools/QRCodeGenerator';
 import TimestampPanel from '../components/tools/Timestamp';
@@ -13,6 +15,7 @@ import IPAddressView from '../components/tools/IPAddressView';
 import EncoderDecoderTabs from '../components/tools/EncoderDecoder';
 import CronTool from '../components/tools/CronTool';
 import RegexTool from '../components/tools/RegexTool';
+import MarkdownTool from '../components/tools/MarkdownTool';
 
 const router = createBrowserRouter([
   {
@@ -32,6 +35,10 @@ const router = createBrowserRouter([
     element: <ToolsLayout />,
     children: [
       {
+        index: true,
+        element: <ToolsIndex />,
+      },
+      {
         path: 'timestamp',
         element: <TimestampPanel />,
       },
@@ -42,6 +49,10 @@ const router = createBrowserRouter([
       {
         path: 'textdiff',
         element: <TextDiffTool />,
+      },
+      {
+        path: 'markdown',
+        element: <MarkdownTool />,
       },
       {
         path: 'json',
@@ -72,6 +83,10 @@ const router = createBrowserRouter([
         element: <RegexTool />,
       },
     ],
+  },
+  {
+    path: '*',
+    element: <NotFound />,
   },
 ]);
 

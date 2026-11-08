@@ -121,11 +121,16 @@ Each tool is a standalone function component under `src/components/tools/`:
 
 | Module | Responsibility |
 | --- | --- |
-| `src/components/CopyButton.tsx` | Copy to clipboard; falls back to `document.execCommand('copy')` in non-secure contexts |
-| `src/components/CopyableTextArea.tsx` | `TextArea` with a copy button in the top-right corner |
-| `src/util/password.tsx` | Deterministic password hashing based on HMAC-SHA256, password generation, strength calculation |
-| `src/utils/cronParser.ts` | Cron expression parsing and Chinese descriptions |
+| `src/components/CopyButton.tsx` | Copy to clipboard using `src/utils/clipboard.ts`; shows success/failure feedback |
+| `src/components/CopyableTextArea.tsx` | `TextArea` with a copy button (placed left of antd's clear icon) |
+| `src/util/password.tsx` | Deterministic password hashing based on HMAC-SHA256 and password generation |
+| `src/utils/clipboard.ts` | Clipboard API plus `document.execCommand('copy')` fallback |
+| `src/utils/cronParser.ts` | Cron expression parsing, validation and Chinese descriptions |
 | `src/utils/cronScheduler.ts` | Predicts the next N execution times |
+| `src/utils/ip.ts` | Strict IPv4/IPv6 validation |
+| `src/utils/passwordStrength.ts` | UI strength score for generated passwords |
+| `src/utils/regex.ts` | Regex match collection and highlighting without infinite loops |
+| `src/utils/rsa.ts` | PKCS#1 → PKCS#8 private key conversion |
 
 > Note: utility code is split between `src/util` (singular) and `src/utils` (plural). This is historical legacy. Put new pure logic in `src/utils/` and do not widen the split.
 
@@ -217,10 +222,15 @@ vyckey.github.io/
 │   │       ├── RegexTool.tsx
 │   │       └── PasswordGenerator.tsx
 │   ├── util/
-│   │   └── password.tsx            # Password hashing/generation/strength
+│   │   └── password.tsx            # Password hashing/generation
 │   └── utils/
-│       ├── cronParser.ts           # Cron parsing
-│       └── cronScheduler.ts        # Cron next-run prediction
+│       ├── clipboard.ts            # Clipboard API + fallback
+│       ├── cronParser.ts           # Cron parsing and validation
+│       ├── cronScheduler.ts        # Cron next-run prediction
+│       ├── ip.ts                   # IPv4/IPv6 validation
+│       ├── passwordStrength.ts     # Password strength score
+│       ├── regex.ts                # Regex matching/highlighting
+│       └── rsa.ts                  # PKCS#1 to PKCS#8 conversion
 └── build/                          # Build output (generated, ignored, do not edit)
 ```
 

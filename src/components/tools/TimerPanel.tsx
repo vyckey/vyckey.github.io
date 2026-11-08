@@ -1,7 +1,7 @@
 import { Button, Card, DatePicker, Form, Space } from 'antd';
 import dayjs from 'dayjs';
 import moment from 'moment';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface DurationTextProps {
   duration: moment.Duration;
@@ -35,24 +35,46 @@ const DurationText: React.FC<DurationTextProps> = ({ duration }) => {
 };
 
 const CountDownTimer = () => {
-  const [duration, setDuration] = useState<moment.Duration | undefined>(undefined);
+  const [duration, setDuration] = useState<moment.Duration | undefined>(
+    undefined
+  );
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, []);
 
   function countDownTime(endTime: moment.Moment) {
     if (timerRef.current) {
       clearInterval(timerRef.current);
+      timerRef.current = null;
     }
-    timerRef.current = setInterval(() => {
-      const duration = moment.duration(endTime.diff(moment()));
-      if (duration.asMilliseconds() < 0) {
+
+    const tick = () => {
+      const remaining = endTime.diff(moment());
+      if (remaining <= 0) {
         setDuration(moment.duration(0));
         if (timerRef.current) {
           clearInterval(timerRef.current);
+          timerRef.current = null;
         }
       } else {
-        setDuration(duration);
+        setDuration(moment.duration(remaining));
       }
-    }, 1000);
+    };
+
+    // Render the initial value immediately instead of showing “已结束”
+    // during the first second.
+    tick();
+
+    if (endTime.diff(moment()) > 0) {
+      timerRef.current = setInterval(tick, 1000);
+    }
   }
 
   return (
@@ -63,13 +85,7 @@ const CountDownTimer = () => {
           time: dayjs(),
         }}
         onFinish={values => {
-          const endTime = moment(values.time.valueOf());
-          countDownTime(endTime);
-          return () => {
-            if (timerRef.current) {
-              clearInterval(timerRef.current);
-            }
-          };
+          countDownTime(moment(values.time.valueOf()));
         }}>
         <Form.Item name="time" label="设定时间" required={true}>
           <DatePicker showTime={true} allowClear={false} />
@@ -91,6 +107,7 @@ const CountDownTimer = () => {
             onClick={() => {
               if (timerRef.current) {
                 clearInterval(timerRef.current);
+                timerRef.current = null;
               }
             }}>
             □ 暂停
@@ -109,24 +126,33 @@ const CountDownTimer = () => {
 };
 
 const CountTimer = () => {
-  const [duration, setDuration] = useState<moment.Duration | undefined>(undefined);
+  const [duration, setDuration] = useState<moment.Duration | undefined>(
+    undefined
+  );
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, []);
 
   function countTime(startTime: moment.Moment) {
     if (timerRef.current) {
       clearInterval(timerRef.current);
+      timerRef.current = null;
     }
-    timerRef.current = setInterval(() => {
-      const duration = moment.duration(moment().diff(startTime));
-      if (duration.asMilliseconds() < 0) {
-        setDuration(moment.duration(0));
-        if (timerRef.current) {
-          clearInterval(timerRef.current);
-        }
-      } else {
-        setDuration(duration);
-      }
-    }, 1000);
+
+    const tick = () => {
+      const elapsed = moment().diff(startTime);
+      setDuration(elapsed > 0 ? moment.duration(elapsed) : moment.duration(0));
+    };
+
+    tick();
+    timerRef.current = setInterval(tick, 1000);
   }
 
   return (
@@ -137,13 +163,7 @@ const CountTimer = () => {
           time: dayjs(),
         }}
         onFinish={values => {
-          const startTime = moment(values.time.valueOf());
-          countTime(startTime);
-          return () => {
-            if (timerRef.current) {
-              clearInterval(timerRef.current);
-            }
-          };
+          countTime(moment(values.time.valueOf()));
         }}>
         <Form.Item name="time" label="设定时间" required={true}>
           <DatePicker showTime={true} allowClear={false} />
@@ -165,6 +185,7 @@ const CountTimer = () => {
             onClick={() => {
               if (timerRef.current) {
                 clearInterval(timerRef.current);
+                timerRef.current = null;
               }
             }}>
             □ 暂停

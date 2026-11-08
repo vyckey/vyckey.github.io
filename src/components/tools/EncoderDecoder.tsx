@@ -31,9 +31,9 @@ const CaseConvertForm: React.FC = () => {
   }
 
   function doExchange() {
-    const input = form.getFieldsValue()['input'];
+    const input = form.getFieldsValue()['input'] as string | undefined;
     form.setFieldValue('input', output);
-    setOutput(input);
+    setOutput(input ?? '');
   }
 
   return (

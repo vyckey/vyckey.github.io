@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useId, useMemo, useState } from 'react';
 import TextDiffView from './TextDiffView';
 import { Button, Flex, Select } from 'antd';
 import CopyableTextArea from '../CopyableTextArea';
@@ -10,6 +10,17 @@ export default function TextDiffTool() {
   const [outputFormat, setOutputFormat] = useState<
     'side-by-side' | 'line-by-line'
   >('side-by-side');
+  const diffId = useId().replace(/:/g, '');
+  const fileDiffList = useMemo(
+    () => [
+      {
+        fileName: 'Text Diff',
+        prevData: prevText,
+        newData: newText,
+      },
+    ],
+    [prevText, newText]
+  );
 
   return (
     <Flex vertical gap="small">
@@ -64,16 +75,10 @@ export default function TextDiffTool() {
       </Flex>
       {!editMode && (
         <TextDiffView
-          id={'diff-ui-mult'}
+          id={`diff-ui-${diffId}`}
           useUI={true}
           fileListToggle={false}
-          fileDiffList={[
-            {
-              fileName: 'Text Diff',
-              prevData: prevText,
-              newData: newText,
-            },
-          ]}
+          fileDiffList={fileDiffList}
           outputFormat={outputFormat}
         />
       )}

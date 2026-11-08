@@ -4,6 +4,7 @@ import CopyButton from '../CopyButton';
 import CryptoJS from 'crypto-js';
 import JSEncrypt from 'jsencrypt';
 import CopyableTextArea from '../CopyableTextArea';
+import { toPkcs8PrivateKey } from '../../utils/rsa';
 
 const MD5Form: React.FC = () => {
   const [md5Value, setMd5Value] = useState('');
@@ -87,9 +88,9 @@ const Base64Form: React.FC = () => {
   }
 
   function doExchange() {
-    const input = form.getFieldsValue()['input'];
+    const input = form.getFieldsValue()['input'] as string | undefined;
     form.setFieldValue('input', output);
-    setOutput(input);
+    setOutput(input ?? '');
   }
 
   return (
@@ -138,15 +139,21 @@ const RSAForm: React.FC = () => {
   const [form] = Form.useForm();
 
   function generateRSAKey() {
-    const bitCount = form.getFieldValue('bitCount');
-    const format = form.getFieldValue('format');
+    const bitCount = Number(form.getFieldValue('bitCount')) || 1024;
+    const format = form.getFieldValue('format') || 'PKCS#1';
 
     try {
-      const encryptor = new JSEncrypt();
+      const encryptor = new JSEncrypt({
+        default_key_size: String(bitCount),
+      });
       const rsaKey = encryptor.getKey();
-      console.log('generate RSA key', bitCount, format);
+      const privateKey = rsaKey.getPrivateKey();
+
       form.setFieldValue('publicKey', rsaKey.getPublicKey());
-      form.setFieldValue('privateKey', rsaKey.getPrivateKey());
+      form.setFieldValue(
+        'privateKey',
+        format === 'PKCS#8' ? toPkcs8PrivateKey(privateKey) : privateKey
+      );
     } catch (e) {
       console.error('generate RSA key fail', e);
       message.error('生成失败！');
@@ -157,14 +164,20 @@ const RSAForm: React.FC = () => {
     form
       .validateFields()
       .then(values => {
+        if (!values.publicKey?.trim()) {
+          message.error('请输入公钥');
+          return;
+        }
+
         const encryptor = new JSEncrypt();
         encryptor.setPublicKey(values.publicKey);
         const encryptedData = encryptor.encrypt(values.input);
-        if (encryptedData === false) {
-          setOutput('false');
-        } else {
-          setOutput(encryptedData);
+        if (!encryptedData) {
+          setOutput('');
+          message.error('加密失败，请检查公钥或文本长度');
+          return;
         }
+        setOutput(encryptedData);
       })
       .catch(err => {
         console.log('RSA encrypt fail', err);
@@ -176,14 +189,20 @@ const RSAForm: React.FC = () => {
     form
       .validateFields()
       .then(values => {
+        if (!values.privateKey?.trim()) {
+          message.error('请输入私钥');
+          return;
+        }
+
         const encryptor = new JSEncrypt();
         encryptor.setPrivateKey(values.privateKey);
         const decryptedData = encryptor.decrypt(values.input);
-        if (decryptedData === false) {
-          setOutput('false');
-        } else {
-          setOutput(decryptedData);
+        if (!decryptedData) {
+          setOutput('');
+          message.error('解密失败，请检查私钥或密文');
+          return;
         }
+        setOutput(decryptedData);
       })
       .catch(err => {
         console.log('RSA decrypt fail', err);
@@ -192,9 +211,9 @@ const RSAForm: React.FC = () => {
   }
 
   function doExchange() {
-    const input = form.getFieldsValue()['input'];
+    const input = form.getFieldsValue()['input'] as string | undefined;
     form.setFieldValue('input', output);
-    setOutput(input);
+    setOutput(input ?? '');
   }
 
   return (

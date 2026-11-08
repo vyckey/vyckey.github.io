@@ -12,6 +12,8 @@ import {
 } from 'antd';
 import Title from 'antd/es/typography/Title';
 import { hashPassword, generatePassword } from '../../util/password';
+import { calculatePasswordStrength } from '../../utils/passwordStrength';
+import { copyText } from '../../utils/clipboard';
 import '../../index.css';
 
 export default function PasswordGenerator() {
@@ -34,13 +36,25 @@ export default function PasswordGenerator() {
       values.punctuation,
       values.capital
     );
+
+    if (!newPassword) {
+      setPassword('');
+      setStrength(0);
+      message.error('生成失败，请调整密码长度或字符选项');
+      return;
+    }
+
     setPassword(newPassword);
-    setStrength(10);
+    setStrength(calculatePasswordStrength(newPassword));
   }
 
   function copyPassword() {
-    navigator.clipboard
-      .writeText(password)
+    if (!password) {
+      message.warning('请先生成密码');
+      return;
+    }
+
+    copyText(password)
       .then(() => message.success('复制成功'))
       .catch(() => message.error('复制失败'));
   }
@@ -79,7 +93,10 @@ export default function PasswordGenerator() {
           />
         </Form.Item>
         <Flex gap="large">
-          <Form.Item name="length" label="密码长度">
+          <Form.Item
+            name="length"
+            label="密码长度"
+            rules={[{ required: true, message: '请输入密码长度' }]}>
             <InputNumber min={8} max={30} />
           </Form.Item>
           <Form.Item name="capital" label="大小写">
@@ -119,10 +136,24 @@ export default function PasswordGenerator() {
         <div>
           <Progress
             style={{ marginTop: 15 }}
-            showInfo={false}
-            status={strength === 0 ? 'exception' : undefined}
-            strokeColor="#e7e7e7"
-            percent={40}
+            showInfo={true}
+            status={
+              strength === 0
+                ? 'exception'
+                : strength >= 80
+                  ? 'success'
+                  : 'normal'
+            }
+            strokeColor={
+              strength === 0
+                ? '#ff4d4f'
+                : strength >= 80
+                  ? '#52c41a'
+                  : strength >= 50
+                    ? '#faad14'
+                    : '#ff4d4f'
+            }
+            percent={strength}
           />
         </div>
       </Form>

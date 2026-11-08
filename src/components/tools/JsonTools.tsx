@@ -1,11 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Button, Flex, Input, message, Select, Switch, Tabs, InputRef } from 'antd';
+import { Button, Flex, Input, message, Select, Switch, Tabs } from 'antd';
+import type { TextAreaRef } from 'antd/es/input/TextArea';
 import { Splitter } from 'antd';
-import ReactJson, { InteractionProps, OnSelectProps, ThemeKeys } from 'react-json-view';
-import {
-  DownloadOutlined,
-  SortAscendingOutlined,
-} from '@ant-design/icons';
+import ReactJsonImport, {
+  InteractionProps,
+  OnSelectProps,
+  ThemeKeys,
+} from 'react-json-view';
+import { DownloadOutlined, SortAscendingOutlined } from '@ant-design/icons';
+
+// react-json-view ships a UMD bundle that assigns `module.exports.default` at
+// runtime, which Vite's dependency optimizer cannot detect. The default import
+// is therefore `{ default: Component }` in dev, while other bundlers and the
+// production build may hand back the component directly. Normalize both shapes.
+const ReactJson =
+  (ReactJsonImport as unknown as { default?: typeof ReactJsonImport })
+    .default ?? ReactJsonImport;
 
 interface JsonViewerProps {
   initialData?: object;
@@ -54,14 +64,16 @@ const jsonThemes = [
 const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
   const [textValue, setTextValue] = useState('');
   const [jsonValue, setJsonValue] = useState<object>(initialData || {});
-  const [cachedJsonValue, setCachedJsonValue] = useState<object | undefined>(undefined);
+  const [cachedJsonValue, setCachedJsonValue] = useState<object | undefined>(
+    undefined
+  );
   const [indentWidth, setIndentWidth] = useState<number>(2);
   const [isSortKeys, setIsSortKeys] = useState<boolean>(false);
   const [theme, setTheme] = useState<ThemeKeys>('rjv-default');
   const [collapsed, setCollapsed] = useState<boolean | number>(false);
   const [enableEditing, setEnableEditing] = useState<boolean>(true);
   const jsonViewRef = useRef<HTMLDivElement>(null);
-  const textAreaRef = useRef<InputRef>(null);
+  const textAreaRef = useRef<TextAreaRef>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
 
   // Initialize with sample data if no initialData provided
@@ -74,21 +86,21 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
         website: 'https://vyckey.github.io',
         address: {
           city: 'Shanghai',
-          country: 'China'
+          country: 'China',
         },
         hobbies: ['reading', 'coding'],
-        isActive: true
+        isActive: true,
       };
       setJsonValue(sampleData);
       setTextValue(JSON.stringify(sampleData, null, indentWidth));
     } else {
       setTextValue(JSON.stringify(initialData, null, indentWidth));
     }
-  }, [initialData, indentWidth]);
+  }, [initialData]);
 
   // Synchronize scrolling between textarea and line numbers
   useEffect(() => {
-    const textAreaElement = textAreaRef.current?.input;
+    const textAreaElement = textAreaRef.current?.resizableTextArea?.textArea;
     const lineNumbersElement = lineNumbersRef.current;
 
     if (textAreaElement && lineNumbersElement) {
@@ -119,50 +131,68 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
     }
   }, [textValue]);
 
-  function parseJson(text: string) {
+  type JsonParseResult = { ok: true; value: unknown } | { ok: false };
+
+  function parseJson(text: string): JsonParseResult {
     try {
-      return JSON.parse(text);
+      return { ok: true, value: JSON.parse(text) };
     } catch (e) {
       console.log('parse json fail', e);
       message.error('JSON解析失败: ' + e);
-      return null;
+      return { ok: false };
     }
   }
 
   const handleFormat = (indent: number) => {
-    const jsonObj = parseJson(textValue);
-    if (jsonObj) {
-      setTextValue(JSON.stringify(jsonObj, null, indent));
+    const result = parseJson(textValue);
+    if (result.ok) {
+      setTextValue(JSON.stringify(result.value, null, indent));
     }
   };
 
   const handleCompress = () => {
-    const jsonObj = parseJson(textValue);
-    if (jsonObj) {
-      setTextValue(JSON.stringify(jsonObj));
+    const result = parseJson(textValue);
+    if (result.ok) {
+      setTextValue(JSON.stringify(result.value));
     }
   };
 
   const handleValidate = () => {
-    if (parseJson(textValue)) {
+    if (parseJson(textValue).ok) {
       message.success('JSON格式正确！');
     }
   };
 
   const handleParse = () => {
-    const jsonObj = parseJson(textValue);
-    if (jsonObj) {
-      setJsonValue(jsonObj);
+    const result = parseJson(textValue);
+    if (!result.ok) {
+      return;
     }
+
+    if (result.value === null || typeof result.value !== 'object') {
+      message.warning('右侧 JSON 视图仅支持对象或数组');
+      return;
+    }
+
+    setJsonValue(result.value as object);
   };
 
   const handleStringify = () => {
     setTextValue(JSON.stringify(jsonValue, null, indentWidth));
   };
 
+  function applyViewerValue(value: object) {
+    setJsonValue(value);
+    setTextValue(JSON.stringify(value, null, indentWidth));
+    if (isSortKeys) {
+      // Keep edits when sorting is turned off later.
+      setCachedJsonValue(undefined);
+    }
+  }
+
   const handleEdit = (edit: InteractionProps) => {
     if (enableEditing) {
-      setJsonValue(edit.updated_src);
+      applyViewerValue(edit.updated_src);
       return true;
     }
     return false;
@@ -170,7 +200,7 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
 
   const handleAdd = (add: InteractionProps) => {
     if (enableEditing) {
-      setJsonValue(add.updated_src);
+      applyViewerValue(add.updated_src);
       return true;
     }
     return false;
@@ -178,7 +208,7 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
 
   const handleDelete = (del: InteractionProps) => {
     if (enableEditing) {
-      setJsonValue(del.updated_src);
+      applyViewerValue(del.updated_src);
       return true;
     }
     return false;
@@ -190,26 +220,25 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
     } else if (obj !== null && typeof obj === 'object') {
       const o = obj as Record<string, unknown>;
       const sortedObj: Record<string, unknown> = {};
-      Object.keys(o).sort().forEach(key => {
-        sortedObj[key] = sortKeys(o[key]);
-      });
+      Object.keys(o)
+        .sort()
+        .forEach(key => {
+          sortedObj[key] = sortKeys(o[key]);
+        });
       return sortedObj;
     }
     return obj;
   }
 
-  const handleSortKeys = (isSortKeys: boolean) => {
-    setIsSortKeys(isSortKeys);
-    if (isSortKeys) {
-      setJsonValue((preObj: object) => {
-        setCachedJsonValue(preObj);
+  const handleSortKeys = (nextSortKeys: boolean) => {
+    setIsSortKeys(nextSortKeys);
 
-        const sortedObj = sortKeys(preObj);
-        setTextValue(JSON.stringify(sortedObj, null, indentWidth));
-        return sortedObj as object;
-      });
+    if (nextSortKeys) {
+      setCachedJsonValue(jsonValue);
+      const sortedObj = sortKeys(jsonValue) as object;
+      setJsonValue(sortedObj);
+      setTextValue(JSON.stringify(sortedObj, null, indentWidth));
     } else if (cachedJsonValue) {
-      console.log('Restoring cached JSON value');
       setJsonValue(cachedJsonValue);
       setTextValue(JSON.stringify(cachedJsonValue, null, indentWidth));
       setCachedJsonValue(undefined);
@@ -222,9 +251,13 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
   };
 
   const handleExport = () => {
+    const result = parseJson(textValue);
+    if (!result.ok) {
+      return;
+    }
+
     try {
-      const obj = JSON.parse(textValue);
-      const blob = new Blob([JSON.stringify(obj, null, 2)], {
+      const blob = new Blob([JSON.stringify(result.value, null, 2)], {
         type: 'application/json',
       });
       const url = URL.createObjectURL(blob);
@@ -234,16 +267,16 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (e: unknown) {
       const errorMessage = e instanceof Error ? e.message : String(e);
-      message.error(`JSON 格式错误: ${errorMessage}`);
+      message.error(`JSON 导出失败: ${errorMessage}`);
     }
   };
 
   return (
     <>
-      <Flex gap='small' wrap align='center'>
+      <Flex gap="small" wrap align="center">
         <Select
           showSearch={true}
           defaultValue={theme}
@@ -256,7 +289,7 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
         />
         <Button onClick={handleValidate}>校验</Button>
         <Select
-          defaultValue={4}
+          defaultValue={2}
           options={[2, 4, 8].map(width => ({
             label: width + '空格美化',
             value: width,
@@ -264,7 +297,9 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
           onChange={(val: number) => handleFormat(val)}
         />
         <Button onClick={handleCompress}>压缩</Button>
-        <Button type='primary' onClick={handleParse}>解析</Button>
+        <Button type="primary" onClick={handleParse}>
+          解析
+        </Button>
         <Button onClick={handleStringify}>反解析</Button>
         <Select
           defaultValue={indentWidth}
@@ -297,16 +332,19 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
         </Button>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <span style={{ marginRight: 8 }}>编辑</span>
-          <Switch
-            checked={enableEditing}
-            onChange={setEnableEditing}
-          />
+          <Switch checked={enableEditing} onChange={setEnableEditing} />
         </div>
-        <Button icon={<DownloadOutlined />} onClick={handleExport} >导出文件</Button>
+        <Button icon={<DownloadOutlined />} onClick={handleExport}>
+          导出文件
+        </Button>
       </Flex>
       <Splitter
-        style={{ minHeight: 600, boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)', marginTop: 16 }}>
-        <Splitter.Panel defaultSize='40%' min='20%' max='70%'>
+        style={{
+          minHeight: 600,
+          boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+          marginTop: 16,
+        }}>
+        <Splitter.Panel defaultSize="40%" min="20%" max="70%">
           <div style={{ display: 'flex', height: '100%' }}>
             {/* Line numbers */}
             <div
@@ -318,27 +356,30 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
                 textAlign: 'right',
                 color: '#999',
                 overflow: 'hidden',
-                userSelect: 'none'
-              }}
-            >
-              {textValue ? textValue.split('\n').map((_, index) => (
-                <div key={index} style={{ padding: '0 4px' }}>
-                  {index + 1}
-                </div>
-              )) : <div style={{ padding: '0 4px' }}>1</div>}
+                userSelect: 'none',
+              }}>
+              {textValue ? (
+                textValue.split('\n').map((_, index) => (
+                  <div key={index} style={{ padding: '0 4px' }}>
+                    {index + 1}
+                  </div>
+                ))
+              ) : (
+                <div style={{ padding: '0 4px' }}>1</div>
+              )}
             </div>
             {/* Text area */}
             <Input.TextArea
               ref={textAreaRef}
               value={textValue}
-              placeholder='请输入JSON文本'
+              placeholder="请输入JSON文本"
               style={{
                 whiteSpace: 'nowrap',
                 overflowX: 'auto',
                 height: '100%',
                 resize: 'none',
                 borderLeft: 'none',
-                borderRadius: '0 6px 6px 0'
+                borderRadius: '0 6px 6px 0',
               }}
               onChange={e => {
                 setTextValue(e.target.value);
@@ -354,7 +395,7 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
               indentWidth={indentWidth}
               sortKeys={isSortKeys}
               collapsed={collapsed}
-              iconStyle='square'
+              iconStyle="square"
               displayDataTypes={false}
               style={{ textAlign: 'left', height: '100%' }}
               onEdit={handleEdit}
@@ -374,7 +415,7 @@ export default function JsonTools() {
   return (
     <>
       <Tabs
-        type='card'
+        type="card"
         items={[
           {
             key: 'json_view',

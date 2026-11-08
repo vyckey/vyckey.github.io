@@ -121,11 +121,16 @@ Each tool is a standalone function component under `src/components/tools/`:
 
 | Module | Responsibility |
 | --- | --- |
-| `src/components/CopyButton.tsx` | Copy to clipboard; falls back to `document.execCommand('copy')` in non-secure contexts |
-| `src/components/CopyableTextArea.tsx` | `TextArea` with a copy button in the top-right corner |
-| `src/util/password.tsx` | Deterministic password hashing based on HMAC-SHA256, password generation, strength calculation |
-| `src/utils/cronParser.ts` | Cron expression parsing and Chinese descriptions |
+| `src/components/CopyButton.tsx` | Copy to clipboard using `src/utils/clipboard.ts`; shows success/failure feedback |
+| `src/components/CopyableTextArea.tsx` | `TextArea` with a copy button (placed left of antd's clear icon) |
+| `src/util/password.tsx` | Deterministic password hashing based on HMAC-SHA256 and password generation |
+| `src/utils/clipboard.ts` | Clipboard API plus `document.execCommand('copy')` fallback |
+| `src/utils/cronParser.ts` | Cron expression parsing, validation and Chinese descriptions |
 | `src/utils/cronScheduler.ts` | Predicts the next N execution times |
+| `src/utils/ip.ts` | Strict IPv4/IPv6 validation |
+| `src/utils/passwordStrength.ts` | UI strength score for generated passwords |
+| `src/utils/regex.ts` | Regex match collection and highlighting without infinite loops |
+| `src/utils/rsa.ts` | PKCS#1 → PKCS#8 private key conversion |
 
 > Note: utility code is split between `src/util` (singular) and `src/utils` (plural). This is historical legacy. Put new pure logic in `src/utils/` and do not widen the split.
 
@@ -217,10 +222,15 @@ vyckey.github.io/
 │   │       ├── RegexTool.tsx
 │   │       └── PasswordGenerator.tsx
 │   ├── util/
-│   │   └── password.tsx            # Password hashing/generation/strength
+│   │   └── password.tsx            # Password hashing/generation
 │   └── utils/
-│       ├── cronParser.ts           # Cron parsing
-│       └── cronScheduler.ts        # Cron next-run prediction
+│       ├── clipboard.ts            # Clipboard API + fallback
+│       ├── cronParser.ts           # Cron parsing and validation
+│       ├── cronScheduler.ts        # Cron next-run prediction
+│       ├── ip.ts                   # IPv4/IPv6 validation
+│       ├── passwordStrength.ts     # Password strength score
+│       ├── regex.ts                # Regex matching/highlighting
+│       └── rsa.ts                  # PKCS#1 to PKCS#8 conversion
 └── build/                          # Build output (generated, ignored, do not edit)
 ```
 
@@ -279,8 +289,9 @@ npx prettier --write src/components/tools/MyTool.tsx
    - Options: migrate linting to oxlint/Biome, run ESLint with a separate TypeScript 5 installation, or wait for typescript-eslint support.
 2. **Single large bundle**
    - The production build emits one ~3.5 MB JS chunk (about 940 KB gzip) and Vite warns about the 500 kB threshold. This is not a build failure. Route-level `lazy()` imports are the natural next optimization.
-3. **`react-json-view` is old**
+3. **`react-json-view` is old and needs CJS interop**
    - It declares React 17 peer dependencies while the project uses React 19. The build succeeds, but verify `/tools/json` at runtime when changing JSON tooling. Consider replacing it with a maintained viewer if issues appear.
+   - Its UMD bundle assigns `module.exports.default` at runtime, which Vite's dependency optimizer cannot detect, so the default import resolves to `{ default: Component }` in dev. `JsonTools.tsx` unwraps this shape before rendering; keep that normalization when changing the import, and do not "simplify" it back to a bare default import.
 4. **`/tools/password` is a standalone route**
    - It bypasses `ToolsLayout`, has no top navigation, and is not in `topItems`. Unifying the experience requires changing both the router structure and the menu.
 5. **No fallback route**

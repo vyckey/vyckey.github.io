@@ -31,6 +31,7 @@ const TextDiffView: React.FC<TextDiffViewProps> = ({
   fileListToggle,
 }) => {
   const [diffData, setDiffData] = useState('');
+  const targetId = id || 'code-diff-ui';
 
   useEffect(() => {
     const diffFiles: DiffFile[] = [];
@@ -52,11 +53,14 @@ const TextDiffView: React.FC<TextDiffViewProps> = ({
         newHeader || '',
         { context: 99999 }
       );
-      diffFiles.push(parse(diffStr)[0]);
+      const parsed = parse(diffStr);
+      if (parsed[0]) {
+        diffFiles.push(parsed[0]);
+      }
     }
 
     if (useUI) {
-      const targetElement = document.getElementById(id);
+      const targetElement = document.getElementById(targetId);
       if (!targetElement) {
         return;
       }
@@ -81,10 +85,10 @@ const TextDiffView: React.FC<TextDiffViewProps> = ({
       const diffHtml = html(diffFiles, config);
       setDiffData(diffHtml);
     }
-  }, [id, useUI, fileDiffList, outputFormat, fileListToggle]);
+  }, [targetId, useUI, fileDiffList, outputFormat, fileListToggle]);
 
   return useUI ? (
-    <div id={id || 'code-diff-ui'} />
+    <div id={targetId} />
   ) : (
     <div id="code-diff" dangerouslySetInnerHTML={{ __html: diffData }} />
   );

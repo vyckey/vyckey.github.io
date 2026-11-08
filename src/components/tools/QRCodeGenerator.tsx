@@ -1,86 +1,136 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   ColorPicker,
   Form,
   Input,
+  message,
   QRCode,
   Radio,
   Slider,
   Space,
   Upload,
 } from 'antd';
+import type { UploadFile } from 'antd/es/upload/interface';
 import { PlusOutlined } from '@ant-design/icons';
 
 type RenderType = 'canvas' | 'svg';
 
 interface FormData {
   input: string;
-  renderType: RenderType;
   bgColor: string;
   color: string;
   size: number;
 }
 
+type ColorValue = string | { toHexString: () => string } | null | undefined;
+
 interface QRCodeFormValues {
   input: string;
-  renderType: RenderType;
-  bgColor: string | { toHexString: () => string };
-  color: string | { toHexString: () => string };
-  size: number;
+  renderType?: RenderType;
+  bgColor: ColorValue;
+  color: ColorValue;
+  size?: number;
+  logo?: UploadFile[];
 }
 
 const initialFormData: FormData = {
   input: '',
-  renderType: 'canvas',
   bgColor: '#FFFFFF',
   color: '#000000',
   size: 160,
 };
 
+const initialFormValues = {
+  ...initialFormData,
+  renderType: 'canvas' as RenderType,
+};
+
+function normalizeColor(value: ColorValue, fallback: string): string {
+  if (!value) {
+    return fallback;
+  }
+  return typeof value === 'string' ? value : value.toHexString();
+}
+
 const QRCodeGenerator: React.FC = () => {
-  const [form] = Form.useForm();
-  const [formData, setFormData] = useState(initialFormData);
+  const [form] = Form.useForm<QRCodeFormValues>();
+  const [formData, setFormData] = useState<FormData>(initialFormData);
   const [renderType, setRenderType] = useState<RenderType>('canvas');
+  const [logoUrl, setLogoUrl] = useState<string | undefined>(undefined);
+  const logoList = Form.useWatch('logo', form) as UploadFile[] | undefined;
+
+  useEffect(() => {
+    const file = logoList?.[0]?.originFileObj;
+    if (!file) {
+      setLogoUrl(undefined);
+      return;
+    }
+
+    let cancelled = false;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (!cancelled && typeof reader.result === 'string') {
+        setLogoUrl(reader.result);
+      }
+    };
+    reader.onerror = () => {
+      if (!cancelled) {
+        setLogoUrl(undefined);
+      }
+    };
+    reader.readAsDataURL(file);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [logoList]);
 
   function generateQRCode(values: QRCodeFormValues) {
-    const bgColor =
-      typeof values.bgColor === 'string'
-        ? values.bgColor
-        : values.bgColor.toHexString();
-    const color =
-      typeof values.color === 'string'
-        ? values.color
-        : values.color.toHexString();
     setFormData({
       input: values.input,
-      renderType: values.renderType,
-      bgColor,
-      color,
-      size: values.size,
+      bgColor: normalizeColor(values.bgColor, initialFormData.bgColor),
+      color: normalizeColor(values.color, initialFormData.color),
+      size: values.size ?? initialFormData.size,
     });
+    setRenderType(values.renderType ?? 'canvas');
   }
 
   function onReset() {
     form.resetFields();
+    setFormData(initialFormData);
+    setRenderType('canvas');
+    setLogoUrl(undefined);
   }
 
-  function doDownload(url: string, fileName: string) {
+  function doDownload(url: string, fileName: string, revoke = false) {
     const a = document.createElement('a');
     a.download = fileName;
     a.href = url;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+
+    if (revoke) {
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
   }
 
   const downloadCanvasQRCode = () => {
     const canvas = document
       .getElementById('myqrcode')
       ?.querySelector<HTMLCanvasElement>('canvas');
-    if (canvas) {
-      const url = canvas.toDataURL();
+    if (!canvas) {
+      message.error('未找到二维码画布');
+      return;
+    }
+
+    try {
+      const url = canvas.toDataURL('image/png');
       doDownload(url, 'QRCode.png');
+    } catch (err) {
+      console.error('download canvas qrcode fail', err);
+      message.error('保存二维码失败');
     }
   };
 
@@ -88,19 +138,27 @@ const QRCodeGenerator: React.FC = () => {
     const svg = document
       .getElementById('myqrcode')
       ?.querySelector<SVGElement>('svg');
-    const svgData = new XMLSerializer().serializeToString(svg!);
+    if (!svg) {
+      message.error('未找到二维码 SVG');
+      return;
+    }
+
+    const svgData = new XMLSerializer().serializeToString(svg);
     const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
 
-    doDownload(url, 'QRCode.svg');
+    doDownload(url, 'QRCode.svg', true);
   };
+
+  const logoSize = Math.max(24, Math.round(formData.size * 0.2));
 
   return (
     <>
       <h1>二维码生成</h1>
       <Form
+        form={form}
         name="qrcodeForm"
-        initialValues={initialFormData}
+        initialValues={initialFormValues}
         onFinish={generateQRCode}>
         <Form.Item
           name="input"
@@ -118,7 +176,7 @@ const QRCodeGenerator: React.FC = () => {
           />
         </Form.Item>
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-          <Space direction="vertical">
+          <Space orientation="vertical">
             <Form.Item name="renderType" label="图片类型">
               <Radio.Group
                 onChange={e => {
@@ -129,22 +187,10 @@ const QRCodeGenerator: React.FC = () => {
               </Radio.Group>
             </Form.Item>
             <Form.Item name="bgColor" label="背景颜色">
-              <ColorPicker
-                allowClear
-                showText
-                onChangeComplete={color => {
-                  console.log(color.toCssString());
-                }}
-              />
+              <ColorPicker allowClear showText />
             </Form.Item>
             <Form.Item name="color" label="颜色">
-              <ColorPicker
-                allowClear
-                showText
-                onChangeComplete={color => {
-                  console.log(color.toCssString());
-                }}
-              />
+              <ColorPicker allowClear showText />
             </Form.Item>
             {renderType === 'canvas' && (
               <Form.Item name="size" label="图片大小">
@@ -155,11 +201,17 @@ const QRCodeGenerator: React.FC = () => {
                 />
               </Form.Item>
             )}
-            <Form.Item name="logo" label="LOGO">
+            <Form.Item
+              name="logo"
+              label="LOGO"
+              valuePropName="fileList"
+              getValueFromEvent={(
+                event: UploadFile[] | { fileList?: UploadFile[] }
+              ) => (Array.isArray(event) ? event : event?.fileList)}>
               <Upload
                 listType="picture-card"
                 maxCount={1}
-                accept="image/png, image/jpeg, image/svg"
+                accept="image/png,image/jpeg,image/svg+xml"
                 beforeUpload={() => false}>
                 <PlusOutlined />
               </Upload>
@@ -176,7 +228,7 @@ const QRCodeGenerator: React.FC = () => {
             </Form.Item>
           </Space>
           <div id="myqrcode">
-            <Space direction="vertical" style={{ marginRight: '20px' }}>
+            <Space orientation="vertical" style={{ marginRight: '20px' }}>
               <p>二维码</p>
               <div
                 style={{
@@ -192,14 +244,20 @@ const QRCodeGenerator: React.FC = () => {
                     bgColor={formData.bgColor}
                     color={formData.color}
                     size={formData.size}
-                    style={{ marginBottom: 16, margin: 'auto auto' }}
+                    icon={logoUrl}
+                    iconSize={
+                      logoUrl
+                        ? { width: logoSize, height: logoSize }
+                        : undefined
+                    }
+                    style={{ margin: 'auto' }}
                   />
                 )}
               </div>
 
               <Button
                 type="primary"
-                disabled={formData.input ? false : true}
+                disabled={!formData.input}
                 onClick={
                   renderType === 'canvas'
                     ? downloadCanvasQRCode

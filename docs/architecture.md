@@ -61,11 +61,16 @@ The Vite config is in `vite.config.ts`. The dev server runs on port 3000, produc
 
 ## Shared Modules
 
-- `src/components/CopyButton.tsx` — clipboard helper with a legacy fallback.
+- `src/components/CopyButton.tsx` — copy button backed by `src/utils/clipboard.ts`.
 - `src/components/CopyableTextArea.tsx` — text area with a copy button.
 - `src/util/password.tsx` — password hashing/generation logic.
-- `src/utils/cronParser.ts` — Cron expression parser.
+- `src/utils/clipboard.ts` — Clipboard API with a legacy fallback.
+- `src/utils/cronParser.ts` — Cron expression parser and validator.
 - `src/utils/cronScheduler.ts` — next-run prediction.
+- `src/utils/ip.ts` — IPv4/IPv6 validation.
+- `src/utils/passwordStrength.ts` — password strength score.
+- `src/utils/regex.ts` — regex matching and highlighting helpers.
+- `src/utils/rsa.ts` — PKCS#1 to PKCS#8 private key conversion.
 
 ## Styling
 

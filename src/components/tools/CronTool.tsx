@@ -25,7 +25,10 @@ const CronTool: React.FC = () => {
       setError(null);
 
       // 预测接下来的5个调度时间
-      const nextSchedules = CronSchedulePredictor.predictNextSchedules(values.expression, 5);
+      const nextSchedules = CronSchedulePredictor.predictNextSchedules(
+        values.expression,
+        5
+      );
       setSchedules(nextSchedules);
     } catch (err) {
       setError(err instanceof Error ? err.message : '解析失败');
@@ -35,51 +38,54 @@ const CronTool: React.FC = () => {
   };
 
   return (
-    <Flex align='start' justify='space-between' gap={16}>
-      <Card title='Cron表达式解析器' style={{ flex: 1, minWidth: 300 }}>
+    <Flex align="start" justify="space-between" gap={16} wrap>
+      <Card title="Cron表达式解析器" style={{ flex: 1, minWidth: 300 }}>
         <Form
-          layout='inline'
+          layout="inline"
           onFinish={handleParse}
-          initialValues={{ expression: '* * * * *' }}
-        >
+          initialValues={{ expression: '* * * * *' }}>
           <Form.Item
-            name='expression'
-            label='Cron表达式'
-            rules={[{ required: true, message: '请输入Cron表达式' }]}
-          >
-            <Input placeholder='例如: 0 9 * * 1 (每周一上午9点)' />
+            name="expression"
+            label="Cron表达式"
+            rules={[{ required: true, message: '请输入Cron表达式' }]}>
+            <Input placeholder="例如: 0 9 * * 1 (每周一上午9点)" />
           </Form.Item>
           <Form.Item>
-            <Button type='primary' htmlType='submit'>
-              解析*
+            <Button type="primary" htmlType="submit">
+              解析
             </Button>
           </Form.Item>
         </Form>
 
         {error && (
-          <Card size='small' style={{ marginTop: 16 }}>
-            <Text type='danger'>{error}</Text>
+          <Card size="small" style={{ marginTop: 16 }}>
+            <Text type="danger">{error}</Text>
           </Card>
         )}
 
         {parsedResult && (
-          <Card size='small' style={{ marginTop: 16 }}>
+          <Card size="small" style={{ marginTop: 16 }}>
             <Title level={5}>解析结果</Title>
-            <Text>分钟: {parsedResult.minute}</Text><br />
-            <Text>小时: {parsedResult.hour}</Text><br />
-            <Text>日期: {parsedResult.dayOfMonth}</Text><br />
-            <Text>月份: {parsedResult.month}</Text><br />
-            <Text>星期: {parsedResult.dayOfWeek}</Text><br />
+            <Text>分钟: {parsedResult.minute}</Text>
+            <br />
+            <Text>小时: {parsedResult.hour}</Text>
+            <br />
+            <Text>日期: {parsedResult.dayOfMonth}</Text>
+            <br />
+            <Text>月份: {parsedResult.month}</Text>
+            <br />
+            <Text>星期: {parsedResult.dayOfWeek}</Text>
+            <br />
             <Text strong>描述: {parsedResult.description}</Text>
           </Card>
         )}
 
         {schedules.length > 0 && (
-          <Card size='small' style={{ marginTop: 16 }}>
+          <Card size="small" style={{ marginTop: 16 }}>
             <Title level={5}>预测未来调度时间</Title>
             <List
               dataSource={schedules}
-              renderItem={(date) => (
+              renderItem={date => (
                 <List.Item>
                   <Text>{date.toLocaleString('zh-CN')}</Text>
                 </List.Item>
@@ -89,8 +95,8 @@ const CronTool: React.FC = () => {
         )}
       </Card>
 
-      <Card title='Cron表达式语法说明'>
-        <Text>
+      <Card title="Cron表达式语法说明" style={{ minWidth: 300 }}>
+        <div>
           <p>Cron表达式由5个字段组成，用空格分隔：</p>
           <ul>
             <li>分钟 (0-59)</li>
@@ -113,7 +119,7 @@ const CronTool: React.FC = () => {
             <li>0 9 * * 1 - 每周一上午9点执行</li>
             <li>0 */2 * * * - 每隔2小时执行</li>
           </ul>
-        </Text>
+        </div>
       </Card>
     </Flex>
   );

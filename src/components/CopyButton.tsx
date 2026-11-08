@@ -1,46 +1,50 @@
 import { Button, ButtonProps, message, Tooltip } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { CheckOutlined, CopyOutlined } from '@ant-design/icons';
+import { copyText } from '../utils/clipboard';
 
 interface CopyButtonProps extends Omit<ButtonProps, 'value' | 'onClick'> {
-  value: string | number | bigint | readonly string[] | undefined;
+  value: string | number | bigint | readonly string[] | null | undefined;
 }
-
-const clipboard = (window.isSecureContext && navigator.clipboard) || {
-  writeText: text =>
-    new Promise((resolve, reject) => {
-      const input = document.createElement('input');
-      input.value = text;
-      document.body.appendChild(input);
-      input.select();
-      try {
-        document.execCommand('copy');
-        resolve();
-      } catch (e) {
-        reject(e);
-      } finally {
-        document.body.removeChild(input);
-      }
-    }),
-};
 
 const CopyButton: React.FC<CopyButtonProps> = ({ value, ...props }) => {
   const [copied, setCopied] = useState(false);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current) {
+        clearTimeout(resetTimerRef.current);
+        resetTimerRef.current = null;
+      }
+    };
+  }, []);
 
   function onClick() {
-    if (!value) {
+    const text =
+      value === undefined || value === null
+        ? ''
+        : typeof value === 'string'
+          ? value
+          : String(value);
+
+    if (!text) {
       message.warning('内容为空');
       return;
     }
-    clipboard
-      .writeText(typeof value === 'string' ? value : value + '')
+
+    copyText(text)
       .then(() => {
         setCopied(true);
-        message.success('复制成功');
-        setInterval(() => {
+        if (resetTimerRef.current) {
+          clearTimeout(resetTimerRef.current);
+        }
+        resetTimerRef.current = setTimeout(() => {
           setCopied(false);
-        }, 3000);
+          resetTimerRef.current = null;
+        }, 2000);
+        message.success('复制成功');
       })
       .catch(err => {
         console.error('copy fail', err);
@@ -49,16 +53,14 @@ const CopyButton: React.FC<CopyButtonProps> = ({ value, ...props }) => {
   }
 
   return (
-    <>
-      <Tooltip title={copied ? '复制成功' : '复制'}>
-        <Button
-          style={{ border: 'none' }}
-          icon={copied ? <CheckOutlined /> : <CopyOutlined />}
-          onClick={onClick}
-          {...props}
-        />
-      </Tooltip>
-    </>
+    <Tooltip title={copied ? '复制成功' : '复制'}>
+      <Button
+        style={{ border: 'none' }}
+        icon={copied ? <CheckOutlined /> : <CopyOutlined />}
+        onClick={onClick}
+        {...props}
+      />
+    </Tooltip>
   );
 };
 

@@ -1,13 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button, Flex, Input, message, Space, Table } from 'antd';
 import Title from 'antd/es/typography/Title';
 import CopyButton from '../CopyButton';
 import CopyableTextArea from '../CopyableTextArea';
-
-const IPv4_REGEX =
-  /^((?!00)\d{1,3}|0{0,2}\d{1,2}|1\d{2}|2[0-4]\d|25[0-5])(\.((?!00)\d{1,3}|0{0,2}\d{1,2}|1\d{2}|2[0-4]\d|25[0-5])){3}$/;
-const IPv6_REGEX =
-  /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
+import { isValidIP } from '../../utils/ip';
 
 export default function IPAddressView() {
   const columns = [
@@ -75,28 +71,63 @@ export default function IPAddressView() {
 
   const [ip, setIP] = useState('');
   const [ipInfo, setIPInfo] = useState<Record<string, unknown>>({});
+  const [loading, setLoading] = useState(false);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
-    queryIPInfo('');
+    void queryIPInfo('');
+
+    return () => {
+      // Ignore any in-flight response after unmount.
+      requestIdRef.current += 1;
+    };
   }, []);
 
-  async function queryIPInfo(ip: string) {
-    ip = (ip || '').trim();
-    if (ip && !IPv4_REGEX.test(ip) && !IPv6_REGEX.test(ip)) {
+  async function queryIPInfo(value: string) {
+    const normalizedIP = value.trim();
+    if (normalizedIP && !isValidIP(normalizedIP)) {
       message.error('IP地址格式错误');
       return;
     }
-    fetch('http://ip-api.com/json/' + ip, {
-      method: 'GET',
-    })
-      .then(res => res.json())
-      .then(data => {
-        setIPInfo(data);
-      })
-      .catch(err => {
-        console.error(err);
-        message.error('IP地址查询失败');
+
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+    setLoading(true);
+
+    try {
+      const res = await fetch('http://ip-api.com/json/' + normalizedIP, {
+        method: 'GET',
       });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const data = (await res.json()) as Record<string, unknown>;
+      if (requestId !== requestIdRef.current) {
+        return;
+      }
+
+      if (data.status === 'fail') {
+        setIPInfo(data);
+        message.error(
+          typeof data.message === 'string' ? data.message : 'IP地址查询失败'
+        );
+        return;
+      }
+
+      setIPInfo(data);
+    } catch (err) {
+      if (requestId !== requestIdRef.current) {
+        return;
+      }
+      console.error(err);
+      message.error('IP地址查询失败');
+    } finally {
+      if (requestId === requestIdRef.current) {
+        setLoading(false);
+      }
+    }
   }
 
   return (
@@ -107,19 +138,23 @@ export default function IPAddressView() {
           <Flex gap={10} style={{ marginBottom: 10 }}>
             <Input
               allowClear={true}
+              value={ip}
               placeholder="请输入IPv4或IPv6地址"
               onChange={e => setIP(e.target.value)}
+              onPressEnter={() => void queryIPInfo(ip)}
             />
             <Button
               type="primary"
-              htmlType="submit"
-              onClick={() => queryIPInfo(ip)}>
+              htmlType="button"
+              loading={loading}
+              onClick={() => void queryIPInfo(ip)}>
               查询
             </Button>
           </Flex>
           <Table<Record<string, unknown>>
             bordered={true}
             size="small"
+            loading={loading}
             columns={[
               {
                 key: 'key',

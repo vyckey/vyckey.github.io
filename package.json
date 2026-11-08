@@ -4,24 +4,24 @@
   "homepage": "https://vyckey.github.io",
   "private": true,
   "dependencies": {
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "antd": "^5.21.3",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "antd": "^6.7.0",
     "crypto-js": "^4.2.0",
-    "diff": "^7.0.0",
-    "diff2html": "^3.4.48",
-    "jsencrypt": "^3.3.2",
-    "moment": "^2.30.1",
-    "moment-timezone": "^0.5.46",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "diff": "^9.0.0",
+    "diff2html": "^3.4.56",
+    "jsencrypt": "^3.5.4",
+    "moment": "^2.31.0",
+    "moment-timezone": "^0.6.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "react-json-view": "^1.21.3",
-    "react-markdown": "^8.0.7",
-    "react-router-dom": "^6.26.2",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.18.5",
     "react-scripts": "5.0.1",
-    "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4"
+    "typescript": "^7.0.2",
+    "web-vitals": "^6.2.3"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -53,12 +53,12 @@
     ]
   },
   "devDependencies": {
-    "@eslint/js": "^9.11.0",
-    "eslint": "^8.57.1",
-    "eslint-plugin-react": "^7.36.1",
-    "gh-pages": "^5.0.0",
-    "globals": "^15.9.0",
-    "prettier": "^3.3.3",
-    "typescript-eslint": "^8.6.0"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.14.0",
+    "eslint-plugin-react": "^7.37.5",
+    "gh-pages": "^6.3.0",
+    "globals": "^17.14.0",
+    "prettier": "^3.9.10",
+    "typescript-eslint": "^8.72.1"
   }
 }

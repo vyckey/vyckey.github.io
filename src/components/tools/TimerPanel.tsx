@@ -35,8 +35,8 @@ const DurationText: React.FC<DurationTextProps> = ({ duration }) => {
 };
 
 const CountDownTimer = () => {
-  const [duration, setDuration] = useState<moment.Duration>();
-  const timerRef = useRef<NodeJS.Timer>();
+  const [duration, setDuration] = useState<moment.Duration | undefined>(undefined);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   function countDownTime(endTime: moment.Moment) {
     if (timerRef.current) {
@@ -109,8 +109,8 @@ const CountDownTimer = () => {
 };
 
 const CountTimer = () => {
-  const [duration, setDuration] = useState<moment.Duration>();
-  const timerRef = useRef<NodeJS.Timer>();
+  const [duration, setDuration] = useState<moment.Duration | undefined>(undefined);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   function countTime(startTime: moment.Moment) {
     if (timerRef.current) {

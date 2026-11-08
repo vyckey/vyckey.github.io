@@ -9,7 +9,7 @@ export function hashPassword(password: string, code: string) {
   // 字母大小写转换
   const str = 'whenthecatisawaythemicewillplay666';
   for (let i = 0; i < source.length; ++i) {
-    if (isNaN(source[i])) {
+    if (isNaN(Number(source[i]))) {
       if (str.search(rule[i]) > -1) {
         source[i] = source[i].toUpperCase();
       }

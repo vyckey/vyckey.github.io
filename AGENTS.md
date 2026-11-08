@@ -289,8 +289,9 @@ npx prettier --write src/components/tools/MyTool.tsx
    - Options: migrate linting to oxlint/Biome, run ESLint with a separate TypeScript 5 installation, or wait for typescript-eslint support.
 2. **Single large bundle**
    - The production build emits one ~3.5 MB JS chunk (about 940 KB gzip) and Vite warns about the 500 kB threshold. This is not a build failure. Route-level `lazy()` imports are the natural next optimization.
-3. **`react-json-view` is old**
+3. **`react-json-view` is old and needs CJS interop**
    - It declares React 17 peer dependencies while the project uses React 19. The build succeeds, but verify `/tools/json` at runtime when changing JSON tooling. Consider replacing it with a maintained viewer if issues appear.
+   - Its UMD bundle assigns `module.exports.default` at runtime, which Vite's dependency optimizer cannot detect, so the default import resolves to `{ default: Component }` in dev. `JsonTools.tsx` unwraps this shape before rendering; keep that normalization when changing the import, and do not "simplify" it back to a bare default import.
 4. **`/tools/password` is a standalone route**
    - It bypasses `ToolsLayout`, has no top navigation, and is not in `topItems`. Unifying the experience requires changing both the router structure and the menu.
 5. **No fallback route**

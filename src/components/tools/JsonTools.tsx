@@ -2,12 +2,20 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button, Flex, Input, message, Select, Switch, Tabs } from 'antd';
 import type { TextAreaRef } from 'antd/es/input/TextArea';
 import { Splitter } from 'antd';
-import ReactJson, {
+import ReactJsonImport, {
   InteractionProps,
   OnSelectProps,
   ThemeKeys,
 } from 'react-json-view';
 import { DownloadOutlined, SortAscendingOutlined } from '@ant-design/icons';
+
+// react-json-view ships a UMD bundle that assigns `module.exports.default` at
+// runtime, which Vite's dependency optimizer cannot detect. The default import
+// is therefore `{ default: Component }` in dev, while other bundlers and the
+// production build may hand back the component directly. Normalize both shapes.
+const ReactJson =
+  (ReactJsonImport as unknown as { default?: typeof ReactJsonImport })
+    .default ?? ReactJsonImport;
 
 interface JsonViewerProps {
   initialData?: object;

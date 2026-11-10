@@ -1,5 +1,6 @@
 import { Button, Flex, Form, Input, message, Select, Space, Tabs } from 'antd';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import CopyButton from '../CopyButton';
 import CryptoJS from 'crypto-js';
 import JSEncrypt from 'jsencrypt';
@@ -7,6 +8,7 @@ import CopyableTextArea from '../CopyableTextArea';
 import { toPkcs8PrivateKey } from '../../utils/rsa';
 
 const MD5Form: React.FC = () => {
+  const { t } = useTranslation();
   const [md5Value, setMd5Value] = useState('');
 
   return (
@@ -21,13 +23,13 @@ const MD5Form: React.FC = () => {
           rules={[
             {
               required: true,
-              message: '请输入需要进行MD5的文本！',
+              message: t('encryption.md5.required'),
             },
           ]}>
           <CopyableTextArea
             allowClear={true}
             rows={6}
-            placeholder="请输入需要进行MD5的文本"
+            placeholder={t('encryption.md5.placeholder')}
             showCount={true}
           />
         </Form.Item>
@@ -39,12 +41,12 @@ const MD5Form: React.FC = () => {
       </Form>
       <Space direction="vertical">
         <Input
-          addonBefore="MD5 32位小写"
+          addonBefore={t('encryption.md5.lower')}
           value={md5Value}
           suffix={<CopyButton value={md5Value} />}
         />
         <Input
-          addonBefore="MD5 32位大写"
+          addonBefore={t('encryption.md5.upper')}
           value={md5Value.toUpperCase()}
           suffix={<CopyButton value={md5Value.toUpperCase()} />}
         />
@@ -54,6 +56,7 @@ const MD5Form: React.FC = () => {
 };
 
 const Base64Form: React.FC = () => {
+  const { t } = useTranslation();
   const [output, setOutput] = useState('');
   const [form] = Form.useForm();
 
@@ -68,7 +71,7 @@ const Base64Form: React.FC = () => {
       })
       .catch(err => {
         console.log('encode fail', err);
-        message.error('编码失败！');
+        message.error(t('encryption.base64.encodeFailed'));
       });
   }
 
@@ -83,7 +86,7 @@ const Base64Form: React.FC = () => {
       })
       .catch(err => {
         console.log('decode fail', err);
-        message.error('解码失败！');
+        message.error(t('encryption.base64.decodeFailed'));
       });
   }
 
@@ -101,13 +104,13 @@ const Base64Form: React.FC = () => {
           rules={[
             {
               required: true,
-              message: '请输入需要进行编码或解码的文本！',
+              message: t('encryption.base64.required'),
             },
           ]}>
           <CopyableTextArea
             allowClear={true}
             rows={6}
-            placeholder="请输入需要进行编码或解码的文本"
+            placeholder={t('encryption.base64.placeholder')}
             showCount={true}
           />
         </Form.Item>
@@ -115,18 +118,18 @@ const Base64Form: React.FC = () => {
         <Form.Item>
           <Space>
             <Button type="primary" htmlType="submit">
-              编码
+              {t('common.encode')}
             </Button>
             <Button type="primary" onClick={doDecode}>
-              解码
+              {t('common.decode')}
             </Button>
-            <Button onClick={doExchange}>↕ 交换</Button>
+            <Button onClick={doExchange}>{t('common.swap')}</Button>
           </Space>
         </Form.Item>
         <CopyableTextArea
           value={output}
           rows={6}
-          placeholder="输出文本"
+          placeholder={t('encryption.outputPlaceholder')}
           showCount={true}
         />
       </Form>
@@ -135,6 +138,7 @@ const Base64Form: React.FC = () => {
 };
 
 const RSAForm: React.FC = () => {
+  const { t } = useTranslation();
   const [output, setOutput] = useState('');
   const [form] = Form.useForm();
 
@@ -156,7 +160,7 @@ const RSAForm: React.FC = () => {
       );
     } catch (e) {
       console.error('generate RSA key fail', e);
-      message.error('生成失败！');
+      message.error(t('encryption.rsa.generateFailed'));
     }
   }
 
@@ -165,7 +169,7 @@ const RSAForm: React.FC = () => {
       .validateFields()
       .then(values => {
         if (!values.publicKey?.trim()) {
-          message.error('请输入公钥');
+          message.error(t('encryption.rsa.publicKeyRequired'));
           return;
         }
 
@@ -174,14 +178,14 @@ const RSAForm: React.FC = () => {
         const encryptedData = encryptor.encrypt(values.input);
         if (!encryptedData) {
           setOutput('');
-          message.error('加密失败，请检查公钥或文本长度');
+          message.error(t('encryption.rsa.encryptDetail'));
           return;
         }
         setOutput(encryptedData);
       })
       .catch(err => {
         console.log('RSA encrypt fail', err);
-        message.error('加密失败！');
+        message.error(t('encryption.rsa.encryptFailed'));
       });
   }
 
@@ -190,7 +194,7 @@ const RSAForm: React.FC = () => {
       .validateFields()
       .then(values => {
         if (!values.privateKey?.trim()) {
-          message.error('请输入私钥');
+          message.error(t('encryption.rsa.privateKeyRequired'));
           return;
         }
 
@@ -199,14 +203,14 @@ const RSAForm: React.FC = () => {
         const decryptedData = encryptor.decrypt(values.input);
         if (!decryptedData) {
           setOutput('');
-          message.error('解密失败，请检查私钥或密文');
+          message.error(t('encryption.rsa.decryptDetail'));
           return;
         }
         setOutput(decryptedData);
       })
       .catch(err => {
         console.log('RSA decrypt fail', err);
-        message.error('解密失败！');
+        message.error(t('encryption.rsa.decryptFailed'));
       });
   }
 
@@ -227,7 +231,7 @@ const RSAForm: React.FC = () => {
         }}
         onFinish={doEncrypt}>
         <Space>
-          <Form.Item name="bitCount" label="秘钥位数">
+          <Form.Item name="bitCount" label={t('encryption.rsa.keyBits')}>
             <Select
               options={[512, 1024, 2048, 4096].map(bit => ({
                 label: bit + ' bits',
@@ -235,7 +239,7 @@ const RSAForm: React.FC = () => {
               }))}
             />
           </Form.Item>
-          <Form.Item name="format" label="秘钥格式">
+          <Form.Item name="format" label={t('encryption.rsa.keyFormat')}>
             <Select
               options={[
                 {
@@ -253,16 +257,28 @@ const RSAForm: React.FC = () => {
             <Button
               style={{ borderColor: 'green', color: 'green' }}
               onClick={generateRSAKey}>
-              生成秘钥对
+              {t('encryption.rsa.generateKey')}
             </Button>
           </Form.Item>
         </Space>
         <Flex>
-          <Form.Item name="publicKey" label="公钥" style={{ flex: 1 }}>
-            <CopyableTextArea rows={6} placeholder="请输入公钥" />
+          <Form.Item
+            name="publicKey"
+            label={t('encryption.rsa.publicKey')}
+            style={{ flex: 1 }}>
+            <CopyableTextArea
+              rows={6}
+              placeholder={t('encryption.rsa.publicKeyPlaceholder')}
+            />
           </Form.Item>
-          <Form.Item name="privateKey" label="私钥" style={{ flex: 1 }}>
-            <CopyableTextArea rows={6} placeholder="请输入私钥" />
+          <Form.Item
+            name="privateKey"
+            label={t('encryption.rsa.privateKey')}
+            style={{ flex: 1 }}>
+            <CopyableTextArea
+              rows={6}
+              placeholder={t('encryption.rsa.privateKeyPlaceholder')}
+            />
           </Form.Item>
         </Flex>
         <Form.Item
@@ -270,31 +286,31 @@ const RSAForm: React.FC = () => {
           rules={[
             {
               required: true,
-              message: '请输入需要进行加密或解密的文本！',
+              message: t('encryption.rsa.required'),
             },
           ]}>
           <CopyableTextArea
             allowClear={true}
             rows={7}
-            placeholder="请输入需要进行加密或解密的文本"
+            placeholder={t('encryption.rsa.placeholder')}
             showCount={true}
           />
         </Form.Item>
         <Form.Item>
           <Space>
             <Button type="primary" htmlType="submit">
-              加密
+              {t('encryption.rsa.encrypt')}
             </Button>
             <Button type="primary" onClick={doDecrypt}>
-              解密
+              {t('encryption.rsa.decrypt')}
             </Button>
-            <Button onClick={doExchange}>↕ 交换</Button>
+            <Button onClick={doExchange}>{t('common.swap')}</Button>
           </Space>
         </Form.Item>
         <CopyableTextArea
           value={output}
           rows={7}
-          placeholder="输出文本"
+          placeholder={t('encryption.outputPlaceholder')}
           showCount={true}
         />
       </Form>
@@ -303,6 +319,8 @@ const RSAForm: React.FC = () => {
 };
 
 const EncryptionTabs: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <>
       <Tabs
@@ -310,17 +328,17 @@ const EncryptionTabs: React.FC = () => {
         items={[
           {
             key: 'md5_tab',
-            label: 'MD5签名',
+            label: t('encryption.tabs.md5'),
             children: <MD5Form />,
           },
           {
             key: 'base64_tab',
-            label: 'Base64编码/解码',
+            label: t('encryption.tabs.base64'),
             children: <Base64Form />,
           },
           {
             key: 'rsa_tab',
-            label: 'RSA加密/解密',
+            label: t('encryption.tabs.rsa'),
             children: <RSAForm />,
           },
         ]}

@@ -34,8 +34,12 @@ describe('Base64', () => {
   });
 
   it('rejects invalid input', () => {
-    expect(() => decodeBase64('abcde')).toThrow('Base64');
-    expect(() => decodeBase64('@@@@')).toThrow('Base64');
+    expect(() => decodeBase64('abcde')).toThrow(
+      'encoder.errors.base64InvalidLength'
+    );
+    expect(() => decodeBase64('@@@@')).toThrow(
+      'encoder.errors.base64InvalidChar'
+    );
   });
 });
 
@@ -51,7 +55,7 @@ describe('URL encoding', () => {
   });
 
   it('rejects malformed escapes', () => {
-    expect(() => decodeUrl('%E4')).toThrow('URL 解码失败');
+    expect(() => decodeUrl('%E4')).toThrow('encoder.errors.urlDecodeFailed');
   });
 });
 
@@ -79,8 +83,8 @@ describe('Hex and Unicode escapes', () => {
   });
 
   it('rejects malformed hex', () => {
-    expect(() => hexToText('E4B')).toThrow('偶数');
-    expect(() => hexToText('ZZ')).toThrow('Hex');
+    expect(() => hexToText('E4B')).toThrow('encoder.errors.hexOddLength');
+    expect(() => hexToText('ZZ')).toThrow('encoder.errors.hexInvalid');
   });
 
   it('escapes and restores unicode', () => {
@@ -91,10 +95,12 @@ describe('Hex and Unicode escapes', () => {
 });
 
 describe('Radix conversion', () => {
+  const format = (radix: number, value: string) => `${radix}:${value}`;
+
   it('converts between bases', () => {
-    expect(convertRadixText('255', 10)).toContain('十六进制 (16)：ff');
-    expect(convertRadixText('0xFF', 16)).toContain('十进制 (10)：255');
-    expect(convertRadixText('-1010', 2)).toContain('十进制 (10)：-10');
+    expect(convertRadixText('255', 10, format)).toContain('16:ff');
+    expect(convertRadixText('0xFF', 16, format)).toContain('10:255');
+    expect(convertRadixText('-1010', 2, format)).toContain('10:-10');
   });
 
   it('handles integers beyond Number.MAX_SAFE_INTEGER', () => {
@@ -103,7 +109,7 @@ describe('Radix conversion', () => {
   });
 
   it('rejects digits outside the radix', () => {
-    expect(() => parseBigInt('102', 2)).toThrow('2 进制');
-    expect(() => parseBigInt('', 10)).toThrow('请输入');
+    expect(() => parseBigInt('102', 2)).toThrow('encoder.errors.digitInvalid');
+    expect(() => parseBigInt('', 10)).toThrow('encoder.errors.numberRequired');
   });
 });

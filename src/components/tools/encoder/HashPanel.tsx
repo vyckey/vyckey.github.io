@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Checkbox, Select } from 'antd';
 import { HASH_ALGORITHMS, hashText, HashAlgorithm } from '../../../utils/hash';
 import TransformPanel from './TransformPanel';
 
 const HashPanel: React.FC = () => {
+  const { t } = useTranslation();
   const [algorithm, setAlgorithm] = useState<HashAlgorithm>('MD5');
   const [uppercase, setUppercase] = useState(false);
 
   return (
     <TransformPanel
-      inputPlaceholder="请输入需要计算哈希的文本"
-      outputPlaceholder="哈希结果（Hexadecimal）"
+      inputPlaceholder={t('encoder.hash.inputPlaceholder')}
+      outputPlaceholder={t('encoder.hash.outputPlaceholder')}
       rows={6}
       mono
       allowSwap={false}
@@ -26,7 +28,7 @@ const HashPanel: React.FC = () => {
           <Checkbox
             checked={uppercase}
             onChange={e => setUppercase(e.target.checked)}>
-            大写
+            {t('common.uppercase')}
           </Checkbox>
         </>
       }

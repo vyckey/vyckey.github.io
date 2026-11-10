@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Checkbox, Segmented } from 'antd';
 import { decodeBase64, encodeBase64 } from '../../../utils/encoding';
 import TransformPanel from './TransformPanel';
@@ -6,6 +7,7 @@ import TransformPanel from './TransformPanel';
 type Direction = 'encode' | 'decode';
 
 const Base64Panel: React.FC = () => {
+  const { t } = useTranslation();
   const [direction, setDirection] = useState<Direction>('encode');
   const [urlSafe, setUrlSafe] = useState(false);
 
@@ -13,10 +15,10 @@ const Base64Panel: React.FC = () => {
     <TransformPanel
       inputPlaceholder={
         direction === 'encode'
-          ? '请输入需要编码的文本（支持中文和 Emoji）'
-          : '请输入需要解码的 Base64 字符串'
+          ? t('encoder.base64.encodePlaceholder')
+          : t('encoder.base64.decodePlaceholder')
       }
-      outputPlaceholder="输出结果"
+      outputPlaceholder={t('common.outputPlaceholder')}
       mono
       transform={text =>
         direction === 'encode'
@@ -32,15 +34,15 @@ const Base64Panel: React.FC = () => {
             value={direction}
             onChange={value => setDirection(value as Direction)}
             options={[
-              { label: '编码', value: 'encode' },
-              { label: '解码', value: 'decode' },
+              { label: t('common.encode'), value: 'encode' },
+              { label: t('common.decode'), value: 'decode' },
             ]}
           />
           {direction === 'encode' ? (
             <Checkbox
               checked={urlSafe}
               onChange={e => setUrlSafe(e.target.checked)}>
-              URL 安全（使用 - _，去掉 =）
+              {t('encoder.base64.urlSafe')}
             </Checkbox>
           ) : null}
         </>

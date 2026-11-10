@@ -11,9 +11,11 @@ import {
 import moment from 'moment-timezone';
 import React, { useEffect, useRef, useState } from 'react';
 import { ClockCircleOutlined, CalendarOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 import { copyText } from '../../utils/clipboard';
 
 const Timestamp: React.FC = () => {
+  const { t } = useTranslation();
   const [nowTime, setNowTime] = useState(moment());
   const [isRunning, setIsRunning] = useState(true);
   const [isSeconds, setIsSeconds] = useState(false);
@@ -42,15 +44,22 @@ const Timestamp: React.FC = () => {
   async function copyTimestamp() {
     try {
       await copyText(String(displayTimestamp));
-      message.success('复制成功');
+      message.success(t('common.copySuccess'));
     } catch (err) {
       console.error('copy timestamp fail', err);
-      message.error('复制失败');
+      message.error(t('common.copyFailed'));
     }
   }
 
+  const unit = isSeconds
+    ? t('timestamp.unitSecond')
+    : t('timestamp.unitMillisecond');
+
   return (
-    <Card title="当前时间戳" bordered={false} style={{ textAlign: 'center' }}>
+    <Card
+      title={t('timestamp.currentTitle')}
+      bordered={false}
+      style={{ textAlign: 'center' }}>
       <Button
         color="default"
         variant="link"
@@ -58,11 +67,15 @@ const Timestamp: React.FC = () => {
         onClick={copyTimestamp}>
         {displayTimestamp}
       </Button>
-      {isSeconds ? '秒' : '毫秒'}
+      {unit}
       <p style={{ fontSize: 20 }}>{nowTime.format('YYYY-MM-DD HH:mm:ss')}</p>
       <Space>
         <Button onClick={() => setIsSeconds(!isSeconds)}>
-          ↺切换{isSeconds ? '毫秒' : '秒'}
+          {t('timestamp.switchTo', {
+            unit: isSeconds
+              ? t('timestamp.unitMillisecond')
+              : t('timestamp.unitSecond'),
+          })}
         </Button>
         <Button
           variant="solid"
@@ -71,7 +84,7 @@ const Timestamp: React.FC = () => {
             color: '#fff',
           }}
           onClick={() => setIsRunning(!isRunning)}>
-          {isRunning ? '□ 暂停' : '▷ 开始'}
+          {isRunning ? t('common.pause') : t('common.start')}
         </Button>
       </Space>
     </Card>
@@ -91,16 +104,17 @@ interface DateConvertFormData {
 }
 
 const TimeConverter: React.FC = () => {
+  const { t } = useTranslation();
   const [dateValue, setDateValue] = useState('');
   const [timeValue, setTimeValue] = useState<number | null>(null);
   const timeOptions = [
     {
       value: 'millis',
-      label: '毫秒(ms)',
+      label: t('timestamp.units.millis'),
     },
     {
       value: 'second',
-      label: '秒(s)',
+      label: t('timestamp.units.seconds'),
     },
   ];
 
@@ -109,7 +123,7 @@ const TimeConverter: React.FC = () => {
     const date = moment.tz(ts, data.timezone);
     if (!date.isValid()) {
       setDateValue('');
-      message.error('无效的时间戳');
+      message.error(t('timestamp.invalidTimestamp'));
       return;
     }
     setDateValue(date.format('YYYY-MM-DD HH:mm:ss'));
@@ -119,7 +133,7 @@ const TimeConverter: React.FC = () => {
     const date = moment.tz(data.date, 'YYYY-MM-DD HH:mm:ss', data.timezone);
     if (!date.isValid()) {
       setTimeValue(null);
-      message.error('无效的日期时间，请使用 YYYY-MM-DD HH:mm:ss 格式');
+      message.error(t('timestamp.invalidDate'));
       return;
     }
     setTimeValue(
@@ -133,7 +147,7 @@ const TimeConverter: React.FC = () => {
     <>
       <Card>
         <h3>
-          <ClockCircleOutlined /> 时间戳转日期时间
+          <ClockCircleOutlined /> {t('timestamp.timestampToDate')}
         </h3>
         <Form<TimeConvertFormData>
           layout="inline"
@@ -148,7 +162,7 @@ const TimeConverter: React.FC = () => {
             rules={[
               {
                 required: true,
-                message: '请输入时间戳',
+                message: t('timestamp.timestampRequired'),
               },
             ]}>
             <InputNumber style={{ width: 150 }} />
@@ -167,7 +181,7 @@ const TimeConverter: React.FC = () => {
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">
-              转换
+              {t('timestamp.convert')}
             </Button>
           </Form.Item>
           <Form.Item>
@@ -176,7 +190,7 @@ const TimeConverter: React.FC = () => {
         </Form>
 
         <h3>
-          <CalendarOutlined /> 日期时间转时间戳
+          <CalendarOutlined /> {t('timestamp.dateToTimestamp')}
         </h3>
         <Form<DateConvertFormData>
           layout="inline"
@@ -191,7 +205,7 @@ const TimeConverter: React.FC = () => {
             rules={[
               {
                 required: true,
-                message: '请输入YYYY-MM-DD HH:mm:ss格式日期',
+                message: t('timestamp.dateRequired'),
               },
             ]}>
             <Input style={{ width: 180 }} />
@@ -210,7 +224,7 @@ const TimeConverter: React.FC = () => {
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">
-              转换
+              {t('timestamp.convert')}
             </Button>
           </Form.Item>
           <Form.Item>

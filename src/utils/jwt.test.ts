@@ -1,3 +1,4 @@
+import { I18nError } from './errors';
 import {
   decodeJwt,
   formatJwtTime,
@@ -25,8 +26,18 @@ describe('decodeJwt', () => {
   });
 
   it('rejects malformed tokens', () => {
-    expect(() => decodeJwt('abc')).toThrow('JWT 格式错误');
-    expect(() => decodeJwt('a.b.c')).toThrow('Header');
+    expect(() => decodeJwt('abc')).toThrow('encoder.errors.jwtFormat');
+
+    try {
+      decodeJwt('a.b.c');
+      throw new Error('expected decodeJwt to throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(I18nError);
+      expect((error as I18nError).key).toBe(
+        'encoder.errors.jwtSegmentInvalidJson'
+      );
+      expect((error as I18nError).params).toEqual({ label: 'Header' });
+    }
   });
 });
 
@@ -41,7 +52,9 @@ describe('verifyJwtHs256', () => {
 
   it('rejects non-HS256 algorithms', () => {
     const unsigned = 'eyJhbGciOiJub25lIn0.e30.';
-    expect(() => verifyJwtHs256(unsigned, 'secret')).toThrow('HS256');
+    expect(() => verifyJwtHs256(unsigned, 'secret')).toThrow(
+      'encoder.errors.jwtHs256Only'
+    );
   });
 });
 

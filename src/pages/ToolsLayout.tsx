@@ -2,7 +2,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AppstoreOutlined } from '@ant-design/icons';
 import { Button, Layout, Menu, MenuProps, theme } from 'antd';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { menuTools } from '../config/tools';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../components/LanguageSwitcher';
+import { useTools } from '../config/tools';
 
 const { Header, Content, Footer } = Layout;
 
@@ -13,6 +15,8 @@ const ToolsLayout: React.FC = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  const { t } = useTranslation();
+  const { menuTools } = useTools();
   const navigate = useNavigate();
   const location = useLocation();
   const isIndex =
@@ -25,7 +29,7 @@ const ToolsLayout: React.FC = () => {
         label: tool.label,
         icon: tool.icon,
       })),
-    []
+    [menuTools]
   );
 
   // get tab key from url path
@@ -37,7 +41,7 @@ const ToolsLayout: React.FC = () => {
     const pathParts = location.pathname.split('/');
     const lastPart = pathParts[pathParts.length - 1];
     // check if lastPart is in topItems
-    const validKeys = menuTools.map(tool => tool.key);
+    const validKeys: string[] = menuTools.map(tool => tool.key);
     return validKeys.includes(lastPart) ? lastPart : '';
   }, [location]);
 
@@ -60,6 +64,13 @@ const ToolsLayout: React.FC = () => {
           padding: '0 8px 0 0',
           background: colorBgContainer,
         }}>
+        <Button
+          type={isIndex ? 'primary' : 'text'}
+          icon={<AppstoreOutlined />}
+          style={{ flexShrink: 0, marginLeft: 8, marginRight: 8 }}
+          onClick={() => navigate('/tools')}>
+          {t('layout.allTools')}
+        </Button>
         <Menu
           theme="light"
           mode="horizontal"
@@ -68,13 +79,7 @@ const ToolsLayout: React.FC = () => {
           items={topItems}
           onClick={onClickMenu}
         />
-        <Button
-          type={isIndex ? 'primary' : 'text'}
-          icon={<AppstoreOutlined />}
-          style={{ flexShrink: 0 }}
-          onClick={() => navigate('/tools')}>
-          全部工具
-        </Button>
+        <LanguageSwitcher style={{ flexShrink: 0, marginRight: 8 }} />
       </Header>
       <Layout>
         <Content

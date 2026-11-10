@@ -11,22 +11,25 @@ import {
   Switch,
 } from 'antd';
 import Title from 'antd/es/typography/Title';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../LanguageSwitcher';
 import { hashPassword, generatePassword } from '../../util/password';
 import { calculatePasswordStrength } from '../../utils/passwordStrength';
 import { copyText } from '../../utils/clipboard';
 import '../../index.css';
 
+interface FormData {
+  password: string;
+  code: string;
+  length: number;
+  punctuation: boolean;
+  capital: boolean;
+}
+
 export default function PasswordGenerator() {
+  const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const [strength, setStrength] = useState(0);
-
-  interface FormData {
-    password: string;
-    code: string;
-    length: number;
-    punctuation: boolean;
-    capital: boolean;
-  }
 
   function onGeneratePassword(values: FormData) {
     const hash = hashPassword(values.password, values.code);
@@ -40,7 +43,7 @@ export default function PasswordGenerator() {
     if (!newPassword) {
       setPassword('');
       setStrength(0);
-      message.error('生成失败，请调整密码长度或字符选项');
+      message.error(t('password.generateFailed'));
       return;
     }
 
@@ -50,19 +53,20 @@ export default function PasswordGenerator() {
 
   function copyPassword() {
     if (!password) {
-      message.warning('请先生成密码');
+      message.warning(t('password.generateFirst'));
       return;
     }
 
     copyText(password)
-      .then(() => message.success('复制成功'))
-      .catch(() => message.error('复制失败'));
+      .then(() => message.success(t('common.copySuccess')))
+      .catch(() => message.error(t('common.copyFailed')));
   }
 
   return (
     <div className="form-container">
+      <LanguageSwitcher floating />
       <Title level={3} style={{ textAlign: 'center' }}>
-        密码生成器
+        {t('password.title')}
       </Title>
       <Form<FormData>
         initialValues={{
@@ -74,42 +78,43 @@ export default function PasswordGenerator() {
         onFinish={onGeneratePassword}>
         <Form.Item
           name="password"
-          label="记忆密码"
+          label={t('password.memoryPassword')}
           required
-          rules={[{ required: true, message: '请输入记忆密码!' }]}>
-          <Input.Password placeholder="请输入你的记忆密码" />
+          rules={[
+            { required: true, message: t('password.memoryPasswordRequired') },
+          ]}>
+          <Input.Password
+            placeholder={t('password.memoryPasswordPlaceholder')}
+          />
         </Form.Item>
         <Form.Item
           name="code"
-          label="区分代码"
+          label={t('password.code')}
           required
           rules={[
-            { required: true, message: '请输入区分代码' },
-            { min: 3, message: '区分代码过短!' },
+            { required: true, message: t('password.codeRequired') },
+            { min: 3, message: t('password.codeTooShort') },
           ]}>
-          <Input
-            allowClear
-            placeholder="建议使用网站名，比如weixin,taobao,zhihu"
-          />
+          <Input allowClear placeholder={t('password.codePlaceholder')} />
         </Form.Item>
         <Flex gap="large">
           <Form.Item
             name="length"
-            label="密码长度"
-            rules={[{ required: true, message: '请输入密码长度' }]}>
+            label={t('password.length')}
+            rules={[{ required: true, message: t('password.lengthRequired') }]}>
             <InputNumber min={8} max={30} />
           </Form.Item>
-          <Form.Item name="capital" label="大小写">
+          <Form.Item name="capital" label={t('password.case')}>
             <Switch
-              checkedChildren="大写"
-              unCheckedChildren="小写"
+              checkedChildren={t('password.uppercase')}
+              unCheckedChildren={t('password.lowercase')}
               defaultChecked
             />
           </Form.Item>
-          <Form.Item name="punctuation" label="标点符号">
+          <Form.Item name="punctuation" label={t('password.punctuation')}>
             <Switch
-              checkedChildren="包含"
-              unCheckedChildren="不包含"
+              checkedChildren={t('password.include')}
+              unCheckedChildren={t('password.exclude')}
               defaultChecked
             />
           </Form.Item>
@@ -121,16 +126,19 @@ export default function PasswordGenerator() {
             htmlType="submit"
             size="large"
             style={{ backgroundColor: '#4caf50' }}>
-            生成密码
+            {t('password.generate')}
           </Button>
         </Form.Item>
         <Space.Compact style={{ width: '100%' }}>
-          <Input value={password} placeholder="请点击生成密码按钮" />
+          <Input
+            value={password}
+            placeholder={t('password.resultPlaceholder')}
+          />
           <Button
             type="primary"
             style={{ backgroundColor: '#3498db' }}
             onClick={copyPassword}>
-            复制密码
+            {t('password.copyPassword')}
           </Button>
         </Space.Compact>
         <div>

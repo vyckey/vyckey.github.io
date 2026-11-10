@@ -14,6 +14,7 @@ import {
   message,
   theme,
 } from 'antd';
+import { useTranslation } from 'react-i18next';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import hljs from 'highlight.js';
@@ -25,36 +26,6 @@ const { Text } = Typography;
 const MONO_FONT = 'Menlo, Monaco, Consolas, "Courier New", monospace';
 
 type ViewMode = 'split' | 'edit' | 'preview';
-
-const SAMPLE_MARKDOWN = [
-  '# Markdown 预览',
-  '',
-  '在左侧输入 Markdown，右侧会**实时渲染**，所有内容都在浏览器本地处理。',
-  '',
-  '## 常用语法',
-  '',
-  '- **粗体**、*斜体*、~~删除线~~、`行内代码`',
-  '- [链接](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript)',
-  '- 表格、任务列表（GFM）',
-  '',
-  '| 功能 | 是否支持 | 说明 |',
-  '| --- | --- | --- |',
-  '| 表格 | 是 | GFM 扩展语法 |',
-  '| 代码高亮 | 是 | highlight.js |',
-  '| 导出 HTML | 是 | 工具栏按钮 |',
-  '',
-  '> 提示：预览使用安全的默认渲染，不会执行 Markdown 中的原始 HTML。',
-  '',
-  '```js',
-  'function greet(name) {',
-  '  return `Hello, ${name}!`;',
-  '}',
-  'console.log(greet("Vyckey"));',
-  '```',
-  '',
-  '- [x] 支持任务列表',
-  '- [ ] 支持导出 HTML',
-].join('\n');
 
 const EXPORT_CSS = `
 body { margin: 0; padding: 40px 16px; background: #fff; }
@@ -132,10 +103,13 @@ function downloadFile(filename: string, content: string, type: string) {
 }
 
 const MarkdownTool: React.FC = () => {
+  const { t } = useTranslation();
   const {
     token: { colorBorder, colorFillTertiary },
   } = theme.useToken();
-  const [value, setValue] = useState(SAMPLE_MARKDOWN);
+  const [value, setValue] = useState(() =>
+    t('markdown.sample', { returnObjects: true }).join('\n')
+  );
   const [mode, setMode] = useState<ViewMode>('split');
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -150,16 +124,16 @@ const MarkdownTool: React.FC = () => {
   function handleExportHtml() {
     const body = previewRef.current?.innerHTML;
     if (!body) {
-      message.warning('没有可导出的内容');
+      message.warning(t('markdown.exportEmpty'));
       return;
     }
 
     const html = `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="${document.documentElement.lang}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Markdown 导出</title>
+<title>${t('markdown.exportTitle')}</title>
 <style>${EXPORT_CSS}</style>
 </head>
 <body>
@@ -168,7 +142,7 @@ const MarkdownTool: React.FC = () => {
 </html>`;
 
     downloadFile('markdown.html', html, 'text/html;charset=utf-8');
-    message.success('已导出 HTML');
+    message.success(t('markdown.exported'));
   }
 
   const preview = (
@@ -183,7 +157,7 @@ const MarkdownTool: React.FC = () => {
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           components={markdownComponents}>
-          {value || '*（预览区域，左侧输入后实时更新）*'}
+          {value || `*${t('markdown.previewPlaceholder')}*`}
         </ReactMarkdown>
       </div>
     </div>
@@ -193,7 +167,7 @@ const MarkdownTool: React.FC = () => {
     <Input.TextArea
       value={value}
       onChange={e => setValue(e.target.value)}
-      placeholder="# 在这里输入 Markdown"
+      placeholder={t('markdown.editorPlaceholder')}
       spellCheck={false}
       style={{
         height: '100%',
@@ -224,32 +198,32 @@ const MarkdownTool: React.FC = () => {
             value={mode}
             onChange={next => setMode(next as ViewMode)}
             options={[
-              { label: '分屏', value: 'split' },
-              { label: '仅编辑', value: 'edit' },
-              { label: '仅预览', value: 'preview' },
+              { label: t('markdown.mode.split'), value: 'split' },
+              { label: t('markdown.mode.edit'), value: 'edit' },
+              { label: t('markdown.mode.preview'), value: 'preview' },
             ]}
           />
           <CopyButton value={value} style={{ borderColor: colorBorder }}>
-            复制 Markdown
+            {t('markdown.copyMarkdown')}
           </CopyButton>
           <Button icon={<DownloadOutlined />} onClick={handleExportMarkdown}>
-            下载 .md
+            {t('markdown.downloadMarkdown')}
           </Button>
           <Button
             icon={<ExportOutlined />}
             disabled={mode === 'edit' || !value}
             onClick={handleExportHtml}>
-            导出 HTML
+            {t('markdown.exportHtml')}
           </Button>
           <Button
             icon={<ClearOutlined />}
             disabled={!value}
             onClick={() => setValue('')}>
-            清空
+            {t('markdown.clear')}
           </Button>
         </Flex>
         <Text type="secondary" style={{ fontSize: 12 }}>
-          {characters} 字符 · {lines} 行 · 约 {words} 词
+          {t('markdown.stats', { characters, lines, words })}
         </Text>
       </Flex>
 

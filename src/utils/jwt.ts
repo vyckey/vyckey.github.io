@@ -1,5 +1,6 @@
 import CryptoJS from 'crypto-js';
 import { decodeBase64UrlBytes, decodeUtf8, toBase64Url } from './encoding';
+import { I18nError } from './errors';
 
 export interface JwtDecoded {
   header: Record<string, unknown>;
@@ -16,18 +17,18 @@ function decodeSegment(
   label: string
 ): Record<string, unknown> {
   if (!segment) {
-    throw new Error(`${label} 为空`);
+    throw new I18nError('encoder.errors.jwtSegmentEmpty', { label });
   }
 
   let parsed: unknown;
   try {
     parsed = JSON.parse(decodeUtf8(decodeBase64UrlBytes(segment)));
   } catch {
-    throw new Error(`${label} 不是有效的 Base64URL 编码 JSON`);
+    throw new I18nError('encoder.errors.jwtSegmentInvalidJson', { label });
   }
 
   if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    throw new Error(`${label} 必须是 JSON 对象`);
+    throw new I18nError('encoder.errors.jwtSegmentNotObject', { label });
   }
 
   return parsed as Record<string, unknown>;
@@ -38,7 +39,7 @@ export function decodeJwt(token: string): JwtDecoded {
   const parts = normalized.split('.');
 
   if (parts.length !== 3) {
-    throw new Error('JWT 格式错误：应由「.」分隔的 3 段组成');
+    throw new I18nError('encoder.errors.jwtFormat');
   }
 
   const [headerPart, payloadPart, signature] = parts;
@@ -57,12 +58,12 @@ export function decodeJwt(token: string): JwtDecoded {
 
 export function verifyJwtHs256(token: string, secret: string): boolean {
   if (!secret) {
-    throw new Error('请输入用于校验的密钥');
+    throw new I18nError('encoder.errors.jwtSecretRequired');
   }
 
   const decoded = decodeJwt(token);
   if (decoded.header.alg !== 'HS256') {
-    throw new Error('仅支持校验 HS256 签名的 JWT');
+    throw new I18nError('encoder.errors.jwtHs256Only');
   }
 
   const expected = toBase64Url(
@@ -76,7 +77,6 @@ export function verifyJwtHs256(token: string, secret: string): boolean {
 
 export interface JwtTimeClaim {
   claim: 'exp' | 'iat' | 'nbf';
-  label: string;
   value: number;
   /** UTC timestamp in `YYYY-MM-DD HH:mm:ss UTC` form. */
   date: string;
@@ -86,7 +86,7 @@ export interface JwtTimeClaim {
 export function formatJwtTime(value: number): string {
   const date = new Date(value * 1000);
   if (Number.isNaN(date.getTime())) {
-    return '无效时间';
+    return '—';
   }
   return `${date.toISOString().replace('T', ' ').slice(0, 19)} UTC`;
 }
@@ -95,18 +95,11 @@ export function getJwtTimeClaims(
   payload: Record<string, unknown>,
   now = Date.now()
 ): JwtTimeClaim[] {
-  const definitions: Array<{
-    claim: 'exp' | 'nbf' | 'iat';
-    label: string;
-  }> = [
-    { claim: 'exp', label: '过期时间 (exp)' },
-    { claim: 'nbf', label: '生效时间 (nbf)' },
-    { claim: 'iat', label: '签发时间 (iat)' },
-  ];
+  const definitions: Array<'exp' | 'nbf' | 'iat'> = ['exp', 'nbf', 'iat'];
 
   const claims: JwtTimeClaim[] = [];
 
-  for (const { claim, label } of definitions) {
+  for (const claim of definitions) {
     const value = payload[claim];
     if (typeof value !== 'number' || !Number.isFinite(value)) {
       continue;
@@ -121,7 +114,6 @@ export function getJwtTimeClaims(
 
     claims.push({
       claim,
-      label,
       value,
       date: formatJwtTime(value),
       status,

@@ -2,6 +2,7 @@ import { Button, ButtonProps, message, Tooltip } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { CheckOutlined, CopyOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 import { copyText } from '../utils/clipboard';
 
 interface CopyButtonProps extends Omit<ButtonProps, 'value' | 'onClick'> {
@@ -9,6 +10,7 @@ interface CopyButtonProps extends Omit<ButtonProps, 'value' | 'onClick'> {
 }
 
 const CopyButton: React.FC<CopyButtonProps> = ({ value, ...props }) => {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -30,7 +32,7 @@ const CopyButton: React.FC<CopyButtonProps> = ({ value, ...props }) => {
           : String(value);
 
     if (!text) {
-      message.warning('内容为空');
+      message.warning(t('common.copyEmpty'));
       return;
     }
 
@@ -44,16 +46,16 @@ const CopyButton: React.FC<CopyButtonProps> = ({ value, ...props }) => {
           setCopied(false);
           resetTimerRef.current = null;
         }, 2000);
-        message.success('复制成功');
+        message.success(t('common.copySuccess'));
       })
       .catch(err => {
         console.error('copy fail', err);
-        message.error('复制失败');
+        message.error(t('common.copyFailed'));
       });
   }
 
   return (
-    <Tooltip title={copied ? '复制成功' : '复制'}>
+    <Tooltip title={copied ? t('common.copySuccess') : t('common.copy')}>
       <Button
         style={{ border: 'none' }}
         icon={copied ? <CheckOutlined /> : <CopyOutlined />}

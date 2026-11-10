@@ -1,5 +1,6 @@
 import React from 'react';
 import { Tabs } from 'antd';
+import { useTranslation } from 'react-i18next';
 import CaseConvertPanel from './encoder/CaseConvertPanel';
 import Base64Panel from './encoder/Base64Panel';
 import UrlPanel from './encoder/UrlPanel';
@@ -10,6 +11,8 @@ import JwtPanel from './encoder/JwtPanel';
 import HashPanel from './encoder/HashPanel';
 
 export default function EncoderDecoderTabs() {
+  const { t } = useTranslation();
+
   return (
     <Tabs
       type="card"
@@ -17,7 +20,7 @@ export default function EncoderDecoderTabs() {
       items={[
         {
           key: 'case_convert',
-          label: '大小写转换',
+          label: t('encoder.tabs.case'),
           children: <CaseConvertPanel />,
         },
         {
@@ -27,12 +30,12 @@ export default function EncoderDecoderTabs() {
         },
         {
           key: 'url',
-          label: 'URL 编解码',
+          label: t('encoder.tabs.url'),
           children: <UrlPanel />,
         },
         {
           key: 'html',
-          label: 'HTML 实体',
+          label: t('encoder.tabs.html'),
           children: <HtmlPanel />,
         },
         {
@@ -42,17 +45,17 @@ export default function EncoderDecoderTabs() {
         },
         {
           key: 'radix',
-          label: '进制转换',
+          label: t('encoder.tabs.radix'),
           children: <RadixPanel />,
         },
         {
           key: 'jwt',
-          label: 'JWT 解析',
+          label: t('encoder.tabs.jwt'),
           children: <JwtPanel />,
         },
         {
           key: 'hash',
-          label: '哈希计算',
+          label: t('encoder.tabs.hash'),
           children: <HashPanel />,
         },
       ]}

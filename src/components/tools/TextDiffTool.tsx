@@ -1,9 +1,11 @@
 import React, { useId, useMemo, useState } from 'react';
 import TextDiffView from './TextDiffView';
 import { Button, Flex, Select } from 'antd';
+import { useTranslation } from 'react-i18next';
 import CopyableTextArea from '../CopyableTextArea';
 
 export default function TextDiffTool() {
+  const { t } = useTranslation();
   const [editMode, setEditMode] = useState(true);
   const [prevText, setPrevText] = useState<string>('');
   const [newText, setNewText] = useState<string>('');
@@ -26,7 +28,7 @@ export default function TextDiffTool() {
     <Flex vertical gap="small">
       <Flex gap="middle" justify="center">
         <Button type="primary" onClick={() => setEditMode(!editMode)}>
-          {editMode ? 'Diff文本' : '返回编辑'}
+          {editMode ? t('textdiff.diff') : t('textdiff.backToEdit')}
         </Button>
         {(editMode && (
           <Button
@@ -34,7 +36,7 @@ export default function TextDiffTool() {
               setPrevText('');
               setNewText('');
             }}>
-            清除
+            {t('textdiff.clear')}
           </Button>
         )) || (
           <Select
@@ -42,11 +44,11 @@ export default function TextDiffTool() {
             onChange={value => setOutputFormat(value)}
             options={[
               {
-                label: '左右对比',
+                label: t('textdiff.sideBySide'),
                 value: 'side-by-side',
               },
               {
-                label: '分行对比',
+                label: t('textdiff.lineByLine'),
                 value: 'line-by-line',
               },
             ]}
@@ -59,7 +61,7 @@ export default function TextDiffTool() {
             showCount
             rows={29}
             value={prevText}
-            placeholder="请输入原始文本"
+            placeholder={t('textdiff.originalPlaceholder')}
             onChange={e => setPrevText(e.target.value)}
           />
         </div>
@@ -68,7 +70,7 @@ export default function TextDiffTool() {
             showCount
             rows={29}
             value={newText}
-            placeholder="请输入当前文本"
+            placeholder={t('textdiff.currentPlaceholder')}
             onChange={e => setNewText(e.target.value)}
           />
         </div>

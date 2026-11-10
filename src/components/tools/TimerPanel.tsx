@@ -2,39 +2,48 @@ import { Button, Card, DatePicker, Form, Space } from 'antd';
 import dayjs from 'dayjs';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface DurationTextProps {
   duration: moment.Duration;
 }
 
 const DurationText: React.FC<DurationTextProps> = ({ duration }) => {
+  const { t } = useTranslation();
+
   return (
     <div>
       <span>
-        <span style={{ fontSize: 20 }}>{duration.years()}</span>年{' '}
+        <span style={{ fontSize: 20 }}>{duration.years()}</span>
+        {t('timer.units.year')}{' '}
       </span>
       <span>
-        <span style={{ fontSize: 20 }}>{duration.months()}</span>月{' '}
+        <span style={{ fontSize: 20 }}>{duration.months()}</span>
+        {t('timer.units.month')}{' '}
       </span>
       <span>
-        <span style={{ fontSize: 20 }}>{duration.days()}</span>日{' '}
+        <span style={{ fontSize: 20 }}>{duration.days()}</span>
+        {t('timer.units.day')}{' '}
       </span>
       <span> </span>
       <span>
-        <span style={{ fontSize: 20 }}>{duration.hours()}</span> 时
+        <span style={{ fontSize: 20 }}>{duration.hours()}</span>{' '}
+        {t('timer.units.hour')}
       </span>
       <span>
-        <span style={{ fontSize: 20 }}>{duration.minutes()}</span> 分{' '}
+        <span style={{ fontSize: 20 }}>{duration.minutes()}</span>{' '}
+        {t('timer.units.minute')}{' '}
       </span>
       <span>
         <span style={{ fontSize: 24, color: 'red' }}>{duration.seconds()}</span>{' '}
-        秒
+        {t('timer.units.second')}
       </span>
     </div>
   );
 };
 
 const CountDownTimer = () => {
+  const { t } = useTranslation();
   const [duration, setDuration] = useState<moment.Duration | undefined>(
     undefined
   );
@@ -78,7 +87,7 @@ const CountDownTimer = () => {
   }
 
   return (
-    <Card title="倒计时">
+    <Card title={t('timer.countdownTitle')}>
       <Form
         layout="inline"
         initialValues={{
@@ -87,7 +96,7 @@ const CountDownTimer = () => {
         onFinish={values => {
           countDownTime(moment(values.time.valueOf()));
         }}>
-        <Form.Item name="time" label="设定时间" required={true}>
+        <Form.Item name="time" label={t('timer.targetTime')} required={true}>
           <DatePicker showTime={true} allowClear={false} />
         </Form.Item>
         <Form.Item>
@@ -97,7 +106,7 @@ const CountDownTimer = () => {
               backgroundColor: 'green',
               color: '#fff',
             }}>
-            ▷ 开始
+            {t('common.start')}
           </Button>
         </Form.Item>
         <Form.Item>
@@ -110,12 +119,12 @@ const CountDownTimer = () => {
                 timerRef.current = null;
               }
             }}>
-            □ 暂停
+            {t('common.pause')}
           </Button>
         </Form.Item>
         <Form.Item>
           {!duration || duration.asMilliseconds() <= 0 ? (
-            '已结束！'
+            t('timer.finished')
           ) : (
             <DurationText duration={duration} />
           )}
@@ -126,6 +135,7 @@ const CountDownTimer = () => {
 };
 
 const CountTimer = () => {
+  const { t } = useTranslation();
   const [duration, setDuration] = useState<moment.Duration | undefined>(
     undefined
   );
@@ -156,7 +166,7 @@ const CountTimer = () => {
   }
 
   return (
-    <Card title="计时器">
+    <Card title={t('timer.stopwatchTitle')}>
       <Form
         layout="inline"
         initialValues={{
@@ -165,7 +175,7 @@ const CountTimer = () => {
         onFinish={values => {
           countTime(moment(values.time.valueOf()));
         }}>
-        <Form.Item name="time" label="设定时间" required={true}>
+        <Form.Item name="time" label={t('timer.targetTime')} required={true}>
           <DatePicker showTime={true} allowClear={false} />
         </Form.Item>
         <Form.Item>
@@ -175,7 +185,7 @@ const CountTimer = () => {
               backgroundColor: 'green',
               color: '#fff',
             }}>
-            ▷ 开始
+            {t('common.start')}
           </Button>
         </Form.Item>
         <Form.Item>
@@ -188,7 +198,7 @@ const CountTimer = () => {
                 timerRef.current = null;
               }
             }}>
-            □ 暂停
+            {t('common.pause')}
           </Button>
         </Form.Item>
         <Form.Item>

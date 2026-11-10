@@ -16,7 +16,8 @@ import {
   Typography,
 } from 'antd';
 import { Link } from 'react-router-dom';
-import { groupTools, tools } from '../config/tools';
+import { useTranslation } from 'react-i18next';
+import { useTools } from '../config/tools';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -29,6 +30,8 @@ const ToolsIndex: React.FC = () => {
       colorBorderSecondary,
     },
   } = theme.useToken();
+  const { t } = useTranslation();
+  const { tools, groupTools } = useTools();
   const [keyword, setKeyword] = useState('');
 
   const query = keyword.trim().toLowerCase();
@@ -39,12 +42,18 @@ const ToolsIndex: React.FC = () => {
     }
 
     return tools.filter(tool =>
-      [tool.label, tool.description, tool.category, tool.key, ...tool.keywords]
+      [
+        tool.label,
+        tool.description,
+        tool.categoryLabel,
+        tool.key,
+        ...tool.keywords,
+      ]
         .join(' ')
         .toLowerCase()
         .includes(query)
     );
-  }, [query]);
+  }, [query, tools]);
 
   const groups = groupTools(filtered);
 
@@ -52,10 +61,10 @@ const ToolsIndex: React.FC = () => {
     <Flex vertical gap={28}>
       <div style={{ textAlign: 'center', paddingTop: 8 }}>
         <Title level={2} style={{ marginBottom: 8 }}>
-          开发者工具箱
+          {t('toolsIndex.title')}
         </Title>
         <Paragraph type="secondary" style={{ marginBottom: 20 }}>
-          纯浏览器运行、不上传数据的在线小工具，选择下面的卡片即可使用
+          {t('toolsIndex.subtitle')}
         </Paragraph>
         <Input
           size="large"
@@ -63,14 +72,14 @@ const ToolsIndex: React.FC = () => {
           value={keyword}
           onChange={e => setKeyword(e.target.value)}
           prefix={<SearchOutlined />}
-          placeholder="搜索工具，如 Base64、时间戳、JSON、正则"
+          placeholder={t('toolsIndex.searchPlaceholder')}
           style={{ maxWidth: 480 }}
         />
         <div style={{ marginTop: 12 }}>
           <Space size={6}>
             <SafetyCertificateOutlined style={{ color: colorTextTertiary }} />
             <Text type="secondary" style={{ fontSize: 12 }}>
-              所有计算均在本地完成，内容不会上传到服务器
+              {t('toolsIndex.privacy')}
             </Text>
           </Space>
         </div>
@@ -81,11 +90,11 @@ const ToolsIndex: React.FC = () => {
           style={{ padding: '48px 0' }}
           description={
             <Text type="secondary">
-              没有找到与「{keyword.trim()}」匹配的工具
+              {t('toolsIndex.noResults', { keyword: keyword.trim() })}
             </Text>
           }>
           <Text type="secondary" style={{ fontSize: 12 }}>
-            试试搜索「编码」「时间」「JSON」等关键词
+            {t('toolsIndex.noResultsHint')}
           </Text>
         </Empty>
       ) : (
@@ -93,10 +102,10 @@ const ToolsIndex: React.FC = () => {
           <section key={group.category}>
             <Flex align="center" gap={8} style={{ marginBottom: 12 }}>
               <Text strong style={{ fontSize: 16 }}>
-                {group.category}
+                {group.categoryLabel}
               </Text>
               <Text type="secondary" style={{ fontSize: 12 }}>
-                {group.items.length} 个工具
+                {t('toolsIndex.toolCount', { count: group.items.length })}
               </Text>
             </Flex>
             <Row gutter={[16, 16]}>

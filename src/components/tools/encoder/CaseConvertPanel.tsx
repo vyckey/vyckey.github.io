@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Segmented } from 'antd';
 import TransformPanel from './TransformPanel';
 
 type CaseMode = 'upper' | 'lower';
 
 const CaseConvertPanel: React.FC = () => {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<CaseMode>('upper');
 
   return (
     <TransformPanel
-      inputPlaceholder="请输入需要转换大小写的文本"
-      outputPlaceholder="转换结果"
+      inputPlaceholder={t('encoder.case.inputPlaceholder')}
+      outputPlaceholder={t('encoder.case.outputPlaceholder')}
       transform={text =>
         mode === 'upper' ? text.toUpperCase() : text.toLowerCase()
       }
@@ -19,8 +21,8 @@ const CaseConvertPanel: React.FC = () => {
           value={mode}
           onChange={value => setMode(value as CaseMode)}
           options={[
-            { label: '转为大写', value: 'upper' },
-            { label: '转为小写', value: 'lower' },
+            { label: t('encoder.case.upper'), value: 'upper' },
+            { label: t('encoder.case.lower'), value: 'lower' },
           ]}
         />
       }

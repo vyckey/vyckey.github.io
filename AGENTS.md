@@ -90,7 +90,7 @@ All routes are defined in `src/router/Router.tsx` with `createBrowserRouter`.
 | `/tools/textdiff` | `components/tools/TextDiffTool.tsx` | Text comparison; rendering delegated to `TextDiffView.tsx` |
 | `/tools/markdown` | `components/tools/MarkdownTool.tsx` | Markdown live preview (GFM), export to `.md` / `.html` |
 | `/tools/encoder_decoder` | `components/tools/EncoderDecoder.tsx` | Tabs for case conversion, Base64, URL, HTML entities, hex/Unicode, radix, JWT and hashes |
-| `/tools/encryption` | `components/tools/Encryption.tsx` | MD5, Base64, RSA encryption/decryption |
+| `/tools/encryption` | `components/tools/Encryption.tsx` | MD5, SHA-256, Base64, RSA encryption/decryption |
 | `/tools/json` | `components/tools/JsonTools.tsx` | JSON parsing, formatting, sorting, themes, download |
 | `/tools/qrcode` | `components/tools/QRCodeGenerator.tsx` | QR code generation with canvas/SVG, colors, size, and logo |
 | `/tools/ipaddress` | `components/tools/IPAddressView.tsx` | IPv4/IPv6 validation + `ip-api.com` lookup |

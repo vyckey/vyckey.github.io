@@ -162,7 +162,7 @@ const tool = {
     },
     encryption: {
       label: 'Encrypt / Decrypt',
-      description: 'MD5, Base64 and RSA encryption and decryption',
+      description: 'MD5, SHA-256, Base64 and RSA encryption and decryption',
     },
     json: {
       label: 'JSON',
@@ -382,6 +382,7 @@ const encoder = {
 const encryption = {
   tabs: {
     md5: 'MD5 signature',
+    sha256: 'SHA-256 signature',
     base64: 'Base64 encode/decode',
     rsa: 'RSA encrypt/decrypt',
   },
@@ -391,6 +392,12 @@ const encryption = {
     placeholder: 'Enter text to hash with MD5',
     lower: 'MD5 32-char lowercase',
     upper: 'MD5 32-char uppercase',
+  },
+  sha256: {
+    required: 'Please enter text to hash with SHA-256',
+    placeholder: 'Enter text to hash with SHA-256',
+    lower: 'SHA-256 64-char lowercase',
+    upper: 'SHA-256 64-char uppercase',
   },
   base64: {
     required: 'Please enter text to encode or decode',

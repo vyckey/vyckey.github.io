@@ -152,7 +152,7 @@ const tool = {
     },
     encryption: {
       label: '加密/解密',
-      description: 'MD5、Base64、RSA 加解密',
+      description: 'MD5、SHA256、Base64、RSA 加解密',
     },
     json: {
       label: 'JSON',
@@ -371,6 +371,7 @@ const encoder = {
 const encryption = {
   tabs: {
     md5: 'MD5签名',
+    sha256: 'SHA256签名',
     base64: 'Base64编码/解码',
     rsa: 'RSA加密/解密',
   },
@@ -380,6 +381,12 @@ const encryption = {
     placeholder: '请输入需要进行MD5的文本',
     lower: 'MD5 32位小写',
     upper: 'MD5 32位大写',
+  },
+  sha256: {
+    required: '请输入需要进行SHA256的文本！',
+    placeholder: '请输入需要进行SHA256的文本',
+    lower: 'SHA256 64位小写',
+    upper: 'SHA256 64位大写',
   },
   base64: {
     required: '请输入需要进行编码或解码的文本！',

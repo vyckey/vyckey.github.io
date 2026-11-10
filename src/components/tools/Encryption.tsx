@@ -39,7 +39,7 @@ const MD5Form: React.FC = () => {
           </Button>
         </Form.Item>
       </Form>
-      <Space direction="vertical">
+      <Space direction="vertical" style={{ width: 510 }}>
         <Input
           addonBefore={t('encryption.md5.lower')}
           value={md5Value}
@@ -49,6 +49,54 @@ const MD5Form: React.FC = () => {
           addonBefore={t('encryption.md5.upper')}
           value={md5Value.toUpperCase()}
           suffix={<CopyButton value={md5Value.toUpperCase()} />}
+        />
+      </Space>
+    </>
+  );
+};
+
+const SHA256Form: React.FC = () => {
+  const { t } = useTranslation();
+  const [sha256Value, setSha256Value] = useState('');
+
+  return (
+    <>
+      <Form
+        name="sha256Form"
+        onFinish={values => {
+          setSha256Value(CryptoJS.SHA256(values.input).toString());
+        }}>
+        <Form.Item
+          name="input"
+          rules={[
+            {
+              required: true,
+              message: t('encryption.sha256.required'),
+            },
+          ]}>
+          <CopyableTextArea
+            allowClear={true}
+            rows={6}
+            placeholder={t('encryption.sha256.placeholder')}
+            showCount={true}
+          />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+            SHA256
+          </Button>
+        </Form.Item>
+      </Form>
+      <Space direction="vertical" style={{ width: 840 }}>
+        <Input
+          addonBefore={t('encryption.sha256.lower')}
+          value={sha256Value}
+          suffix={<CopyButton value={sha256Value} />}
+        />
+        <Input
+          addonBefore={t('encryption.sha256.upper')}
+          value={sha256Value.toUpperCase()}
+          suffix={<CopyButton value={sha256Value.toUpperCase()} />}
         />
       </Space>
     </>
@@ -330,6 +378,11 @@ const EncryptionTabs: React.FC = () => {
             key: 'md5_tab',
             label: t('encryption.tabs.md5'),
             children: <MD5Form />,
+          },
+          {
+            key: 'sha256_tab',
+            label: t('encryption.tabs.sha256'),
+            children: <SHA256Form />,
           },
           {
             key: 'base64_tab',

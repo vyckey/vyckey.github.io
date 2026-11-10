@@ -3,68 +3,70 @@ import { Button, Flex, Input, message, Space, Table } from 'antd';
 import Title from 'antd/es/typography/Title';
 import CopyButton from '../CopyButton';
 import CopyableTextArea from '../CopyableTextArea';
+import { useTranslation } from 'react-i18next';
 import { isValidIP } from '../../utils/ip';
 
 export default function IPAddressView() {
+  const { t } = useTranslation();
   const columns = [
     {
       key: 'ip',
-      title: 'IP地址',
+      title: t('ip.columns.ip'),
       dataIndex: 'query',
     },
     {
       key: 'country',
-      title: '国家',
+      title: t('ip.columns.country'),
       dataIndex: 'country',
     },
     {
       key: 'countryCode',
-      title: '国家码',
+      title: t('ip.columns.countryCode'),
       dataIndex: 'countryCode',
     },
     {
       key: 'region',
-      title: '地区',
+      title: t('ip.columns.region'),
       dataIndex: 'region',
     },
     {
       key: 'regionName',
-      title: '地区名',
+      title: t('ip.columns.regionName'),
       dataIndex: 'regionName',
     },
     {
       key: 'city',
-      title: '城市',
+      title: t('ip.columns.city'),
       dataIndex: 'city',
     },
     {
       key: 'timezone',
-      title: '时区',
+      title: t('ip.columns.timezone'),
       dataIndex: 'timezone',
     },
     {
       key: 'latitude',
-      title: '纬度',
+      title: t('ip.columns.latitude'),
       dataIndex: 'lat',
     },
     {
       key: 'longitude',
-      title: '经度',
+      title: t('ip.columns.longitude'),
       dataIndex: 'lon',
     },
     {
       key: 'isp',
-      title: 'ISP',
+      title: t('ip.columns.isp'),
       dataIndex: 'isp',
     },
     {
       key: 'org',
-      title: '组织',
+      title: t('ip.columns.org'),
       dataIndex: 'org',
     },
     {
       key: 'as',
-      title: 'AS',
+      title: t('ip.columns.as'),
       dataIndex: 'as',
     },
   ];
@@ -86,7 +88,7 @@ export default function IPAddressView() {
   async function queryIPInfo(value: string) {
     const normalizedIP = value.trim();
     if (normalizedIP && !isValidIP(normalizedIP)) {
-      message.error('IP地址格式错误');
+      message.error(t('ip.invalid'));
       return;
     }
 
@@ -111,7 +113,7 @@ export default function IPAddressView() {
       if (data.status === 'fail') {
         setIPInfo(data);
         message.error(
-          typeof data.message === 'string' ? data.message : 'IP地址查询失败'
+          typeof data.message === 'string' ? data.message : t('ip.queryFailed')
         );
         return;
       }
@@ -122,7 +124,7 @@ export default function IPAddressView() {
         return;
       }
       console.error(err);
-      message.error('IP地址查询失败');
+      message.error(t('ip.queryFailed'));
     } finally {
       if (requestId === requestIdRef.current) {
         setLoading(false);
@@ -134,12 +136,12 @@ export default function IPAddressView() {
     <>
       <Flex gap={30} justify="center" wrap={true}>
         <Space direction="vertical" style={{ width: 400 }}>
-          <Title level={4}>IP地址信息</Title>
+          <Title level={4}>{t('ip.title')}</Title>
           <Flex gap={10} style={{ marginBottom: 10 }}>
             <Input
               allowClear={true}
               value={ip}
-              placeholder="请输入IPv4或IPv6地址"
+              placeholder={t('ip.placeholder')}
               onChange={e => setIP(e.target.value)}
               onPressEnter={() => void queryIPInfo(ip)}
             />
@@ -148,7 +150,7 @@ export default function IPAddressView() {
               htmlType="button"
               loading={loading}
               onClick={() => void queryIPInfo(ip)}>
-              查询
+              {t('ip.query')}
             </Button>
           </Flex>
           <Table<Record<string, unknown>>
@@ -158,12 +160,12 @@ export default function IPAddressView() {
             columns={[
               {
                 key: 'key',
-                title: '属性',
+                title: t('ip.attribute'),
                 dataIndex: 'key',
               },
               {
                 key: 'value',
-                title: '属性值',
+                title: t('ip.attributeValue'),
                 dataIndex: 'value',
               },
             ]}
@@ -174,21 +176,21 @@ export default function IPAddressView() {
             pagination={false}
           />
           <p>
-            以上IP信息来源于
+            {t('ip.sourcePrefix')}
             <a href="http://ip-api.com" target="_blank" rel="noreferrer">
               http://ip-api.com
             </a>
-            网站。
+            {t('ip.sourceSuffix')}
           </p>
         </Space>
         <Space direction="vertical" style={{ width: 400 }}>
-          <Title level={4}>CURL命令</Title>
+          <Title level={4}>{t('ip.curl')}</Title>
           <Input
             prefix="$"
             value={'curl http://ip-api.com/json/' + ip}
             suffix={<CopyButton value={'curl http://ip-api.com/json/' + ip} />}
           />
-          JSON格式结果
+          {t('ip.jsonResult')}
           <CopyableTextArea rows={18} value={JSON.stringify(ipInfo, null, 2)} />
         </Space>
       </Flex>

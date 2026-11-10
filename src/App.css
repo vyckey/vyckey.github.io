@@ -152,6 +152,29 @@
   background: #242b37 !important;
 }
 
+/* Language switcher inside the dark profile header */
+.profile-header .language-switcher.ant-select {
+  color: #a5adba;
+}
+
+.profile-header .language-switcher .ant-select-prefix,
+.profile-header .language-switcher .ant-select-arrow {
+  color: #a5adba;
+}
+
+.profile-header .language-switcher .ant-select-selection-item {
+  color: #dfe3e9;
+}
+
+.profile-header .language-switcher:hover .ant-select-selection-item,
+.profile-header .language-switcher:hover .ant-select-prefix,
+.profile-header .language-switcher:hover .ant-select-arrow,
+.profile-header
+  .language-switcher.ant-select-focused
+  .ant-select-selection-item {
+  color: #e6b978;
+}
+
 /* ==============================
    Hero
 ================================ */

@@ -8,6 +8,7 @@ import ReactJsonImport, {
   ThemeKeys,
 } from 'react-json-view';
 import { DownloadOutlined, SortAscendingOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 // react-json-view ships a UMD bundle that assigns `module.exports.default` at
 // runtime, which Vite's dependency optimizer cannot detect. The default import
@@ -62,6 +63,7 @@ const jsonThemes = [
 ];
 
 const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
+  const { t } = useTranslation();
   const [textValue, setTextValue] = useState('');
   const [jsonValue, setJsonValue] = useState<object>(initialData || {});
   const [cachedJsonValue, setCachedJsonValue] = useState<object | undefined>(
@@ -138,7 +140,7 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
       return { ok: true, value: JSON.parse(text) };
     } catch (e) {
       console.log('parse json fail', e);
-      message.error('JSON解析失败: ' + e);
+      message.error(t('json.parseFailed', { message: String(e) }));
       return { ok: false };
     }
   }
@@ -159,7 +161,7 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
 
   const handleValidate = () => {
     if (parseJson(textValue).ok) {
-      message.success('JSON格式正确！');
+      message.success(t('json.valid'));
     }
   };
 
@@ -170,7 +172,7 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
     }
 
     if (result.value === null || typeof result.value !== 'object') {
-      message.warning('右侧 JSON 视图仅支持对象或数组');
+      message.warning(t('json.objectOnly'));
       return;
     }
 
@@ -270,7 +272,7 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (e: unknown) {
       const errorMessage = e instanceof Error ? e.message : String(e);
-      message.error(`JSON 导出失败: ${errorMessage}`);
+      message.error(t('json.exportFailed', { message: errorMessage }));
     }
   };
 
@@ -281,30 +283,30 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
           showSearch={true}
           defaultValue={theme}
           options={jsonThemes.map(theme => ({
-            label: '主题 ' + theme,
+            label: t('json.themePrefix', { theme }),
             value: theme,
           }))}
           style={{ width: 160, textAlign: 'left' }}
           onChange={value => setTheme(value as ThemeKeys)}
         />
-        <Button onClick={handleValidate}>校验</Button>
+        <Button onClick={handleValidate}>{t('json.validate')}</Button>
         <Select
           defaultValue={2}
           options={[2, 4, 8].map(width => ({
-            label: width + '空格美化',
+            label: t('json.format', { width }),
             value: width,
           }))}
           onChange={(val: number) => handleFormat(val)}
         />
-        <Button onClick={handleCompress}>压缩</Button>
+        <Button onClick={handleCompress}>{t('json.compress')}</Button>
         <Button type="primary" onClick={handleParse}>
-          解析
+          {t('json.parse')}
         </Button>
-        <Button onClick={handleStringify}>反解析</Button>
+        <Button onClick={handleStringify}>{t('json.stringify')}</Button>
         <Select
           defaultValue={indentWidth}
           options={[2, 4, 8].map(width => ({
-            label: width + '个空格缩进',
+            label: t('json.indent', { width }),
             value: width,
           }))}
           onChange={(val: number) => setIndentWidth(val)}
@@ -314,10 +316,10 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
           value={collapsed}
           options={
             [
-              { label: '展开全部', value: false },
-              { label: '折叠全部', value: true },
+              { label: t('json.expandAll'), value: false },
+              { label: t('json.collapseAll'), value: true },
               ...Array.from({ length: 5 }, (_, i) => ({
-                label: `折叠到 ${i + 1} 层`,
+                label: t('json.collapseTo', { depth: i + 1 }),
                 value: i + 1,
               })),
             ] as { label: string; value: boolean | number }[]
@@ -328,14 +330,14 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
         <Button
           icon={<SortAscendingOutlined />}
           onClick={() => handleSortKeys(!isSortKeys)}>
-          {isSortKeys ? '取消' : ''}排序
+          {isSortKeys ? t('json.cancelSort') : t('json.sort')}
         </Button>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span style={{ marginRight: 8 }}>编辑</span>
+          <span style={{ marginRight: 8 }}>{t('json.edit')}</span>
           <Switch checked={enableEditing} onChange={setEnableEditing} />
         </div>
         <Button icon={<DownloadOutlined />} onClick={handleExport}>
-          导出文件
+          {t('json.exportFile')}
         </Button>
       </Flex>
       <Splitter
@@ -372,7 +374,7 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
             <Input.TextArea
               ref={textAreaRef}
               value={textValue}
-              placeholder="请输入JSON文本"
+              placeholder={t('json.placeholder')}
               style={{
                 whiteSpace: 'nowrap',
                 overflowX: 'auto',
@@ -412,6 +414,8 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ initialData }) => {
 };
 
 export default function JsonTools() {
+  const { t } = useTranslation();
+
   return (
     <>
       <Tabs
@@ -419,7 +423,7 @@ export default function JsonTools() {
         items={[
           {
             key: 'json_view',
-            label: 'JSON解析',
+            label: t('json.tab'),
             children: <JsonViewer />,
           },
         ]}

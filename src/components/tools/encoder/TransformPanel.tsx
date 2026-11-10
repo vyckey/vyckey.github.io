@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { Alert, Button, Flex, Typography } from 'antd';
 import { SwapOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
+import { translateError } from '../../../i18n/translateError';
 import CopyableTextArea from '../../CopyableTextArea';
 
 const { Text } = Typography;
@@ -28,13 +30,14 @@ export interface TransformPanelProps {
 const TransformPanel: React.FC<TransformPanelProps> = ({
   transform,
   inputPlaceholder,
-  outputPlaceholder = '输出结果',
+  outputPlaceholder,
   options,
   allowSwap = true,
   onSwap,
   rows = 8,
   mono = false,
 }) => {
+  const { t } = useTranslation();
   const [input, setInput] = useState('');
 
   const { output, error } = useMemo(() => {
@@ -47,10 +50,10 @@ const TransformPanel: React.FC<TransformPanelProps> = ({
     } catch (e) {
       return {
         output: '',
-        error: e instanceof Error ? e.message : String(e),
+        error: translateError(t, e),
       };
     }
-  }, [input, transform]);
+  }, [input, transform, t]);
 
   const monoStyle = mono ? { fontFamily: MONO_FONT } : undefined;
 
@@ -62,7 +65,7 @@ const TransformPanel: React.FC<TransformPanelProps> = ({
         </Flex>
       ) : null}
 
-      <Text strong>输入</Text>
+      <Text strong>{t('common.input')}</Text>
       <CopyableTextArea
         value={input}
         onChange={e => setInput(e.target.value)}
@@ -81,17 +84,17 @@ const TransformPanel: React.FC<TransformPanelProps> = ({
             setInput(output);
             onSwap?.();
           }}>
-          交换（输出 → 输入）
+          {t('encoder.panel.swap')}
         </Button>
       ) : null}
 
-      <Text strong>输出</Text>
+      <Text strong>{t('common.output')}</Text>
       <CopyableTextArea
         value={output}
         readOnly
         rows={rows}
         showCount
-        placeholder={outputPlaceholder}
+        placeholder={outputPlaceholder ?? t('common.outputPlaceholder')}
         style={monoStyle}
       />
 

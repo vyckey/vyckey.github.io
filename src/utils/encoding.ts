@@ -1,3 +1,5 @@
+import { I18nError } from './errors';
+
 const utf8Encoder = new TextEncoder();
 const utf8Decoder = new TextDecoder('utf-8', { fatal: true });
 
@@ -30,12 +32,12 @@ export function normalizeBase64(input: string): string {
     return '';
   }
   if (!/^[A-Za-z0-9+/]*={0,2}$/.test(cleaned)) {
-    throw new Error('Base64 内容不合法：包含无效字符');
+    throw new I18nError('encoder.errors.base64InvalidChar');
   }
 
   const withoutPadding = cleaned.replace(/=+$/, '');
   if (withoutPadding.length % 4 === 1) {
-    throw new Error('Base64 内容不合法：长度错误');
+    throw new I18nError('encoder.errors.base64InvalidLength');
   }
 
   const padding = (4 - (withoutPadding.length % 4)) % 4;
@@ -56,7 +58,7 @@ export function decodeBase64(input: string): string {
   try {
     return utf8Decoder.decode(binaryToBytes(atob(normalized)));
   } catch {
-    throw new Error('Base64 解码失败：内容不是有效的 Base64 或 UTF-8 文本');
+    throw new I18nError('encoder.errors.base64DecodeFailed');
   }
 }
 
@@ -73,7 +75,7 @@ export function encodeUrl(text: string, formMode = false): string {
     const encoded = encodeURIComponent(text);
     return formMode ? encoded.replace(/%20/g, '+') : encoded;
   } catch {
-    throw new Error('URL 编码失败：文本包含无效的 Unicode 字符');
+    throw new I18nError('encoder.errors.urlEncodeFailed');
   }
 }
 
@@ -82,7 +84,7 @@ export function decodeUrl(text: string, formMode = false): string {
   try {
     return decodeURIComponent(source);
   } catch {
-    throw new Error('URL 解码失败：包含无效的百分号转义序列');
+    throw new I18nError('encoder.errors.urlDecodeFailed');
   }
 }
 
@@ -151,10 +153,10 @@ export function hexToText(input: string): string {
     return '';
   }
   if (cleaned.length % 2 !== 0) {
-    throw new Error('Hex 长度必须为偶数：每个字节由两个十六进制字符组成');
+    throw new I18nError('encoder.errors.hexOddLength');
   }
   if (!/^[0-9a-f]+$/i.test(cleaned)) {
-    throw new Error('Hex 内容不合法：只能包含 0-9 和 a-f');
+    throw new I18nError('encoder.errors.hexInvalid');
   }
 
   const bytes = new Uint8Array(cleaned.length / 2);
@@ -165,7 +167,7 @@ export function hexToText(input: string): string {
   try {
     return decodeUtf8(bytes);
   } catch {
-    throw new Error('Hex 解码失败：字节序列不是有效的 UTF-8 文本');
+    throw new I18nError('encoder.errors.hexDecodeFailed');
   }
 }
 
@@ -199,12 +201,12 @@ export const RADIXES = [2, 8, 10, 16, 36] as const;
 
 export function parseBigInt(value: string, radix: number): bigint {
   if (radix < 2 || radix > 36) {
-    throw new Error('进制必须在 2 到 36 之间');
+    throw new I18nError('encoder.errors.radixRange');
   }
 
   let text = value.trim().replace(/[\s_,]/g, '');
   if (!text) {
-    throw new Error('请输入需要转换的数值');
+    throw new I18nError('encoder.errors.numberRequired');
   }
 
   let negative = false;
@@ -225,7 +227,7 @@ export function parseBigInt(value: string, radix: number): bigint {
   }
 
   if (!text) {
-    throw new Error('请输入需要转换的数值');
+    throw new I18nError('encoder.errors.numberRequired');
   }
 
   const base = BigInt(radix);
@@ -233,7 +235,7 @@ export function parseBigInt(value: string, radix: number): bigint {
   for (const char of text.toLowerCase()) {
     const digit = parseInt(char, 36);
     if (!Number.isInteger(digit) || digit >= radix) {
-      throw new Error(`字符「${char}」不是 ${radix} 进制的有效数字`);
+      throw new I18nError('encoder.errors.digitInvalid', { char, radix });
     }
     result = result * base + BigInt(digit);
   }
@@ -241,17 +243,15 @@ export function parseBigInt(value: string, radix: number): bigint {
   return negative ? -result : result;
 }
 
-export function convertRadixText(value: string, fromRadix: number): string {
+/**
+ * Convert a number into every supported radix. The caller supplies the
+ * formatter so this pure helper stays free of user-facing copy.
+ */
+export function convertRadixText(
+  value: string,
+  fromRadix: number,
+  format: (radix: number, value: string) => string
+): string {
   const parsed = parseBigInt(value, fromRadix);
-  const labels: Record<number, string> = {
-    2: '二进制',
-    8: '八进制',
-    10: '十进制',
-    16: '十六进制',
-    36: '三十六进制',
-  };
-
-  return RADIXES.map(
-    radix => `${labels[radix]} (${radix})：${parsed.toString(radix)}`
-  ).join('\n');
+  return RADIXES.map(radix => format(radix, parsed.toString(radix))).join('\n');
 }

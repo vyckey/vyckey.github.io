@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Checkbox, Segmented, Select } from 'antd';
 import {
   hexToText,
@@ -12,6 +13,7 @@ type HexFormat = 'hex' | 'unicode';
 type Direction = 'encode' | 'decode';
 
 const HexPanel: React.FC = () => {
+  const { t } = useTranslation();
   const [format, setFormat] = useState<HexFormat>('hex');
   const [direction, setDirection] = useState<Direction>('encode');
   const [separator, setSeparator] = useState(' ');
@@ -32,16 +34,16 @@ const HexPanel: React.FC = () => {
   const inputPlaceholder =
     format === 'unicode'
       ? direction === 'encode'
-        ? '请输入需要转成 Unicode 转义的文本'
-        : '请输入 Unicode 转义，如 \\u4F60\\u597D'
+        ? t('encoder.hex.unicodeEncodePlaceholder')
+        : t('encoder.hex.unicodeDecodePlaceholder')
       : direction === 'encode'
-        ? '请输入需要转成十六进制的文本（按 UTF-8 字节）'
-        : '请输入十六进制内容，如 E4 BD A0 E5 A5 BD';
+        ? t('encoder.hex.hexEncodePlaceholder')
+        : t('encoder.hex.hexDecodePlaceholder');
 
   return (
     <TransformPanel
       inputPlaceholder={inputPlaceholder}
-      outputPlaceholder="输出结果"
+      outputPlaceholder={t('common.outputPlaceholder')}
       mono
       transform={transform}
       onSwap={() =>
@@ -53,16 +55,16 @@ const HexPanel: React.FC = () => {
             value={format}
             onChange={value => setFormat(value as HexFormat)}
             options={[
-              { label: '十六进制', value: 'hex' },
-              { label: 'Unicode 转义', value: 'unicode' },
+              { label: t('encoder.hex.formatHex'), value: 'hex' },
+              { label: t('encoder.hex.formatUnicode'), value: 'unicode' },
             ]}
           />
           <Segmented
             value={direction}
             onChange={value => setDirection(value as Direction)}
             options={[
-              { label: '编码', value: 'encode' },
-              { label: '解码', value: 'decode' },
+              { label: t('common.encode'), value: 'encode' },
+              { label: t('common.decode'), value: 'decode' },
             ]}
           />
           {format === 'hex' && direction === 'encode' ? (
@@ -72,15 +74,15 @@ const HexPanel: React.FC = () => {
                 onChange={setSeparator}
                 style={{ width: 110 }}
                 options={[
-                  { label: '空格分隔', value: ' ' },
-                  { label: '无分隔', value: '' },
-                  { label: '逗号分隔', value: ',' },
+                  { label: t('encoder.hex.separatorSpace'), value: ' ' },
+                  { label: t('encoder.hex.separatorNone'), value: '' },
+                  { label: t('encoder.hex.separatorComma'), value: ',' },
                 ]}
               />
               <Checkbox
                 checked={uppercase}
                 onChange={e => setUppercase(e.target.checked)}>
-                大写
+                {t('common.uppercase')}
               </Checkbox>
             </>
           ) : null}

@@ -15,6 +15,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import type { MenuProps } from 'antd';
 import { CaretDownFilled, CheckOutlined, FlagFilled } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 import CopyableTextArea from '../CopyableTextArea';
 import { findRegexMatches, highlightRegexMatches } from '../../utils/regex';
 
@@ -27,18 +28,34 @@ interface MatchResult {
   groups: string[];
 }
 
+interface SyntaxItem {
+  code: string;
+  text: string;
+}
+
+interface SyntaxSection {
+  title: string;
+  items: SyntaxItem[];
+}
+
 const highlightColors = [
-  '#ffecb3', // 浅黄色
-  '#b3e5fc', // 浅蓝色
-  '#c8e6c9', // 浅绿色
-  '#ffcdd2', // 浅红色
-  '#e1bee7', // 浅紫色
-  '#fff9c4', // 浅黄
-  '#b2ebf2', // 浅青色
-  '#d7ccc8', // 浅棕色
+  '#ffecb3',
+  '#b3e5fc',
+  '#c8e6c9',
+  '#ffcdd2',
+  '#e1bee7',
+  '#fff9c4',
+  '#b2ebf2',
+  '#d7ccc8',
 ];
 
-// 自定义高亮文本显示组件
+const syntaxSectionKeys = [
+  'characters',
+  'positions',
+  'quantifiers',
+  'groups',
+] as const;
+
 const HighlightedText: React.FC<{
   text: string;
   pattern: string;
@@ -48,7 +65,7 @@ const HighlightedText: React.FC<{
     try {
       return highlightRegexMatches(pattern, flags, text);
     } catch {
-      // 如果正则表达式无效，返回原始文本
+      // Invalid patterns fall back to the plain text.
       return [{ text, matched: false }];
     }
   }, [text, pattern, flags]);
@@ -76,232 +93,119 @@ const HighlightedText: React.FC<{
   );
 };
 
-// 语法参考组件
 const SyntaxReference: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div>
-      <div style={{ marginBottom: '16px' }}>
-        <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>字符匹配</div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>.</Text> - 匹配除换行符以外的任意字符
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>[abc]</Text> - 匹配a, b或c的一个字符
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>[a-z]</Text> - 匹配a到z的一个字符
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>[^abc]</Text> - 匹配除a, b, c以外的一个字符
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>aa|bb</Text> - 匹配aa或bb的两个字符
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>\w</Text> - 匹配字母、数字、下划线
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>\d</Text> - 匹配数字
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>\s</Text> - 匹配空白字符
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>\W, \D, \S</Text> - 分别是上面的反义
-        </div>
-      </div>
+      {syntaxSectionKeys.map(sectionKey => {
+        const section = t(`regex.syntax.${sectionKey}`, {
+          returnObjects: true,
+        }) as unknown as SyntaxSection;
 
-      <div style={{ marginBottom: '16px' }}>
-        <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>位置匹配</div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>^</Text> - 匹配字符串开始
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>$</Text> - 匹配字符串结束
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>\b</Text> - 匹配单词边界
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>\B</Text> - 匹配非单词边界
-        </div>
-      </div>
-
-      <div style={{ marginBottom: '16px' }}>
-        <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>量词</div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>*</Text> - 匹配0次或多次
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>+</Text> - 匹配1次或多次
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>?</Text> - 匹配0次或1次
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>{'{n}'}</Text> - 匹配n次
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>{'{n,}'}</Text> - 匹配n次及以上
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>{'{m,n}'}</Text> - 匹配m到n次
-        </div>
-      </div>
-
-      <div>
-        <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-          分组和引用
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>(...)</Text> - 分组
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>(?:...)</Text> - 非捕获分组
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>(?=...)</Text> - 正向先行断言
-        </div>
-        <div style={{ padding: '4px 0' }}>
-          <Text code>(?!...)</Text> - 负向先行断言
-        </div>
-      </div>
+        return (
+          <div
+            key={sectionKey}
+            style={{ marginBottom: sectionKey === 'groups' ? 0 : '16px' }}>
+            <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+              {section.title}
+            </div>
+            {section.items.map(item => (
+              <div key={item.code} style={{ padding: '4px 0' }}>
+                <Text code>{item.code}</Text> - {item.text}
+              </div>
+            ))}
+          </div>
+        );
+      })}
     </div>
   );
 };
 
-// 常用表达式下拉组件（用于放置在修饰符右侧）
+const commonPatternKeys = [
+  'alphanumeric',
+  'letters',
+  'lettersAndDigits',
+  'wordCharacters',
+  'chinese',
+  'email',
+  'domain',
+  'url',
+  'date',
+  'phoneWithArea',
+  'chinaPhone',
+  'idCard',
+  'postalCode',
+  'webUrl',
+  'ipv4Strict',
+  'ip',
+] as const;
+
+const commonPatternSources: Record<(typeof commonPatternKeys)[number], string> =
+  {
+    alphanumeric: '^[A-Za-z0-9]+$',
+    letters: '^[A-Za-z]+$',
+    lettersAndDigits: '^[A-Za-z0-9]+$',
+    wordCharacters: '^\\w+$',
+    chinese: '^[\\u4e00-\\u9fa5]+$',
+    email: '^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$',
+    domain:
+      '[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\\.?',
+    url: '^[a-zA-Z]+://[^\\s]+$',
+    date: '\\d{4}-\\d{2}-\\d{2}',
+    phoneWithArea: '^(\\d{3,4}-)?\\d{7,8}$',
+    chinaPhone: '\\d{3}-\\d{8}|\\d{4}-\\d{7}',
+    idCard: '(^\\d{15}$)|(^\\d{18}$)|(^\\d{17}[\\dXx]$)',
+    postalCode: '[1-9]\\d{5}(?!\\d)',
+    webUrl:
+      'https?://(?:[-\\w.])+(?:\\:[0-9]+)?(?:/(?:[\\w/_.])*(?:\\?(?:[\\w&=%.])*)?(?:#(?:[\\w.])*)?)?',
+    ipv4Strict:
+      '((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})(\\.((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})){3}',
+    ip: '(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)',
+  };
+
 const CommonExpressionsDropdown: React.FC<{
   setPattern: (pattern: string) => void;
 }> = ({ setPattern }) => {
+  const { t } = useTranslation();
   const { Text } = Typography;
 
-  const commonPatterns: {
-    name: string;
-    pattern: string;
-    description: string;
-  }[] = [
-    {
-      name: '英文和数字',
-      pattern: '^[A-Za-z0-9]+$',
-      description: '匹配英文字符和数字的组合',
-    },
-    {
-      name: '26个英文字母',
-      pattern: '^[A-Za-z]+$',
-      description: '匹配英文字母',
-    },
-    {
-      name: '数字和26个英文字母',
-      pattern: '^[A-Za-z0-9]+$',
-      description: '匹配数字和英文字母的组合',
-    },
-    {
-      name: '数字、字母或下划线',
-      pattern: '^\\w+$',
-      description: '匹配数字、字母或下划线',
-    },
-    {
-      name: '汉字',
-      pattern: '^[\\u4e00-\\u9fa5]+$',
-      description: '匹配一个或多个汉字',
-    },
-    {
-      name: 'Email地址',
-      pattern: '^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$',
-      description: '匹配标准的Email地址格式',
-    },
-    {
-      name: '域名',
-      pattern:
-        '[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\\.?',
-      description: '匹配域名格式',
-    },
-    {
-      name: 'Internet URL',
-      pattern: '^[a-zA-Z]+://[^\\s]+$',
-      description: '匹配Internet URL地址',
-    },
-    {
-      name: '日期格式',
-      pattern: '\\d{4}-\\d{2}-\\d{2}',
-      description: '匹配YYYY-MM-DD日期格式',
-    },
-    {
-      name: '电话号码（区号-号码）',
-      pattern: '^(\\d{3,4}-)?\\d{7,8}$',
-      description: '匹配带区号的电话号码',
-    },
-    {
-      name: '国内电话号码',
-      pattern: '\\d{3}-\\d{8}|\\d{4}-\\d{7}',
-      description: '匹配国内固定电话号码',
-    },
-    {
-      name: '身份证号',
-      pattern: '(^\\d{15}$)|(^\\d{18}$)|(^\\d{17}[\\dXx]$)',
-      description: '匹配15位或18位身份证号码',
-    },
-    {
-      name: '中国邮政编码',
-      pattern: '[1-9]\\d{5}(?!\\d)',
-      description: '匹配中国邮政编码',
-    },
-    {
-      name: 'URL链接',
-      pattern:
-        'https?://(?:[-\\w.])+(?:\\:[0-9]+)?(?:/(?:[\\w/_.])*(?:\\?(?:[\\w&=%.])*)?(?:#(?:[\\w.])*)?)?',
-      description: '匹配HTTP/HTTPS链接',
-    },
-    {
-      name: 'IPv4地址',
-      pattern:
-        '((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})(\\.((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})){3}',
-      description: '匹配IPv4地址格式',
-    },
-    {
-      name: 'IP地址',
-      pattern:
-        '(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)',
-      description: '匹配IPv4地址',
-    },
-  ];
-
-  const commonPatternsMenuItems: MenuProps['items'] = commonPatterns.map(
-    (item, index) => ({
-      key: index.toString(),
+  const commonPatternsMenuItems: MenuProps['items'] = commonPatternKeys.map(
+    key => ({
+      key,
       label: (
         <div>
           <div>
-            <strong>{item.name}</strong>
+            <strong>{t(`regex.patterns.${key}.name`)}</strong>
           </div>
           <div>
-            <Text code>{item.pattern}</Text>
+            <Text code>{commonPatternSources[key]}</Text>
           </div>
           <div style={{ fontSize: '12px', color: '#666' }}>
-            {item.description}
+            {t(`regex.patterns.${key}.description`)}
           </div>
         </div>
       ),
-      onClick: () => setPattern(item.pattern),
+      onClick: () => setPattern(commonPatternSources[key]),
     })
   );
 
   return (
     <Dropdown menu={{ items: commonPatternsMenuItems }} trigger={['click']}>
-      <Button>常用表达式</Button>
+      <Button>{t('regex.commonExpressions')}</Button>
     </Dropdown>
   );
 };
 
 const RegexTool: React.FC = () => {
+  const { t } = useTranslation();
   const [pattern, setPattern] = useState<string>('');
   const [text, setText] = useState<string>('');
   const [replaceText, setReplaceText] = useState<string>('');
   const [matchResults, setMatchResults] = useState<MatchResult[]>([]);
   const [replacedText, setReplacedText] = useState<string>('');
   const [error, setError] = useState<string>('');
-  const [flags, setFlags] = useState<string>('g'); // 默认全局匹配
+  const [flags, setFlags] = useState<string>('g');
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   const handleMatch = () => {
@@ -323,7 +227,7 @@ const RegexTool: React.FC = () => {
       setMatchResults(matches);
       setReplacedText(text.replace(new RegExp(pattern, flags), replaceText));
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Invalid regular expression');
+      setError(e instanceof Error ? e.message : t('regex.invalidPattern'));
       setMatchResults([]);
       setReplacedText('');
     }
@@ -340,7 +244,7 @@ const RegexTool: React.FC = () => {
       const result = text.replace(regex, replaceText);
       setReplacedText(result);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Invalid regular expression');
+      setError(e instanceof Error ? e.message : t('regex.invalidPattern'));
     }
   };
 
@@ -363,30 +267,30 @@ const RegexTool: React.FC = () => {
 
   const matchColumns: ColumnsType<MatchResult> = [
     {
-      title: '序号',
+      title: t('regex.columns.index'),
       dataIndex: 'key',
       key: 'key',
       render: (_, __, index) => index + 1,
     },
     {
-      title: '位置',
+      title: t('regex.columns.position'),
       dataIndex: 'index',
       key: 'index',
     },
     {
-      title: '匹配内容',
+      title: t('regex.columns.content'),
       dataIndex: 'match',
       key: 'match',
     },
     {
-      title: '捕获组',
+      title: t('regex.columns.groups'),
       dataIndex: 'groups',
       key: 'groups',
       render: (groups: string[]) => (
         <Space wrap>
           {groups.map((group, i) => (
             <Tag key={i} color="blue">
-              {group || '(空)'}
+              {group || t('regex.emptyGroup')}
             </Tag>
           ))}
         </Space>
@@ -394,67 +298,51 @@ const RegexTool: React.FC = () => {
     },
   ];
 
-  // 修饰符菜单项
-  const flagMenuItems: MenuProps['items'] = [
-    {
-      flag: 'g',
-      name: '全局匹配 (g)',
-    },
-    {
-      flag: 'i',
-      name: '忽略大小写 (i)',
-    },
-    {
-      flag: 'm',
-      name: '多行匹配 (m)',
-    },
-    {
-      flag: 's',
-      name: '单行匹配 (s)',
-    },
-  ].map(({ flag, name }) => ({
-    key: flag,
-    label: (
-      <Flex gap="small" align="center">
-        {flags.includes(flag) ? (
-          <CheckOutlined style={{ color: '#1677ff' }} />
-        ) : (
-          <span style={{ display: 'inline-block', width: 14 }} />
-        )}
-        <span>{name}</span>
-      </Flex>
-    ),
-    onClick: () => toggleFlag(flag),
-  })) as MenuProps['items'];
+  const flagMenuItems: MenuProps['items'] = (['g', 'i', 'm', 's'] as const).map(
+    flag => ({
+      key: flag,
+      label: (
+        <Flex gap="small" align="center">
+          {flags.includes(flag) ? (
+            <CheckOutlined style={{ color: '#1677ff' }} />
+          ) : (
+            <span style={{ display: 'inline-block', width: 14 }} />
+          )}
+          <span>{t(`regex.flags.${flag}`)}</span>
+        </Flex>
+      ),
+      onClick: () => toggleFlag(flag),
+    })
+  ) as MenuProps['items'];
 
   return (
     <>
       <Flex vertical gap="middle" style={{ flex: 1, minWidth: 300 }}>
         <Card
           size="small"
-          title="正则表达式工具"
+          title={t('regex.title')}
           extra={
             <Button
               type="link"
               onClick={() => setIsModalVisible(true)}
               style={{ padding: 0 }}>
-              语法参考
+              {t('regex.syntaxLink')}
             </Button>
           }>
           <Flex vertical gap="small">
             <Flex gap="small" align="center">
-              <Text strong>正则表达式:</Text>
+              <Text strong>{t('regex.pattern')}</Text>
               <Input
                 value={pattern}
                 onChange={e => setPattern(e.target.value)}
                 addonBefore="/"
                 addonAfter={flags}
-                placeholder="输入正则表达式，如: \d+"
+                placeholder={t('regex.patternPlaceholder')}
                 style={{ flex: 1 }}
               />
               <Dropdown menu={{ items: flagMenuItems }} trigger={['click']}>
                 <Button icon={<FlagFilled />}>
-                  修饰符
+                  {t('regex.flags.label')}
                   <CaretDownFilled />
                 </Button>
               </Dropdown>
@@ -462,28 +350,28 @@ const RegexTool: React.FC = () => {
             </Flex>
 
             <Flex gap="small" align="center">
-              <Text strong>替换为:</Text>
+              <Text strong>{t('regex.replacement')}</Text>
               <Input
                 value={replaceText}
                 onChange={e => setReplaceText(e.target.value)}
-                placeholder="输入替换文本"
+                placeholder={t('regex.replacementPlaceholder')}
                 style={{ flex: 1 }}
               />
             </Flex>
 
             <Flex gap="small">
               <Button type="primary" onClick={handleMatch}>
-                查找匹配
+                {t('regex.match')}
               </Button>
-              <Button onClick={handleReplace}>文本替换</Button>
-              <Button onClick={handleClear}>清空</Button>
+              <Button onClick={handleReplace}>{t('regex.replace')}</Button>
+              <Button onClick={handleClear}>{t('common.clear')}</Button>
             </Flex>
 
             {error && <Text type="danger">{error}</Text>}
           </Flex>
         </Card>
 
-        <Card size="small" title="待匹配文本">
+        <Card size="small" title={t('regex.textTitle')}>
           <div
             style={{
               border: '1px solid #d9d9d9',
@@ -499,7 +387,7 @@ const RegexTool: React.FC = () => {
             <Input.TextArea
               value={text}
               onChange={e => setText(e.target.value)}
-              placeholder="在此输入待匹配的文本"
+              placeholder={t('regex.textPlaceholder')}
               autoSize={{ minRows: 4, maxRows: 20 }}
               showCount
             />
@@ -510,23 +398,23 @@ const RegexTool: React.FC = () => {
           items={[
             {
               key: '1',
-              label: '匹配结果',
+              label: t('regex.tabs.matches'),
               children: (
                 <Card size="small">
                   <Table
                     dataSource={matchResults}
                     columns={matchColumns}
                     pagination={{ pageSize: 10 }}
-                    locale={{ emptyText: '暂无匹配结果' }}
+                    locale={{ emptyText: t('regex.emptyMatches') }}
                   />
                 </Card>
               ),
             },
             {
               key: '2',
-              label: '替换结果',
+              label: t('regex.tabs.replacement'),
               children: (
-                <Card size="small" title="替换后的文本">
+                <Card size="small" title={t('regex.modifiedText')}>
                   <CopyableTextArea
                     value={replacedText}
                     readOnly
@@ -539,14 +427,14 @@ const RegexTool: React.FC = () => {
         />
       </Flex>
       <Modal
-        title="正则表达式语法参考"
+        title={t('regex.modalTitle')}
         open={isModalVisible}
         onOk={() => setIsModalVisible(false)}
         onCancel={() => setIsModalVisible(false)}
         width={600}
         footer={[
           <Button key="close" onClick={() => setIsModalVisible(false)}>
-            关闭
+            {t('regex.close')}
           </Button>,
         ]}>
         <SyntaxReference />

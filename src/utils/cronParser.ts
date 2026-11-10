@@ -1,3 +1,6 @@
+import type { TFunction } from 'i18next';
+import { I18nError } from './errors';
+
 export interface CronFields {
   minute: string;
   hour: string;
@@ -10,6 +13,19 @@ export interface CronParseResult extends CronFields {
   description: string;
 }
 
+type CronFieldKey = keyof CronFields;
+
+const FIELD_LIMITS: Record<
+  CronFieldKey,
+  { min: number; max: number; labelKey: string }
+> = {
+  minute: { min: 0, max: 59, labelKey: 'cron.fields.minute' },
+  hour: { min: 0, max: 23, labelKey: 'cron.fields.hour' },
+  dayOfMonth: { min: 1, max: 31, labelKey: 'cron.fields.dayOfMonth' },
+  month: { min: 1, max: 12, labelKey: 'cron.fields.month' },
+  dayOfWeek: { min: 0, max: 7, labelKey: 'cron.fields.dayOfWeek' },
+};
+
 export class CronExpressionParser {
   /**
    * Parse and validate a standard 5-field cron expression.
@@ -17,61 +33,69 @@ export class CronExpressionParser {
    * Supported tokens per field: `*`, single numbers, lists (`1,3,5`),
    * ranges (`1-5`) and steps (`0/5`, `1-10/2`, `5/10`).
    */
-  static parse(expression: string): CronParseResult {
-    const fields = this.parseFields(expression);
+  static parse(expression: string, t: TFunction): CronParseResult {
+    const fields = this.parseFields(expression, t);
     return {
       ...fields,
-      description: this.describeCron(fields),
+      description: this.describeCron(fields, t),
     };
   }
 
-  static parseFields(expression: string): CronFields {
+  static parseFields(expression: string, t?: TFunction): CronFields {
     const parts = expression.trim().split(/\s+/);
 
     if (parts.length !== 5) {
-      throw new Error('Cron 表达式必须包含 5 个字段（分 时 日 月 周）');
+      throw new I18nError('cron.errors.fieldCount');
     }
 
     const [minute, hour, dayOfMonth, month, dayOfWeek] = parts;
 
-    this.assertField(minute, 0, 59, '分钟');
-    this.assertField(hour, 0, 23, '小时');
-    this.assertField(dayOfMonth, 1, 31, '日期');
-    this.assertField(month, 1, 12, '月份');
-    this.assertField(dayOfWeek, 0, 7, '星期');
+    this.assertField(minute, 'minute', t);
+    this.assertField(hour, 'hour', t);
+    this.assertField(dayOfMonth, 'dayOfMonth', t);
+    this.assertField(month, 'month', t);
+    this.assertField(dayOfWeek, 'dayOfWeek', t);
 
     return { minute, hour, dayOfMonth, month, dayOfWeek };
   }
 
+  private static translate(t: TFunction, key: string): string {
+    return (t as unknown as (key: string) => string)(key);
+  }
+
   private static assertField(
     field: string,
-    min: number,
-    max: number,
-    label: string
+    fieldKey: CronFieldKey,
+    t?: TFunction
   ): void {
+    const { min, max, labelKey } = FIELD_LIMITS[fieldKey];
+    // Callers that only need the parsed fields (e.g. the scheduler) can omit
+    // `t`; the raw key is then stored instead of a localized label.
+    const label = t ? this.translate(t, labelKey) : labelKey;
+
     if (!field) {
-      throw new Error(`Cron 表达式的${label}字段为空`);
+      throw new I18nError('cron.errors.fieldEmpty', { label });
     }
 
     for (const part of field.split(',')) {
       if (!part) {
-        throw new Error(`Cron 表达式的${label}字段包含空的列表项`);
+        throw new I18nError('cron.errors.listItemEmpty', { label });
       }
 
       const segments = part.split('/');
       if (segments.length > 2) {
-        throw new Error(`Cron 表达式的${label}字段格式错误：${part}`);
+        throw new I18nError('cron.errors.format', { label, part });
       }
 
       const [range, stepText] = segments;
       if (!range) {
-        throw new Error(`Cron 表达式的${label}字段格式错误：${part}`);
+        throw new I18nError('cron.errors.format', { label, part });
       }
 
       if (stepText !== undefined) {
         const step = Number(stepText);
         if (!Number.isInteger(step) || step <= 0) {
-          throw new Error(`Cron 表达式的${label}字段步长必须为正整数：${part}`);
+          throw new I18nError('cron.errors.step', { label, part });
         }
       }
 
@@ -80,13 +104,13 @@ export class CronExpressionParser {
       }
 
       if (range === '?') {
-        throw new Error(`Cron 表达式的${label}字段暂不支持 ?`);
+        throw new I18nError('cron.errors.question', { label });
       }
 
       if (range.includes('-')) {
         const rangeParts = range.split('-');
         if (rangeParts.length !== 2 || !rangeParts[0] || !rangeParts[1]) {
-          throw new Error(`Cron 表达式的${label}字段范围格式错误：${part}`);
+          throw new I18nError('cron.errors.rangeFormat', { label, part });
         }
 
         const start = Number(rangeParts[0]);
@@ -96,9 +120,7 @@ export class CronExpressionParser {
         this.assertNumber(end, min, max, label);
 
         if (start > end) {
-          throw new Error(
-            `Cron 表达式的${label}字段范围起始值不能大于结束值：${part}`
-          );
+          throw new I18nError('cron.errors.rangeOrder', { label, part });
         }
       } else {
         this.assertNumber(Number(range), min, max, label);
@@ -113,73 +135,83 @@ export class CronExpressionParser {
     label: string
   ): void {
     if (!Number.isInteger(value) || value < min || value > max) {
-      throw new Error(
-        `Cron 表达式的${label}字段值必须在 ${min}-${max} 之间：${value}`
-      );
+      throw new I18nError('cron.errors.valueRange', {
+        label,
+        min,
+        max,
+        value,
+      });
     }
   }
 
-  private static describeCron(fields: CronFields): string {
+  private static describeCron(fields: CronFields, t: TFunction): string {
     const { minute, hour, dayOfMonth, month, dayOfWeek } = fields;
-    let description = '在';
 
+    let minuteText: string;
     if (minute === '*') {
-      description += '每分钟';
+      minuteText = t('cron.describe.everyMinute');
     } else if (minute.includes('/')) {
       const [, interval] = minute.split('/');
-      description += `每隔${interval}分钟`;
-    } else if (minute.includes('-')) {
-      description += `${minute}分钟`;
+      minuteText = t('cron.describe.everyNMinutes', { count: interval });
     } else {
-      description += `${minute}分钟`;
+      minuteText = t('cron.describe.atMinute', { minute });
     }
 
+    let hourText: string;
     if (hour === '*') {
-      description += '的每小时';
+      hourText = t('cron.describe.everyHour');
     } else if (hour.includes('/')) {
       const [, interval] = hour.split('/');
-      description += `的每隔${interval}小时`;
-    } else if (hour.includes('-')) {
-      description += `的${hour}点`;
+      hourText = t('cron.describe.everyNHours', { count: interval });
     } else {
-      description += `的${hour}点`;
+      hourText = t('cron.describe.atHour', { hour });
     }
 
+    let dayText: string;
     if (dayOfMonth !== '*' && dayOfWeek !== '*') {
-      description += `，每月${dayOfMonth}日或${this.getDayOfWeekName(dayOfWeek)}`;
+      dayText = t('cron.describe.andWeekday', {
+        day: dayOfMonth,
+        weekday: this.getDayOfWeekName(dayOfWeek, t),
+      });
     } else if (dayOfMonth !== '*') {
-      description += `，每月${dayOfMonth}日`;
+      dayText = t('cron.describe.dayOfMonth', { day: dayOfMonth });
     } else if (dayOfWeek !== '*') {
-      description += `，${this.getDayOfWeekName(dayOfWeek)}`;
+      dayText = this.getDayOfWeekName(dayOfWeek, t);
     } else {
-      description += '，每天';
+      dayText = t('cron.describe.everyDay');
     }
 
-    if (month !== '*') {
-      description += `，${month}月`;
-    }
+    const monthText = month !== '*' ? t('cron.describe.month', { month }) : '';
 
-    return description;
+    return t('cron.describe.template', {
+      minute: minuteText,
+      hour: hourText,
+      day: dayText,
+      month: monthText,
+    });
   }
 
-  private static getDayOfWeekName(dayOfWeek: string): string {
-    const dayNames = ['日', '一', '二', '三', '四', '五', '六', '日'];
-
+  private static getDayOfWeekName(dayOfWeek: string, t: TFunction): string {
     if (dayOfWeek === '*') {
-      return '每天';
+      return t('cron.describe.everyDay');
     }
 
     if (dayOfWeek.includes('-')) {
-      return `周${dayOfWeek}`;
+      return t('cron.describe.weekdayRange', { range: dayOfWeek });
     }
 
     if (dayOfWeek.includes('/')) {
-      return `每隔${dayOfWeek.split('/')[1]}天`;
+      return t('cron.describe.everyNDays', {
+        count: dayOfWeek.split('/')[1],
+      });
     }
 
     const dayIndex = parseInt(dayOfWeek, 10);
     if (!isNaN(dayIndex) && dayIndex >= 0 && dayIndex <= 7) {
-      return `周${dayNames[dayIndex]}`;
+      const dayNames = t('cron.weekdays', {
+        returnObjects: true,
+      }) as unknown as string[];
+      return t('cron.describe.weekdayName', { name: dayNames[dayIndex] });
     }
 
     return dayOfWeek;

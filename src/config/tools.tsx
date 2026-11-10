@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   ClockCircleOutlined,
   CodeOutlined,
@@ -13,94 +13,109 @@ import {
   QrcodeOutlined,
   ScheduleOutlined,
 } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 export type ToolCategory =
-  '时间日期' | '文本处理' | '编码与加密' | '数据格式' | '网络工具' | '生成器';
+  'time' | 'text' | 'code' | 'data' | 'network' | 'generator';
+
+export type ToolKey =
+  | 'timestamp'
+  | 'timer'
+  | 'cron'
+  | 'textdiff'
+  | 'regex'
+  | 'markdown'
+  | 'encoder_decoder'
+  | 'encryption'
+  | 'json'
+  | 'ipaddress'
+  | 'qrcode'
+  | 'password';
 
 export interface ToolMeta {
   /** Route segment and menu key. Must match the last segment of `path`. */
-  key: string;
+  key: ToolKey;
   path: string;
-  label: string;
-  description: string;
+  /** Translation key for the label lives in `tool.registry.<key>`. */
   category: ToolCategory;
   icon: React.ReactNode;
-  /** Extra terms used by the tools index search. */
+  /** Extra terms used by the tools index search, in both languages. */
   keywords: string[];
   /** Set to false for tools that stay outside the top menu. */
   inMenu?: boolean;
 }
 
+export interface LocalizedToolMeta extends ToolMeta {
+  label: string;
+  description: string;
+  categoryLabel: string;
+}
+
 export const TOOL_CATEGORIES: ToolCategory[] = [
-  '时间日期',
-  '文本处理',
-  '编码与加密',
-  '数据格式',
-  '网络工具',
-  '生成器',
+  'time',
+  'text',
+  'code',
+  'data',
+  'network',
+  'generator',
 ];
 
 export const tools: ToolMeta[] = [
   {
     key: 'timestamp',
     path: '/tools/timestamp',
-    label: '时间戳',
-    description: 'Unix 时间戳与日期互转，支持多时区',
-    category: '时间日期',
+    category: 'time',
     icon: <ClockCircleOutlined />,
-    keywords: ['unix', 'timestamp', '时间', '日期', '时区', '毫秒'],
+    keywords: [
+      'unix',
+      'timestamp',
+      'date',
+      'timezone',
+      '时间',
+      '日期',
+      '时区',
+      '毫秒',
+    ],
   },
   {
     key: 'timer',
     path: '/tools/timer',
-    label: '计时器',
-    description: '倒计时与正计时，支持暂停和重置',
-    category: '时间日期',
+    category: 'time',
     icon: <FieldTimeOutlined />,
-    keywords: ['timer', 'countdown', '秒表', '倒计时', '番茄钟'],
+    keywords: ['timer', 'countdown', 'stopwatch', '秒表', '倒计时', '番茄钟'],
   },
   {
     key: 'cron',
     path: '/tools/cron',
-    label: 'Cron 表达式',
-    description: 'Cron 表达式解析与下次执行时间预测',
-    category: '时间日期',
+    category: 'time',
     icon: <ScheduleOutlined />,
-    keywords: ['cron', 'crontab', '定时任务', '调度'],
+    keywords: ['cron', 'crontab', 'schedule', '定时任务', '调度'],
   },
   {
     key: 'textdiff',
     path: '/tools/textdiff',
-    label: '文本对比',
-    description: '逐行对比两段文本，高亮增删差异',
-    category: '文本处理',
+    category: 'text',
     icon: <DiffOutlined />,
     keywords: ['diff', 'compare', '对比', '差异', 'merge'],
   },
   {
     key: 'regex',
     path: '/tools/regex',
-    label: '正则表达式',
-    description: '正则匹配、高亮、替换与语法速查',
-    category: '文本处理',
+    category: 'text',
     icon: <FontSizeOutlined />,
-    keywords: ['regex', 'regexp', '正则', '匹配', '替换'],
+    keywords: ['regex', 'regexp', 'match', 'replace', '正则', '匹配', '替换'],
   },
   {
     key: 'markdown',
     path: '/tools/markdown',
-    label: 'Markdown 预览',
-    description: '实时预览 Markdown，支持 GFM 表格与导出 HTML',
-    category: '文本处理',
+    category: 'text',
     icon: <FileMarkdownOutlined />,
-    keywords: ['markdown', 'md', '预览', '文档', 'gfm', '导出'],
+    keywords: ['markdown', 'md', 'preview', 'gfm', '预览', '文档', '导出'],
   },
   {
     key: 'encoder_decoder',
     path: '/tools/encoder_decoder',
-    label: '编码/解码',
-    description: 'Base64、URL、HTML 实体、JWT、哈希、进制转换',
-    category: '编码与加密',
+    category: 'code',
     icon: <CodeOutlined />,
     keywords: [
       'base64',
@@ -111,6 +126,8 @@ export const tools: ToolMeta[] = [
       'sha256',
       'hex',
       'unicode',
+      'encode',
+      'decode',
       '进制',
       '编码',
       '解码',
@@ -120,47 +137,58 @@ export const tools: ToolMeta[] = [
   {
     key: 'encryption',
     path: '/tools/encryption',
-    label: '加密/解密',
-    description: 'MD5、Base64、RSA 加解密',
-    category: '编码与加密',
+    category: 'code',
     icon: <LockOutlined />,
-    keywords: ['rsa', 'aes', 'md5', 'base64', '加密', '解密', '密钥'],
+    keywords: [
+      'rsa',
+      'aes',
+      'md5',
+      'sha256',
+      'sha-256',
+      'hash',
+      'base64',
+      'encrypt',
+      'decrypt',
+      '加密',
+      '解密',
+      '密钥',
+    ],
   },
   {
     key: 'json',
     path: '/tools/json',
-    label: 'JSON',
-    description: 'JSON 格式化、校验、排序与可视化编辑',
-    category: '数据格式',
+    category: 'data',
     icon: <FileTextOutlined />,
-    keywords: ['json', '格式化', '压缩', '校验', '排序', '导出'],
+    keywords: ['json', 'format', 'validate', '格式化', '压缩', '校验', '排序'],
   },
   {
     key: 'ipaddress',
     path: '/tools/ipaddress',
-    label: 'IP 地址查询',
-    description: 'IPv4/IPv6 校验与公网 IP 归属地查询',
-    category: '网络工具',
+    category: 'network',
     icon: <GlobalOutlined />,
-    keywords: ['ip', 'ipv4', 'ipv6', '归属地', '查询', '网络'],
+    keywords: ['ip', 'ipv4', 'ipv6', 'lookup', '归属地', '查询', '网络'],
   },
   {
     key: 'qrcode',
     path: '/tools/qrcode',
-    label: '二维码生成',
-    description: '生成带颜色和 Logo 的二维码，支持下载',
-    category: '生成器',
+    category: 'generator',
     icon: <QrcodeOutlined />,
-    keywords: ['qrcode', 'qr', '二维码', '扫码', '图片'],
+    keywords: ['qrcode', 'qr', 'logo', 'download', '二维码', '扫码', '图片'],
   },
   {
     key: 'password',
     path: '/tools/password',
-    label: '密码生成',
-    description: '生成高强度随机密码并评估密码强度',
-    category: '生成器',
+    category: 'generator',
     icon: <KeyOutlined />,
-    keywords: ['password', '密码', '随机', '强度', 'hash'],
+    keywords: [
+      'password',
+      'random',
+      'strength',
+      'hash',
+      '密码',
+      '随机',
+      '强度',
+    ],
     inMenu: false,
   },
 ];
@@ -168,11 +196,31 @@ export const tools: ToolMeta[] = [
 /** Tools shown in the horizontal menu, in registry order. */
 export const menuTools = tools.filter(tool => tool.inMenu !== false);
 
-export function groupTools(
-  items: ToolMeta[] = tools
-): { category: ToolCategory; items: ToolMeta[] }[] {
-  return TOOL_CATEGORIES.map(category => ({
-    category,
-    items: items.filter(tool => tool.category === category),
-  })).filter(group => group.items.length > 0);
+/** Tool registry with labels and descriptions translated for the active language. */
+export function useTools() {
+  const { t, i18n } = useTranslation();
+
+  return useMemo(() => {
+    const registry = t('tool.registry', { returnObjects: true });
+    const categories = t('tool.categories', { returnObjects: true });
+
+    const localized: LocalizedToolMeta[] = tools.map(tool => ({
+      ...tool,
+      label: registry[tool.key].label,
+      description: registry[tool.key].description,
+      categoryLabel: categories[tool.category],
+    }));
+
+    return {
+      tools: localized,
+      menuTools: localized.filter(tool => tool.inMenu !== false),
+      groupTools: (items: LocalizedToolMeta[] = localized) =>
+        TOOL_CATEGORIES.map(category => ({
+          category,
+          categoryLabel: categories[category],
+          items: items.filter(tool => tool.category === category),
+        })).filter(group => group.items.length > 0),
+    };
+    // `t` is recreated when the language changes.
+  }, [t, i18n.language]);
 }

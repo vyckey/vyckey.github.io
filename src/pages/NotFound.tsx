@@ -2,9 +2,12 @@ import React from 'react';
 import { AppstoreOutlined, HomeOutlined } from '@ant-design/icons';
 import { Button, Result, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const NotFound: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div
@@ -16,22 +19,23 @@ const NotFound: React.FC = () => {
         padding: 24,
         background: '#f0f2f5',
       }}>
+      <LanguageSwitcher floating />
       <Result
         status="404"
         title="404"
-        subTitle="页面不存在，或者链接已经失效"
+        subTitle={t('notFound.subtitle')}
         extra={
           <Space wrap>
             <Button
               type="primary"
               icon={<HomeOutlined />}
               onClick={() => navigate('/')}>
-              返回首页
+              {t('notFound.backHome')}
             </Button>
             <Button
               icon={<AppstoreOutlined />}
               onClick={() => navigate('/tools')}>
-              浏览全部工具
+              {t('notFound.browseTools')}
             </Button>
           </Space>
         }

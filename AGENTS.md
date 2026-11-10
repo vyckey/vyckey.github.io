@@ -90,7 +90,7 @@ All routes are defined in `src/router/Router.tsx` with `createBrowserRouter`.
 | `/tools/textdiff` | `components/tools/TextDiffTool.tsx` | Text comparison; rendering delegated to `TextDiffView.tsx` |
 | `/tools/markdown` | `components/tools/MarkdownTool.tsx` | Markdown live preview (GFM), export to `.md` / `.html` |
 | `/tools/encoder_decoder` | `components/tools/EncoderDecoder.tsx` | Tabs for case conversion, Base64, URL, HTML entities, hex/Unicode, radix, JWT and hashes |
-| `/tools/encryption` | `components/tools/Encryption.tsx` | MD5, Base64, RSA encryption/decryption |
+| `/tools/encryption` | `components/tools/Encryption.tsx` | MD5, SHA-256, Base64, RSA encryption/decryption |
 | `/tools/json` | `components/tools/JsonTools.tsx` | JSON parsing, formatting, sorting, themes, download |
 | `/tools/qrcode` | `components/tools/QRCodeGenerator.tsx` | QR code generation with canvas/SVG, colors, size, and logo |
 | `/tools/ipaddress` | `components/tools/IPAddressView.tsx` | IPv4/IPv6 validation + `ip-api.com` lookup |
@@ -127,11 +127,17 @@ Each tool is a standalone function component under `src/components/tools/`:
 | --- | --- |
 | `src/components/CopyButton.tsx` | Copy to clipboard using `src/utils/clipboard.ts`; shows success/failure feedback |
 | `src/components/CopyableTextArea.tsx` | `TextArea` with a copy button (placed left of antd's clear icon) |
-| `src/config/tools.tsx` | Tool registry: menu entries, index cards, categories, descriptions and search keywords |
+| `src/components/LanguageSwitcher.tsx` | antd `Select` language toggle bound to `i18n.changeLanguage`; `floating` pins it to the top-right on header-less pages |
+| `src/config/tools.tsx` | Tool registry: `key`, `path`, `category`, icon and search keywords; labels/descriptions come from `useTools()` |
+| `src/i18n/index.ts` | `react-i18next` initialization, language resolution/persistence, typed translation keys |
+| `src/i18n/translateError.ts` | Translates an `I18nError` thrown by a pure utility |
+| `src/i18n/locales/zh-CN.ts` | Simplified Chinese resources (single file; source of truth for keys) |
+| `src/i18n/locales/en-US.ts` | English resources (single file), type-checked with `satisfies typeof zhCN` |
 | `src/util/password.tsx` | Deterministic password hashing based on HMAC-SHA256 and password generation |
 | `src/utils/clipboard.ts` | Clipboard API plus `document.execCommand('copy')` fallback |
-| `src/utils/cronParser.ts` | Cron expression parsing, validation and Chinese descriptions |
+| `src/utils/cronParser.ts` | Cron expression parsing/validation; descriptions and errors come from i18n via `t` |
 | `src/utils/cronScheduler.ts` | Predicts the next N execution times |
+| `src/utils/errors.ts` | `I18nError`: carries a translation key plus interpolation params out of pure utilities |
 | `src/utils/ip.ts` | Strict IPv4/IPv6 validation |
 | `src/utils/passwordStrength.ts` | UI strength score for generated passwords |
 | `src/utils/regex.ts` | Regex match collection and highlighting without infinite loops |
@@ -141,6 +147,18 @@ Each tool is a standalone function component under `src/components/tools/`:
 | `src/utils/jwt.ts` | JWT decoding, HS256 verification, exp/iat/nbf formatting |
 
 > Note: utility code is split between `src/util` (singular) and `src/utils` (plural). This is historical legacy. Put new pure logic in `src/utils/` and do not widen the split.
+
+#### Internationalization
+
+- `react-i18next` is initialized in `src/i18n/index.ts` and imported once from `src/App.tsx`, so routes and Vitest renders share the same instance. Components rendered in isolation in tests must import `../../i18n` themselves.
+- There is exactly **one file per language**: `src/i18n/locales/zh-CN.ts` and `src/i18n/locales/en-US.ts`, under the default `translation` namespace. Each file declares several local objects (`common`, `homepage`, `tool`, one per tool, …) and merges them in the exported default object; do not split them back into per-feature files.
+- `zh-CN.ts` defines the keys; `en-US.ts` uses `satisfies typeof zhCN`, so `npx tsc --noEmit` reports missing or extra English keys.
+- `CustomTypeOptions` is augmented with the Chinese resources, so `t('...')` gets autocomplete and key checking.
+- Initial language: `localStorage['vyckey.language']` → `navigator.language` → `zh-CN`. The `languageChanged` listener persists the choice and syncs `<html lang>`. Initialization is synchronous (`initAsync: false`) because resources are bundled.
+- Every component reads copy through `const { t } = useTranslation()`. `LanguageSwitcher` (antd `Select`) is mounted in the top-right of the homepage header, the tools header, and floated on header-less pages (`/tools/password`, 404).
+- `src/config/tools.tsx` stores only language-neutral metadata. `useTools()` combines it with `tool.registry.<key>` and `tool.categories.<key>`, so a new tool needs both registry entries.
+- Pure utilities must not contain user-facing copy: throw `new I18nError('some.key', params)` from `src/utils/errors.ts` and render it with `translateError(t, error)` (`src/i18n/translateError.ts`). `src/utils/cronParser.ts` instead takes an optional `t` because its description is generated from templates.
+- Migration status: complete — home page, tools layout/index/404, shared copy components, and every tool including `PasswordGenerator` read copy from i18n.
 
 ### 3.6 Data Flow
 
@@ -210,6 +228,12 @@ vyckey.github.io/
 │   ├── logo.svg
 │   ├── config/
 │   │   └── tools.tsx               # Tool registry (menu, index, categories)
+│   ├── i18n/
+│   │   ├── index.ts                # react-i18next init, language persistence
+│   │   ├── translateError.ts       # Translates I18nError from pure utilities
+│   │   └── locales/
+│   │       ├── zh-CN.ts            # Chinese resources (single file, key source of truth)
+│   │       └── en-US.ts            # English resources (single file)
 │   ├── router/
 │   │   └── Router.tsx              # All route definitions
 │   ├── pages/
@@ -220,6 +244,7 @@ vyckey.github.io/
 │   ├── components/
 │   │   ├── CopyButton.tsx          # Shared copy button
 │   │   ├── CopyableTextArea.tsx    # Text area with a copy button
+│   │   ├── LanguageSwitcher.tsx    # 中文 / English toggle
 │   │   └── tools/                  # Tool components (one per route)
 │   │       ├── Timestamp.tsx
 │   │       ├── TimerPanel.tsx
@@ -256,7 +281,7 @@ vyckey.github.io/
 ## 5. Development Conventions
 
 1. **Component style**: function components + hooks, default exports. Existing code commonly uses `React.FC`; stay consistent. TypeScript `strict` is enabled, so avoid adding new `any`.
-2. **UI**: prefer antd components and icons; do not add a second UI library. Use Chinese copy and `message` for feedback.
+2. **UI**: prefer antd components and icons; do not add a second UI library. Chinese is the default language and `message` is used for feedback; all user-facing copy comes from i18n rather than hardcoded strings.
 3. **Copy actions**: use `CopyButton` / `CopyableTextArea`; do not reimplement clipboard logic in each tool.
 4. **Time handling**: use `moment-timezone` for the timestamp tool and `moment` durations for the timer; antd DatePicker returns `dayjs`, so pay attention when converting.
 5. **Pure logic**: extract parseable/calculable logic into `src/utils/`; components should only handle interaction and presentation.
@@ -270,14 +295,16 @@ vyckey.github.io/
 13. **TypeScript config**: keep `moduleResolution: "bundler"` and `types: ["vite/client", "vitest/globals"]`. Do not add `"node"` to `types` (Node globals such as `setInterval` conflict with DOM types in the browser code). `@types/node` is installed only for tooling.
 14. **Tests**: Vitest runs in jsdom. `src/setupTests.js` supplies the `ResizeObserver` and `matchMedia` polyfills required by antd; keep them when adding antd components to tests.
 15. **No type checking during build**: `vite build` strips types but does not check them. Run `npx tsc --noEmit` before considering a change complete.
+16. **Internationalization**: components use `const { t } = useTranslation()` with keys added to both `src/i18n/locales/zh-CN.ts` (single source of truth) and `en-US.ts`; never hardcode user-facing copy. `en-US.ts` is `satisfies typeof zhCN`, so key drift fails `tsc`. Pure utilities throw `I18nError` and the UI renders it with `translateError(t, error)`. Tests that render a component directly must import `src/i18n` for initialization.
 
 ### Adding a New Tool
 
 1. Create a component in `src/components/tools/` (for example, `MyTool.tsx`).
-2. Add a `ToolMeta` entry to `src/config/tools.tsx` (`key`, `path`, `label`, `description`, `category`, `icon`, `keywords`); the menu and the `/tools` index pick it up automatically. Set `inMenu: false` for standalone tools such as `/tools/password`.
-3. Import it in `src/router/Router.tsx` and add `{ path: 'mytool', element: <MyTool /> }` to the `tools` children.
-4. Reuse `CopyableTextArea` / `CopyButton` and the antd form/card layout.
-5. Run `npx tsc --noEmit`, `pnpm test`, and `pnpm build`, then manually verify `/tools/mytool` and `/tools`. If the tool needs a standalone layout (like `/tools/password`), register it separately at the root router level and document it in this file.
+2. Add a `ToolMeta` entry to `src/config/tools.tsx` (`key`, `path`, `category`, `icon`, `keywords`); the menu and the `/tools` index pick it up automatically. Set `inMenu: false` for standalone tools such as `/tools/password`.
+3. Add `tool.registry.<key>.label/description` to **both** `src/i18n/locales/zh-CN.ts` and `en-US.ts` (`ToolKey` is derived from the union, so missing entries fail `tsc`).
+4. Import it in `src/router/Router.tsx` and add `{ path: 'mytool', element: <MyTool /> }` to the `tools` children.
+5. Reuse `CopyableTextArea` / `CopyButton` and the antd form/card layout, and read copy through `t('mytool.*')`.
+6. Run `npx tsc --noEmit`, `pnpm test`, and `pnpm build`, then manually verify `/tools/mytool` and `/tools`. If the tool needs a standalone layout (like `/tools/password`), register it separately at the root router level and document it in this file.
 
 ## 6. Verification and Self-Check
 

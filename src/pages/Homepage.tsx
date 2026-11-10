@@ -11,6 +11,8 @@ import {
   ApiOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 import '../App.css';
 
 const { Header, Content, Footer } = Layout;
@@ -30,39 +32,37 @@ const techStack = [
 const expertise = [
   {
     number: '01',
-    title: 'Full Stack Development',
-    description:
-      'Building modern web applications with clean architecture and thoughtful user experiences.',
+    titleKey: 'homepage.expertise.fullStack.title',
+    descriptionKey: 'homepage.expertise.fullStack.description',
     icon: <CodeOutlined />,
   },
   {
     number: '02',
-    title: 'System Architecture',
-    description:
-      'Designing scalable backend systems, distributed services and reliable data architectures.',
+    titleKey: 'homepage.expertise.architecture.title',
+    descriptionKey: 'homepage.expertise.architecture.description',
     icon: <ApiOutlined />,
   },
   {
     number: '03',
-    title: 'Cyber Security',
-    description:
-      'Exploring application security, authentication, privacy and secure software engineering.',
+    titleKey: 'homepage.expertise.security.title',
+    descriptionKey: 'homepage.expertise.security.description',
     icon: <SafetyCertificateOutlined />,
   },
-];
+] as const;
 
 function Homepage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const menuItems = [
     {
       key: 'home',
-      label: 'Home',
+      label: t('homepage.menu.home'),
       icon: <HomeOutlined />,
     },
     {
       key: 'tools',
-      label: 'Developer Tools',
+      label: t('homepage.menu.tools'),
       icon: <ToolOutlined />,
     },
   ];
@@ -94,6 +94,7 @@ function Homepage() {
           />
 
           <Space size={8} className="header-socials">
+            <LanguageSwitcher />
             <Button
               type="text"
               icon={<GithubOutlined />}
@@ -119,21 +120,20 @@ function Homepage() {
             <div className="hero-main">
               <div className="hero-eyebrow">
                 <span className="status-dot" />
-                DEVELOPER · BUILDER · EXPLORER
+                {t('homepage.hero.eyebrow')}
               </div>
 
               <Title className="hero-title">
-                Hello, I'm <span>Vyckey.</span>
+                {t('homepage.hero.greeting')}{' '}
+                <span>{t('homepage.hero.name')}</span>
                 <br />
-                I build things
+                {t('homepage.hero.line1')}
                 <br />
-                <span className="accent-text">for the web.</span>
+                <span className="accent-text">{t('homepage.hero.line2')}</span>
               </Title>
 
               <Paragraph className="hero-description">
-                Full Stack Developer passionate about software engineering,
-                system architecture and cybersecurity. I enjoy turning complex
-                ideas into elegant solutions.
+                {t('homepage.hero.description')}
               </Paragraph>
 
               <Space size={12} className="hero-actions">
@@ -144,7 +144,7 @@ function Homepage() {
                   href="https://github.com/vyckey"
                   target="_blank"
                   rel="noopener noreferrer">
-                  Explore my work
+                  {t('homepage.hero.exploreWork')}
                   <ExportOutlined />
                 </Button>
 
@@ -152,14 +152,14 @@ function Homepage() {
                   size="large"
                   className="secondary-action"
                   href="mailto:vyckey@qq.com">
-                  Get in touch
+                  {t('homepage.hero.getInTouch')}
                 </Button>
               </Space>
 
               <div className="hero-meta">
-                <span>Based on curiosity.</span>
+                <span>{t('homepage.hero.basedOn')}</span>
                 <span className="meta-divider" />
-                <span>Driven by engineering.</span>
+                <span>{t('homepage.hero.drivenBy')}</span>
               </div>
             </div>
 
@@ -171,39 +171,41 @@ function Homepage() {
                   <span className="dot yellow" />
                   <span className="dot green" />
                 </div>
-                <span>about.me — zsh</span>
-                <span className="terminal-language">EN</span>
+                <span>{t('homepage.terminal.window')}</span>
+                <span className="terminal-language">
+                  {t('homepage.terminal.language')}
+                </span>
               </div>
 
               <div className="terminal-content">
                 <div className="terminal-command">
                   <span>➜</span>
-                  <span> whoami</span>
+                  <span> {t('homepage.terminal.whoami')}</span>
                 </div>
                 <div className="terminal-output">
                   Vyckey
                   <br />
-                  Full Stack Developer
+                  {t('homepage.terminal.role')}
                 </div>
 
                 <div className="terminal-command">
                   <span>➜</span>
-                  <span> cat interests.txt</span>
+                  <span> {t('homepage.terminal.interests')}</span>
                 </div>
                 <div className="terminal-output">
-                  Software Engineering
+                  {t('homepage.terminal.interest1')}
                   <br />
-                  System Architecture
+                  {t('homepage.terminal.interest2')}
                   <br />
-                  Application Security
+                  {t('homepage.terminal.interest3')}
                 </div>
 
                 <div className="terminal-command">
                   <span>➜</span>
-                  <span> echo $MISSION</span>
+                  <span> {t('homepage.terminal.mission')}</span>
                 </div>
                 <div className="terminal-output">
-                  Build something meaningful.
+                  {t('homepage.terminal.missionOutput')}
                 </div>
 
                 <div className="terminal-command terminal-last">
@@ -213,8 +215,8 @@ function Homepage() {
               </div>
 
               <div className="terminal-footer">
-                <span>USER: VYCKEY</span>
-                <span>SESSION: ACTIVE</span>
+                <span>{t('homepage.terminal.user')}</span>
+                <span>{t('homepage.terminal.session')}</span>
               </div>
             </div>
           </section>
@@ -223,13 +225,12 @@ function Homepage() {
           <section className="section-block">
             <div className="section-heading">
               <div>
-                <Text className="section-index">01 / WHAT I DO</Text>
-                <Title level={2}>Curiosity drives creation.</Title>
+                <Text className="section-index">
+                  {t('homepage.about.index')}
+                </Text>
+                <Title level={2}>{t('homepage.about.heading')}</Title>
               </div>
-              <Paragraph>
-                Exploring technologies, solving problems and building things
-                that matter.
-              </Paragraph>
+              <Paragraph>{t('homepage.about.intro')}</Paragraph>
             </div>
 
             <div className="expertise-grid">
@@ -240,8 +241,8 @@ function Homepage() {
                     <span className="expertise-icon">{item.icon}</span>
                   </div>
 
-                  <Title level={4}>{item.title}</Title>
-                  <Paragraph>{item.description}</Paragraph>
+                  <Title level={4}>{t(item.titleKey)}</Title>
+                  <Paragraph>{t(item.descriptionKey)}</Paragraph>
                   <div className="card-bottom-line" />
                 </article>
               ))}
@@ -252,12 +253,12 @@ function Homepage() {
           <section className="section-block tech-section">
             <div className="section-heading">
               <div>
-                <Text className="section-index">02 / TECHNOLOGIES</Text>
-                <Title level={2}>Tools I work with.</Title>
+                <Text className="section-index">
+                  {t('homepage.tech.index')}
+                </Text>
+                <Title level={2}>{t('homepage.tech.heading')}</Title>
               </div>
-              <Paragraph>
-                A collection of technologies I use to bring ideas to life.
-              </Paragraph>
+              <Paragraph>{t('homepage.tech.intro')}</Paragraph>
             </div>
 
             <div className="tech-list">
@@ -271,18 +272,15 @@ function Homepage() {
 
           {/* Contact */}
           <section className="contact-section">
-            <Text className="section-index">03 / LET'S CONNECT</Text>
-            <Title level={2}>Have an interesting idea?</Title>
-            <Paragraph>
-              I'm always interested in exchanging ideas, exploring technology
-              and building something new.
-            </Paragraph>
+            <Text className="section-index">{t('homepage.contact.index')}</Text>
+            <Title level={2}>{t('homepage.contact.heading')}</Title>
+            <Paragraph>{t('homepage.contact.description')}</Paragraph>
             <Button
               type="primary"
               size="large"
               href="mailto:vyckey@qq.com"
               className="primary-action">
-              Say hello <ExportOutlined />
+              {t('homepage.contact.action')} <ExportOutlined />
             </Button>
           </section>
         </div>
@@ -291,7 +289,7 @@ function Homepage() {
       <Footer className="profile-footer">
         <div className="footer-inner">
           <span>© {new Date().getFullYear()} VYCKEY</span>
-          <span>BUILDING THE FUTURE WITH CODE.</span>
+          <span>{t('homepage.footer.tagline')}</span>
           <a
             href="https://github.com/vyckey"
             target="_blank"

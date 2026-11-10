@@ -13,6 +13,7 @@ import {
 } from 'antd';
 import type { UploadFile } from 'antd/es/upload/interface';
 import { PlusOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 type RenderType = 'canvas' | 'svg';
 
@@ -54,6 +55,7 @@ function normalizeColor(value: ColorValue, fallback: string): string {
 }
 
 const QRCodeGenerator: React.FC = () => {
+  const { t } = useTranslation();
   const [form] = Form.useForm<QRCodeFormValues>();
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [renderType, setRenderType] = useState<RenderType>('canvas');
@@ -121,7 +123,7 @@ const QRCodeGenerator: React.FC = () => {
       .getElementById('myqrcode')
       ?.querySelector<HTMLCanvasElement>('canvas');
     if (!canvas) {
-      message.error('未找到二维码画布');
+      message.error(t('qrcode.noCanvas'));
       return;
     }
 
@@ -130,7 +132,7 @@ const QRCodeGenerator: React.FC = () => {
       doDownload(url, 'QRCode.png');
     } catch (err) {
       console.error('download canvas qrcode fail', err);
-      message.error('保存二维码失败');
+      message.error(t('qrcode.saveFailed'));
     }
   };
 
@@ -139,7 +141,7 @@ const QRCodeGenerator: React.FC = () => {
       .getElementById('myqrcode')
       ?.querySelector<SVGElement>('svg');
     if (!svg) {
-      message.error('未找到二维码 SVG');
+      message.error(t('qrcode.noSvg'));
       return;
     }
 
@@ -154,7 +156,7 @@ const QRCodeGenerator: React.FC = () => {
 
   return (
     <>
-      <h1>二维码生成</h1>
+      <h1>{t('qrcode.title')}</h1>
       <Form
         form={form}
         name="qrcodeForm"
@@ -165,35 +167,35 @@ const QRCodeGenerator: React.FC = () => {
           rules={[
             {
               required: true,
-              message: '请输入文本！',
+              message: t('qrcode.required'),
             },
           ]}>
           <Input.TextArea
             allowClear={true}
             rows={6}
-            placeholder="请输入文本"
+            placeholder={t('qrcode.placeholder')}
             showCount={true}
           />
         </Form.Item>
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space orientation="vertical">
-            <Form.Item name="renderType" label="图片类型">
+            <Form.Item name="renderType" label={t('qrcode.imageType')}>
               <Radio.Group
                 onChange={e => {
                   setRenderType(e.target.value);
                 }}>
-                <Radio value="canvas">图片</Radio>
+                <Radio value="canvas">{t('qrcode.image')}</Radio>
                 <Radio value="svg">SVG</Radio>
               </Radio.Group>
             </Form.Item>
-            <Form.Item name="bgColor" label="背景颜色">
+            <Form.Item name="bgColor" label={t('qrcode.bgColor')}>
               <ColorPicker allowClear showText />
             </Form.Item>
-            <Form.Item name="color" label="颜色">
+            <Form.Item name="color" label={t('qrcode.color')}>
               <ColorPicker allowClear showText />
             </Form.Item>
             {renderType === 'canvas' && (
-              <Form.Item name="size" label="图片大小">
+              <Form.Item name="size" label={t('qrcode.size')}>
                 <Slider
                   min={80}
                   max={1024}
@@ -203,7 +205,7 @@ const QRCodeGenerator: React.FC = () => {
             )}
             <Form.Item
               name="logo"
-              label="LOGO"
+              label={t('qrcode.logo')}
               valuePropName="fileList"
               getValueFromEvent={(
                 event: UploadFile[] | { fileList?: UploadFile[] }
@@ -219,17 +221,17 @@ const QRCodeGenerator: React.FC = () => {
             <Form.Item>
               <Space>
                 <Button type="primary" htmlType="submit">
-                  生成二维码
+                  {t('qrcode.generate')}
                 </Button>
                 <Button type="primary" htmlType="button" onClick={onReset}>
-                  重置
+                  {t('common.reset')}
                 </Button>
               </Space>
             </Form.Item>
           </Space>
           <div id="myqrcode">
             <Space orientation="vertical" style={{ marginRight: '20px' }}>
-              <p>二维码</p>
+              <p>{t('qrcode.previewTitle')}</p>
               <div
                 style={{
                   border: 'dashed black 2px',
@@ -263,7 +265,7 @@ const QRCodeGenerator: React.FC = () => {
                     ? downloadCanvasQRCode
                     : downloadSvgQRCode
                 }>
-                保存图片
+                {t('qrcode.save')}
               </Button>
             </Space>
           </div>

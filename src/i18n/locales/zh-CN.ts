@@ -3,6 +3,7 @@
 
 const common = {
   copy: '复制',
+  download: '下载',
   copySuccess: '复制成功',
   copyFailed: '复制失败',
   copyEmpty: '内容为空',
@@ -120,6 +121,8 @@ const tool = {
     data: '数据格式',
     network: '网络工具',
     generator: '生成器',
+    design: '设计与颜色',
+    reference: '速查参考',
   },
   registry: {
     timestamp: {
@@ -152,7 +155,7 @@ const tool = {
     },
     encryption: {
       label: '加密/解密',
-      description: 'MD5、SHA256、Base64、RSA 加解密',
+      description: 'MD5、SHA256、Base64、RSA、AES 加解密',
     },
     json: {
       label: 'JSON',
@@ -169,6 +172,54 @@ const tool = {
     password: {
       label: '密码生成',
       description: '生成高强度随机密码并评估密码强度',
+    },
+    uuid: {
+      label: '唯一 ID 生成',
+      description: '批量生成 UUID v4、v7 与 NanoID',
+    },
+    color: {
+      label: '颜色工具',
+      description: 'HEX、RGB、HSL 转换、色阶与 WCAG 对比度',
+    },
+    cidr: {
+      label: '子网计算',
+      description: 'IPv4 CIDR 网络地址、主机范围与归属判断',
+    },
+    url: {
+      label: 'URL 解析',
+      description: '拆分 URL 组成并编辑查询参数',
+    },
+    filehash: {
+      label: '文件哈希',
+      description: '本地计算文件 MD5、SHA-1、SHA-256、SHA-512',
+    },
+    datecalc: {
+      label: '日期计算',
+      description: '计算日期间隔与日期加减',
+    },
+    totp: {
+      label: 'TOTP 验证码',
+      description: '根据 Base32 密钥生成动态口令',
+    },
+    texttools: {
+      label: '文本统计',
+      description: '字数、字节统计与去重排序等行处理',
+    },
+    reference: {
+      label: '速查参考',
+      description: 'HTTP 状态码、MIME、ASCII、chmod 与 Git 速查',
+    },
+    image: {
+      label: '图片工具箱',
+      description: '图片压缩、缩放、格式转换、Base64 与 favicon 生成',
+    },
+    converter: {
+      label: '数据转换',
+      description: 'JSON、YAML、TOML、CSV、Markdown 互转与代码生成',
+    },
+    css: {
+      label: 'CSS 生成器',
+      description: '可视化生成渐变、阴影、圆角与滤镜代码',
     },
   },
 };
@@ -374,6 +425,7 @@ const encryption = {
     sha256: 'SHA256签名',
     base64: 'Base64编码/解码',
     rsa: 'RSA加密/解密',
+    aes: 'AES加密/解密',
   },
   outputPlaceholder: '输出文本',
   md5: {
@@ -413,6 +465,30 @@ const encryption = {
     encryptDetail: '加密失败，请检查公钥或文本长度',
     decryptFailed: '解密失败！',
     decryptDetail: '解密失败，请检查私钥或密文',
+  },
+  aes: {
+    mode: {
+      passphrase: '口令模式',
+      raw: '原始密钥模式',
+    },
+    inputPlaceholder: '请输入需要加密或解密的文本',
+    passphrase: '口令',
+    passphrasePlaceholder: '输入加密口令，解密时需要相同口令',
+    keyBits: '密钥长度',
+    generateKey: '生成密钥和 IV',
+    key: '密钥 Hex',
+    iv: 'IV Hex',
+    encrypt: '加密',
+    decrypt: '解密',
+    passphraseHint:
+      '口令模式使用 OpenSSL 兼容的 AES-256-CBC 与随机盐，输出为 Base64。',
+    rawHint:
+      '原始密钥模式使用 AES-CBC + PKCS#7，密钥为 32/48/64 位十六进制，IV 固定为 32 位十六进制。',
+    inputRequired: '请输入需要加密或解密的文本',
+    passphraseRequired: '请输入加密口令',
+    invalidKey: '密钥必须是 32、48 或 64 位十六进制字符串',
+    invalidIv: 'IV 必须是 32 位十六进制字符串',
+    decryptFailed: '解密失败，请检查口令、密钥、IV 或密文',
   },
 };
 
@@ -730,6 +806,322 @@ const password = {
   copyPassword: '复制密码',
 };
 
+const uuid = {
+  count: '数量',
+  uppercase: '大写',
+  hyphens: '连字符',
+  generate: '生成',
+  hint: {
+    v4: 'UUID v4 完全随机，适合通用唯一标识。',
+    v7: 'UUID v7 前 48 位是毫秒时间戳，按时间有序，适合数据库主键。',
+    nano: 'NanoID 是更短的 URL 安全随机 ID，长度为 21 位。',
+  },
+};
+
+const fileHash = {
+  dropTitle: '拖拽文件到这里，或点击选择文件',
+  dropHint: '文件只在浏览器本地读取，不会上传',
+  verifyTitle: '校验摘要',
+  verifyPlaceholder: '粘贴官方提供的 MD5 / SHA-256 等摘要进行对比',
+  match: '摘要匹配',
+  mismatch: '摘要不匹配',
+  privacy: '大文件会分块计算，期间页面可能略有卡顿；文件内容不会离开本机。',
+  readFailed: '读取文件失败',
+};
+
+const color = {
+  pick: '选择颜色',
+  red: '红 R',
+  green: '绿 G',
+  blue: '蓝 B',
+  palette: '色阶与互补色',
+  contrast: 'WCAG 对比度检测',
+  foreground: '文字颜色',
+  background: '背景颜色',
+  sample: '示例文本',
+  ratio: '对比度',
+  pass: '通过',
+  fail: '未通过',
+  aaHint: '普通文本 AA 需 ≥ 4.5:1，AAA 需 ≥ 7:1。',
+};
+
+const cidr = {
+  calculate: '计算',
+  network: '网络地址',
+  broadcast: '广播地址',
+  netmask: '子网掩码',
+  wildcard: '通配符',
+  hostRange: '可用主机范围',
+  noHost: '该前缀没有可分配的主机地址',
+  usableHosts: '可用主机数',
+  totalAddresses: '地址总数',
+  prefix: '前缀长度',
+  containsTitle: '判断 IP 是否属于该网段',
+  ipPlaceholder: '输入要检查的 IPv4 地址',
+  inRange: '{{ip}} 属于 {{cidr}}',
+  notInRange: '{{ip}} 不属于 {{cidr}}',
+  ipv4Only: '目前仅支持 IPv4 子网计算。',
+  invalidCidr: 'CIDR 格式错误，示例：192.168.1.0/24',
+  invalidIp: 'IPv4 地址格式错误',
+  invalidPrefix: '前缀长度必须是 0 到 32 之间的整数',
+};
+
+const url = {
+  placeholder: '粘贴完整 URL，或输入 example.com/path',
+  parse: '解析',
+  parts: 'URL 组成',
+  protocol: '协议',
+  hostname: '主机',
+  port: '端口',
+  username: '用户名',
+  password: '密码',
+  pathname: '路径',
+  hash: '锚点',
+  params: '查询参数',
+  paramsHint: '键和值会按 URL 规则自动编码，重复的键会保留。',
+  addParam: '添加参数',
+  result: '生成的 URL',
+  open: '打开',
+  invalid: '无法解析该 URL，请检查格式',
+};
+
+const dateCalc = {
+  tabs: {
+    interval: '日期间隔',
+    add: '日期加减',
+  },
+  start: '开始日期',
+  end: '结束日期',
+  totalDays: '相差天数',
+  dayCount: '{{count}} 天',
+  weeks: '折合周数',
+  weekDayCount: '{{weeks}} 周 {{days}} 天',
+  calendar: '日历差值',
+  yearMonthDayCount: '{{years}} 年 {{months}} 个月 {{days}} 天',
+  hours: '折合小时',
+  hourCount: '{{count}} 小时',
+  negativeHint: '结束日期早于开始日期，结果按绝对值显示。',
+  after: '之后',
+  before: '之前',
+  result: '计算结果',
+  unit: {
+    day: '天',
+    week: '周',
+    month: '月',
+    year: '年',
+  },
+  weekdays: {
+    sun: '周日',
+    mon: '周一',
+    tue: '周二',
+    wed: '周三',
+    thu: '周四',
+    fri: '周五',
+    sat: '周六',
+  },
+};
+
+const totp = {
+  secret: '密钥',
+  secretPlaceholder: 'Base32 密钥，例如 JBSWY3DPEHPK3PXP',
+  digits: '位',
+  currentCode: '当前动态验证码',
+  refreshHint: '剩余 {{seconds}} 秒刷新（{{time}}）',
+  issuer: '服务名',
+  issuerPlaceholder: '例如 GitHub',
+  account: '账号',
+  accountPlaceholder: '例如 you@example.com',
+  otpAuthUrl: 'otpauth URL',
+  privacy: '密钥只在本页内存中计算，刷新后不会保存。',
+  secretRequired: '请输入 Base32 密钥',
+  invalidSecret: '密钥包含无效字符「{{char}}」',
+  invalidDigits: '验证码位数必须是 6 到 8',
+  invalidPeriod: '刷新周期必须是正整数',
+};
+
+const textTools = {
+  characters: '字符数',
+  charactersNoSpaces: '不含空白',
+  words: '词数',
+  lines: '行数',
+  nonEmptyLines: '非空行',
+  bytes: 'UTF-8 字节',
+  readingTime: '阅读时长',
+  minutes: '{{count}} 分钟',
+  inputPlaceholder: '粘贴或输入文本，统计会实时更新',
+  operations: '行处理（输出到下方）',
+  operation: {
+    trim: '去除行首尾空白',
+    removeEmpty: '删除空行',
+    dedupe: '去重',
+    sortAsc: '升序排序',
+    sortDesc: '降序排序',
+    reverse: '反转行序',
+    number: '添加行号',
+    collapseSpaces: '合并空格',
+    copy: '原样输出',
+  },
+  output: '处理结果',
+};
+
+const reference = {
+  tabs: {
+    http: 'HTTP 状态码',
+    mime: 'MIME 类型',
+    ascii: 'ASCII 表',
+    chmod: 'chmod 权限',
+    git: 'Git 命令',
+  },
+  search: '搜索代码、名称或说明',
+  code: '代码',
+  name: '名称',
+  description: '说明',
+  ascii: {
+    decimal: '十进制',
+    hex: '十六进制',
+    binary: '二进制',
+    char: '字符',
+    entity: 'HTML 实体',
+  },
+  chmod: {
+    owner: '所有者',
+    group: '所属组',
+    other: '其他用户',
+    octal: '八进制',
+    symbolic: '符号表示',
+    file: '文件名',
+  },
+};
+
+const image = {
+  dropTitle: '拖拽图片到这里，或点击选择文件',
+  dropHint: '支持 JPG、PNG、WebP、GIF 等格式，图片只在浏览器本地处理',
+  invalidType: '请选择图片文件',
+  loading: '正在加载图片…',
+  noFile: '请先选择一张图片',
+  tabs: {
+    compress: '压缩与缩放',
+    base64: 'Base64',
+    favicon: 'Favicon',
+  },
+  format: '输出格式',
+  quality: '质量',
+  width: '宽度',
+  height: '高度',
+  keepRatio: '锁定比例',
+  presets: '快速缩放',
+  backgroundHint: 'JPEG 不支持透明，透明区域会填充为白色。',
+  output: '处理结果',
+  processing: '处理中…',
+  dimensions: '输出尺寸',
+  resultSize: '输出大小',
+  saved: '比原图小 {{percent}}%',
+  increased: '比原图大 {{percent}}%',
+  sameSize: '与原图大小相同',
+  download: '下载',
+  base64: {
+    dataUrl: 'Data URL',
+    raw: '纯 Base64',
+    hint: 'Data URL 可直接用于 <img src>，体积约为原图的 4/3。',
+  },
+  favicon: {
+    hint: '图标会自动居中裁剪为正方形，并生成常用尺寸。',
+    generating: '正在生成图标…',
+    sizeLabel: '{{size}} × {{size}}',
+    download: '下载',
+    downloadIco: '下载 favicon.ico',
+    icoHint: 'ICO 包含 16、32、48、256 像素。',
+  },
+  errors: {
+    loadFailed: '图片加载失败',
+    canvasUnavailable: '当前浏览器不支持 Canvas',
+    encodeFailed: '图片编码失败',
+    readFailed: '读取图片失败',
+    icoSize: 'ICO 图标数量必须在 1 到 255 之间',
+  },
+};
+
+const converter = {
+  tabs: {
+    formats: '格式转换',
+    code: '代码生成',
+  },
+  inputFormat: '输入格式',
+  outputFormat: '输出格式',
+  input: '输入内容',
+  output: '转换结果',
+  convert: '转换',
+  sample: '载入示例',
+  inputPlaceholder: '粘贴或输入需要转换的内容',
+  emptyOutput: '点击“转换”生成结果',
+  recordsHint: 'CSV 和 Markdown 表格要求根节点是对象或对象数组。',
+  jsonInput: 'JSON 输入',
+  rootName: '根类型名',
+  generated: '生成代码',
+  codeHint: '目前支持从 JSON 生成 TypeScript、Go 和 Java 类型。',
+  errors: {
+    emptyInput: '请输入要转换的内容',
+    invalidJSON: 'JSON 解析失败：{{message}}',
+    invalidYAML: 'YAML 解析失败：{{message}}',
+    invalidTOML: 'TOML 解析失败：{{message}}',
+    invalidCSV: 'CSV 解析失败：{{message}}',
+    invalidMARKDOWN: 'Markdown 表格解析失败：{{message}}',
+    tomlRoot: 'TOML 根节点必须是对象',
+    recordsRequired: 'CSV / Markdown 只支持对象或对象数组',
+    serializeFailed: '序列化为 {{format}} 失败：{{message}}',
+    javaRoot: 'Java 代码生成要求 JSON 根节点是对象',
+  },
+};
+
+const css = {
+  tabs: {
+    gradient: '渐变',
+    shadow: '阴影',
+    radius: '圆角',
+    filter: '滤镜',
+  },
+  preview: '实时预览',
+  code: 'CSS 代码',
+  gradient: {
+    linear: '线性',
+    radial: '径向',
+    conic: '锥形',
+    angle: '角度',
+    stops: '色标',
+    addStop: '添加色标',
+    color: '颜色',
+  },
+  shadow: {
+    layers: '阴影层',
+    addLayer: '添加阴影',
+    layer: '阴影',
+    inset: '内阴影',
+    x: 'X 偏移',
+    y: 'Y 偏移',
+    blur: '模糊',
+    spread: '扩散',
+    color: '颜色',
+  },
+  radius: {
+    linked: '四角联动',
+    topLeft: '左上',
+    topRight: '右上',
+    bottomRight: '右下',
+    bottomLeft: '左下',
+  },
+  filter: {
+    blur: '模糊',
+    brightness: '亮度',
+    contrast: '对比度',
+    grayscale: '灰度',
+    saturate: '饱和度',
+    sepia: '褐色',
+    hueRotate: '色相旋转',
+    invert: '反色',
+    opacity: '不透明度',
+  },
+};
+
 const zhCN = {
   translation: {
     common,
@@ -751,6 +1143,18 @@ const zhCN = {
     cron,
     regex,
     password,
+    uuid,
+    fileHash,
+    color,
+    cidr,
+    url,
+    dateCalc,
+    totp,
+    textTools,
+    reference,
+    image,
+    converter,
+    css,
   },
 };
 

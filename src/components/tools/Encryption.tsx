@@ -6,6 +6,7 @@ import CryptoJS from 'crypto-js';
 import JSEncrypt from 'jsencrypt';
 import CopyableTextArea from '../CopyableTextArea';
 import { toPkcs8PrivateKey } from '../../utils/rsa';
+import AesPanel from './encoder/AesPanel';
 
 const MD5Form: React.FC = () => {
   const { t } = useTranslation();
@@ -393,6 +394,11 @@ const EncryptionTabs: React.FC = () => {
             key: 'rsa_tab',
             label: t('encryption.tabs.rsa'),
             children: <RSAForm />,
+          },
+          {
+            key: 'aes_tab',
+            label: t('encryption.tabs.aes'),
+            children: <AesPanel />,
           },
         ]}
       />

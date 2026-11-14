@@ -16,6 +16,18 @@ import EncoderDecoderTabs from '../components/tools/EncoderDecoder';
 import CronTool from '../components/tools/CronTool';
 import RegexTool from '../components/tools/RegexTool';
 import MarkdownTool from '../components/tools/MarkdownTool';
+import UuidGenerator from '../components/tools/UuidGenerator';
+import ColorTool from '../components/tools/ColorTool';
+import CidrTool from '../components/tools/CidrTool';
+import UrlTool from '../components/tools/UrlTool';
+import FileHashTool from '../components/tools/FileHashTool';
+import DateCalcTool from '../components/tools/DateCalcTool';
+import TotpTool from '../components/tools/TotpTool';
+import TextTools from '../components/tools/TextTools';
+import ReferenceTool from '../components/tools/ReferenceTool';
+import ImageTool from '../components/tools/ImageTool';
+import ConverterTool from '../components/tools/ConverterTool';
+import CssTool from '../components/tools/CssTool';
 
 const router = createBrowserRouter([
   {
@@ -81,6 +93,54 @@ const router = createBrowserRouter([
       {
         path: 'regex',
         element: <RegexTool />,
+      },
+      {
+        path: 'uuid',
+        element: <UuidGenerator />,
+      },
+      {
+        path: 'color',
+        element: <ColorTool />,
+      },
+      {
+        path: 'cidr',
+        element: <CidrTool />,
+      },
+      {
+        path: 'url',
+        element: <UrlTool />,
+      },
+      {
+        path: 'filehash',
+        element: <FileHashTool />,
+      },
+      {
+        path: 'datecalc',
+        element: <DateCalcTool />,
+      },
+      {
+        path: 'totp',
+        element: <TotpTool />,
+      },
+      {
+        path: 'texttools',
+        element: <TextTools />,
+      },
+      {
+        path: 'reference',
+        element: <ReferenceTool />,
+      },
+      {
+        path: 'image',
+        element: <ImageTool />,
+      },
+      {
+        path: 'converter',
+        element: <ConverterTool />,
+      },
+      {
+        path: 'css',
+        element: <CssTool />,
       },
     ],
   },

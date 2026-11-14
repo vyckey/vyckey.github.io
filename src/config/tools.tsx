@@ -1,22 +1,41 @@
 import React, { useMemo } from 'react';
 import {
+  AlignLeftOutlined,
+  BgColorsOutlined,
+  BlockOutlined,
+  BookOutlined,
+  CalendarOutlined,
   ClockCircleOutlined,
   CodeOutlined,
   DiffOutlined,
   FieldTimeOutlined,
   FileMarkdownOutlined,
+  FileProtectOutlined,
   FileTextOutlined,
   FontSizeOutlined,
+  FormatPainterOutlined,
   GlobalOutlined,
   KeyOutlined,
+  LinkOutlined,
   LockOutlined,
+  NumberOutlined,
+  PictureOutlined,
   QrcodeOutlined,
+  SafetyCertificateOutlined,
   ScheduleOutlined,
+  SwapOutlined,
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 export type ToolCategory =
-  'time' | 'text' | 'code' | 'data' | 'network' | 'generator';
+  | 'time'
+  | 'text'
+  | 'code'
+  | 'data'
+  | 'network'
+  | 'generator'
+  | 'design'
+  | 'reference';
 
 export type ToolKey =
   | 'timestamp'
@@ -30,7 +49,19 @@ export type ToolKey =
   | 'json'
   | 'ipaddress'
   | 'qrcode'
-  | 'password';
+  | 'password'
+  | 'uuid'
+  | 'color'
+  | 'cidr'
+  | 'url'
+  | 'filehash'
+  | 'datecalc'
+  | 'totp'
+  | 'texttools'
+  | 'reference'
+  | 'image'
+  | 'converter'
+  | 'css';
 
 export interface ToolMeta {
   /** Route segment and menu key. Must match the last segment of `path`. */
@@ -58,6 +89,8 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
   'data',
   'network',
   'generator',
+  'design',
+  'reference',
 ];
 
 export const tools: ToolMeta[] = [
@@ -190,6 +223,222 @@ export const tools: ToolMeta[] = [
       '强度',
     ],
     inMenu: false,
+  },
+  {
+    key: 'uuid',
+    path: '/tools/uuid',
+    category: 'generator',
+    icon: <NumberOutlined />,
+    keywords: [
+      'uuid',
+      'nanoid',
+      'guid',
+      'random',
+      'id',
+      '唯一',
+      '随机',
+      '标识',
+    ],
+  },
+  {
+    key: 'color',
+    path: '/tools/color',
+    category: 'design',
+    icon: <BgColorsOutlined />,
+    keywords: [
+      'color',
+      'colour',
+      'hex',
+      'rgb',
+      'hsl',
+      'contrast',
+      'palette',
+      '颜色',
+      '配色',
+      '对比度',
+      '调色板',
+    ],
+  },
+  {
+    key: 'cidr',
+    path: '/tools/cidr',
+    category: 'network',
+    icon: <BlockOutlined />,
+    keywords: [
+      'cidr',
+      'subnet',
+      'netmask',
+      'ip',
+      'network',
+      '子网',
+      '掩码',
+      '网段',
+      '主机',
+    ],
+  },
+  {
+    key: 'url',
+    path: '/tools/url',
+    category: 'network',
+    icon: <LinkOutlined />,
+    keywords: [
+      'url',
+      'uri',
+      'query',
+      'params',
+      'link',
+      '链接',
+      '参数',
+      '解析',
+      '查询串',
+    ],
+  },
+  {
+    key: 'filehash',
+    path: '/tools/filehash',
+    category: 'code',
+    icon: <FileProtectOutlined />,
+    keywords: [
+      'hash',
+      'md5',
+      'sha1',
+      'sha256',
+      'checksum',
+      'file',
+      '文件',
+      '校验',
+      '摘要',
+    ],
+  },
+  {
+    key: 'datecalc',
+    path: '/tools/datecalc',
+    category: 'time',
+    icon: <CalendarOutlined />,
+    keywords: [
+      'date',
+      'duration',
+      'days',
+      'age',
+      '日期',
+      '计算',
+      '间隔',
+      '相差',
+      '天数',
+    ],
+  },
+  {
+    key: 'totp',
+    path: '/tools/totp',
+    category: 'code',
+    icon: <SafetyCertificateOutlined />,
+    keywords: [
+      'totp',
+      'otp',
+      '2fa',
+      'authenticator',
+      'verification',
+      '动态口令',
+      '验证码',
+      '两步验证',
+    ],
+  },
+  {
+    key: 'texttools',
+    path: '/tools/texttools',
+    category: 'text',
+    icon: <AlignLeftOutlined />,
+    keywords: [
+      'text',
+      'count',
+      'words',
+      'dedupe',
+      'sort',
+      '统计',
+      '字数',
+      '去重',
+      '排序',
+      '行',
+    ],
+  },
+  {
+    key: 'reference',
+    path: '/tools/reference',
+    category: 'reference',
+    icon: <BookOutlined />,
+    keywords: [
+      'http',
+      'status',
+      'mime',
+      'ascii',
+      'chmod',
+      'git',
+      '状态码',
+      '速查',
+      '权限',
+      '命令',
+    ],
+  },
+  {
+    key: 'image',
+    path: '/tools/image',
+    category: 'design',
+    icon: <PictureOutlined />,
+    keywords: [
+      'image',
+      'photo',
+      'compress',
+      'resize',
+      'convert',
+      'webp',
+      'favicon',
+      'base64',
+      '图片',
+      '压缩',
+      '缩放',
+      '格式转换',
+      '图标',
+    ],
+  },
+  {
+    key: 'converter',
+    path: '/tools/converter',
+    category: 'data',
+    icon: <SwapOutlined />,
+    keywords: [
+      'json',
+      'yaml',
+      'toml',
+      'csv',
+      'markdown',
+      'convert',
+      'typescript',
+      'golang',
+      'java',
+      '转换',
+      '数据',
+      '代码生成',
+      '类型',
+    ],
+  },
+  {
+    key: 'css',
+    path: '/tools/css',
+    category: 'design',
+    icon: <FormatPainterOutlined />,
+    keywords: [
+      'css',
+      'gradient',
+      'shadow',
+      'border-radius',
+      'filter',
+      'style',
+      '渐变',
+      '阴影',
+      '圆角',
+      '滤镜',
+      '样式',
+    ],
   },
 ];
 

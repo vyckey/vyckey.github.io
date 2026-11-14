@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { createPatch } from 'diff';
 import { html, parse } from 'diff2html';
-import { Diff2HtmlUI } from 'diff2html/lib/ui/js/diff2html-ui';
+import { Diff2HtmlUI } from 'diff2html/lib/ui/js/diff2html-ui-base';
 import 'highlight.js/styles/googlecode.css';
 import 'diff2html/bundles/css/diff2html.min.css';
 import { DiffFile } from 'diff2html/lib/types';
+import hljs from '../../utils/highlight';
 
 interface FileDiffProps {
   fileName?: string;
@@ -71,7 +72,12 @@ const TextDiffView: React.FC<TextDiffViewProps> = ({
         outputFormat: outputFormat,
       };
 
-      const diff2htmlUi = new Diff2HtmlUI(targetElement, diffFiles, config);
+      const diff2htmlUi = new Diff2HtmlUI(
+        targetElement,
+        diffFiles,
+        config,
+        hljs
+      );
       diff2htmlUi.draw();
       diff2htmlUi.highlightCode();
       diff2htmlUi.fileListToggle(fileListToggle);

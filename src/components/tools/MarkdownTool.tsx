@@ -17,8 +17,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
+import { highlightCode } from '../../utils/highlight';
 import CopyButton from '../CopyButton';
 
 const { Text } = Typography;
@@ -73,20 +73,18 @@ const markdownComponents: Components = {
     }
 
     const source = String(children).replace(/\n$/, '');
-    try {
-      const highlighted = hljs.highlight(source, {
-        language: match[1],
-        ignoreIllegals: true,
-      }).value;
-      return (
-        <code
-          className={className}
-          dangerouslySetInnerHTML={{ __html: highlighted }}
-        />
-      );
-    } catch {
+    const highlighted = highlightCode(source, match[1]);
+
+    if (highlighted === null) {
       return <code className={className}>{children}</code>;
     }
+
+    return (
+      <code
+        className={className}
+        dangerouslySetInnerHTML={{ __html: highlighted }}
+      />
+    );
   },
 };
 

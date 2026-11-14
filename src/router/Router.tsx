@@ -1,33 +1,60 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
+import { Flex, Spin } from 'antd';
 import Homepage from '../pages/Homepage';
 import ToolsLayout from '../pages/ToolsLayout';
 import ToolsIndex from '../pages/ToolsIndex';
 import NotFound from '../pages/NotFound';
-import EncryptionTabs from '../components/tools/Encryption';
-import QRCodeGenerator from '../components/tools/QRCodeGenerator';
-import TimestampPanel from '../components/tools/Timestamp';
-import TimerPanel from '../components/tools/TimerPanel';
-import JsonTools from '../components/tools/JsonTools';
-import PasswordGenerator from '../components/tools/PasswordGenerator';
-import TextDiffTool from '../components/tools/TextDiffTool';
-import IPAddressView from '../components/tools/IPAddressView';
-import EncoderDecoderTabs from '../components/tools/EncoderDecoder';
-import CronTool from '../components/tools/CronTool';
-import RegexTool from '../components/tools/RegexTool';
-import MarkdownTool from '../components/tools/MarkdownTool';
-import UuidGenerator from '../components/tools/UuidGenerator';
-import ColorTool from '../components/tools/ColorTool';
-import CidrTool from '../components/tools/CidrTool';
-import UrlTool from '../components/tools/UrlTool';
-import FileHashTool from '../components/tools/FileHashTool';
-import DateCalcTool from '../components/tools/DateCalcTool';
-import TotpTool from '../components/tools/TotpTool';
-import TextTools from '../components/tools/TextTools';
-import ReferenceTool from '../components/tools/ReferenceTool';
-import ImageTool from '../components/tools/ImageTool';
-import ConverterTool from '../components/tools/ConverterTool';
-import CssTool from '../components/tools/CssTool';
+
+// Tool pages are split into their own chunks: opening the home page or the
+// tools index no longer downloads every tool (and its libraries).
+const EncryptionTabs = lazy(() => import('../components/tools/Encryption'));
+const QRCodeGenerator = lazy(
+  () => import('../components/tools/QRCodeGenerator')
+);
+const TimestampPanel = lazy(() => import('../components/tools/Timestamp'));
+const TimerPanel = lazy(() => import('../components/tools/TimerPanel'));
+const JsonTools = lazy(() => import('../components/tools/JsonTools'));
+const PasswordGenerator = lazy(
+  () => import('../components/tools/PasswordGenerator')
+);
+const TextDiffTool = lazy(() => import('../components/tools/TextDiffTool'));
+const IPAddressView = lazy(() => import('../components/tools/IPAddressView'));
+const EncoderDecoderTabs = lazy(
+  () => import('../components/tools/EncoderDecoder')
+);
+const CronTool = lazy(() => import('../components/tools/CronTool'));
+const RegexTool = lazy(() => import('../components/tools/RegexTool'));
+const MarkdownTool = lazy(() => import('../components/tools/MarkdownTool'));
+const UuidGenerator = lazy(() => import('../components/tools/UuidGenerator'));
+const ColorTool = lazy(() => import('../components/tools/ColorTool'));
+const CidrTool = lazy(() => import('../components/tools/CidrTool'));
+const UrlTool = lazy(() => import('../components/tools/UrlTool'));
+const FileHashTool = lazy(() => import('../components/tools/FileHashTool'));
+const DateCalcTool = lazy(() => import('../components/tools/DateCalcTool'));
+const TotpTool = lazy(() => import('../components/tools/TotpTool'));
+const TextTools = lazy(() => import('../components/tools/TextTools'));
+const ReferenceTool = lazy(() => import('../components/tools/ReferenceTool'));
+const ImageTool = lazy(() => import('../components/tools/ImageTool'));
+const ConverterTool = lazy(() => import('../components/tools/ConverterTool'));
+const CssTool = lazy(() => import('../components/tools/CssTool'));
+
+const RouteFallback: React.FC = () => (
+  <Flex align="center" justify="center" style={{ padding: 64 }}>
+    <Spin />
+  </Flex>
+);
+
+type LazyPage = React.LazyExoticComponent<React.ComponentType>;
+
+/** Keep the layout mounted while a tool chunk loads. */
+function page(Component: LazyPage) {
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <Component />
+    </Suspense>
+  );
+}
 
 const router = createBrowserRouter([
   {
@@ -40,7 +67,7 @@ const router = createBrowserRouter([
   },
   {
     path: 'tools/password',
-    element: <PasswordGenerator />,
+    element: page(PasswordGenerator),
   },
   {
     path: 'tools',
@@ -52,95 +79,95 @@ const router = createBrowserRouter([
       },
       {
         path: 'timestamp',
-        element: <TimestampPanel />,
+        element: page(TimestampPanel),
       },
       {
         path: 'timer',
-        element: <TimerPanel />,
+        element: page(TimerPanel),
       },
       {
         path: 'textdiff',
-        element: <TextDiffTool />,
+        element: page(TextDiffTool),
       },
       {
         path: 'markdown',
-        element: <MarkdownTool />,
+        element: page(MarkdownTool),
       },
       {
         path: 'json',
-        element: <JsonTools />,
+        element: page(JsonTools),
       },
       {
         path: 'encoder_decoder',
-        element: <EncoderDecoderTabs />,
+        element: page(EncoderDecoderTabs),
       },
       {
         path: 'encryption',
-        element: <EncryptionTabs />,
+        element: page(EncryptionTabs),
       },
       {
         path: 'qrcode',
-        element: <QRCodeGenerator />,
+        element: page(QRCodeGenerator),
       },
       {
         path: 'ipaddress',
-        element: <IPAddressView />,
+        element: page(IPAddressView),
       },
       {
         path: 'cron',
-        element: <CronTool />,
+        element: page(CronTool),
       },
       {
         path: 'regex',
-        element: <RegexTool />,
+        element: page(RegexTool),
       },
       {
         path: 'uuid',
-        element: <UuidGenerator />,
+        element: page(UuidGenerator),
       },
       {
         path: 'color',
-        element: <ColorTool />,
+        element: page(ColorTool),
       },
       {
         path: 'cidr',
-        element: <CidrTool />,
+        element: page(CidrTool),
       },
       {
         path: 'url',
-        element: <UrlTool />,
+        element: page(UrlTool),
       },
       {
         path: 'filehash',
-        element: <FileHashTool />,
+        element: page(FileHashTool),
       },
       {
         path: 'datecalc',
-        element: <DateCalcTool />,
+        element: page(DateCalcTool),
       },
       {
         path: 'totp',
-        element: <TotpTool />,
+        element: page(TotpTool),
       },
       {
         path: 'texttools',
-        element: <TextTools />,
+        element: page(TextTools),
       },
       {
         path: 'reference',
-        element: <ReferenceTool />,
+        element: page(ReferenceTool),
       },
       {
         path: 'image',
-        element: <ImageTool />,
+        element: page(ImageTool),
       },
       {
         path: 'converter',
-        element: <ConverterTool />,
+        element: page(ConverterTool),
       },
       {
         path: 'css',
-        element: <CssTool />,
+        element: page(CssTool),
       },
     ],
   },

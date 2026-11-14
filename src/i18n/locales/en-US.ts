@@ -5,6 +5,7 @@ import type zhCN from './zh-CN';
 
 const common = {
   copy: 'Copy',
+  download: 'Download',
   copySuccess: 'Copied',
   copyFailed: 'Copy failed',
   copyEmpty: 'Nothing to copy',
@@ -219,6 +220,21 @@ const tool = {
     reference: {
       label: 'Reference',
       description: 'HTTP status codes, MIME types, ASCII, chmod and Git',
+    },
+    image: {
+      label: 'Image Toolkit',
+      description:
+        'Compress, resize, convert, Base64-encode and generate favicons',
+    },
+    converter: {
+      label: 'Data Converter',
+      description:
+        'Convert JSON, YAML, TOML, CSV and Markdown, plus code generation',
+    },
+    css: {
+      label: 'CSS Generator',
+      description:
+        'Visually build gradients, shadows, border radii and filters',
     },
   },
 };
@@ -1010,6 +1026,138 @@ const reference = {
   },
 };
 
+const image = {
+  dropTitle: 'Drop an image here, or click to choose a file',
+  dropHint:
+    'JPG, PNG, WebP, GIF and more. Images are processed locally in your browser',
+  invalidType: 'Please choose an image file',
+  loading: 'Loading image…',
+  noFile: 'Choose an image first',
+  tabs: {
+    compress: 'Compress & resize',
+    base64: 'Base64',
+    favicon: 'Favicon',
+  },
+  format: 'Output format',
+  quality: 'Quality',
+  width: 'Width',
+  height: 'Height',
+  keepRatio: 'Keep ratio',
+  presets: 'Quick resize',
+  backgroundHint:
+    'JPEG does not support transparency; transparent areas are filled white.',
+  output: 'Result',
+  processing: 'Processing…',
+  dimensions: 'Output size',
+  resultSize: 'File size',
+  saved: '{{percent}}% smaller than the original',
+  increased: '{{percent}}% larger than the original',
+  sameSize: 'Same size as the original',
+  download: 'Download',
+  base64: {
+    dataUrl: 'Data URL',
+    raw: 'Raw Base64',
+    hint: 'Data URLs work directly in <img src> and are about 4/3 the size of the original.',
+  },
+  favicon: {
+    hint: 'Icons are center-cropped to a square and generated at common sizes.',
+    generating: 'Generating icons…',
+    sizeLabel: '{{size}} × {{size}}',
+    download: 'Download',
+    downloadIco: 'Download favicon.ico',
+    icoHint: 'The ICO contains 16, 32, 48 and 256 px icons.',
+  },
+  errors: {
+    loadFailed: 'Failed to load the image',
+    canvasUnavailable: 'This browser does not support Canvas',
+    encodeFailed: 'Failed to encode the image',
+    readFailed: 'Failed to read the image',
+    icoSize: 'An ICO must contain between 1 and 255 icons',
+  },
+};
+
+const converter = {
+  tabs: {
+    formats: 'Convert formats',
+    code: 'Code generation',
+  },
+  inputFormat: 'Input format',
+  outputFormat: 'Output format',
+  input: 'Input',
+  output: 'Result',
+  convert: 'Convert',
+  sample: 'Load sample',
+  inputPlaceholder: 'Paste or type the content to convert',
+  emptyOutput: 'Click "Convert" to generate the result',
+  recordsHint:
+    'CSV and Markdown tables require an object or an array of objects at the root.',
+  jsonInput: 'JSON input',
+  rootName: 'Root type name',
+  generated: 'Generated code',
+  codeHint: 'Generate TypeScript, Go and Java types from JSON.',
+  errors: {
+    emptyInput: 'Please enter the content to convert',
+    invalidJSON: 'JSON parsing failed: {{message}}',
+    invalidYAML: 'YAML parsing failed: {{message}}',
+    invalidTOML: 'TOML parsing failed: {{message}}',
+    invalidCSV: 'CSV parsing failed: {{message}}',
+    invalidMARKDOWN: 'Markdown table parsing failed: {{message}}',
+    tomlRoot: 'The TOML root must be an object',
+    recordsRequired: 'CSV / Markdown only support objects or arrays of objects',
+    serializeFailed: 'Failed to serialize to {{format}}: {{message}}',
+    javaRoot: 'Java generation requires a JSON object at the root',
+  },
+};
+
+const css = {
+  tabs: {
+    gradient: 'Gradient',
+    shadow: 'Shadow',
+    radius: 'Radius',
+    filter: 'Filter',
+  },
+  preview: 'Live preview',
+  code: 'CSS code',
+  gradient: {
+    linear: 'Linear',
+    radial: 'Radial',
+    conic: 'Conic',
+    angle: 'Angle',
+    stops: 'Stops',
+    addStop: 'Add stop',
+    color: 'Color',
+  },
+  shadow: {
+    layers: 'Shadow layers',
+    addLayer: 'Add shadow',
+    layer: 'Shadow',
+    inset: 'Inset',
+    x: 'X offset',
+    y: 'Y offset',
+    blur: 'Blur',
+    spread: 'Spread',
+    color: 'Color',
+  },
+  radius: {
+    linked: 'Link all corners',
+    topLeft: 'Top left',
+    topRight: 'Top right',
+    bottomRight: 'Bottom right',
+    bottomLeft: 'Bottom left',
+  },
+  filter: {
+    blur: 'Blur',
+    brightness: 'Brightness',
+    contrast: 'Contrast',
+    grayscale: 'Grayscale',
+    saturate: 'Saturate',
+    sepia: 'Sepia',
+    hueRotate: 'Hue rotate',
+    invert: 'Invert',
+    opacity: 'Opacity',
+  },
+};
+
 const enUS = {
   translation: {
     common,
@@ -1040,6 +1188,9 @@ const enUS = {
     totp,
     textTools,
     reference,
+    image,
+    converter,
+    css,
   },
 } satisfies typeof zhCN;
 

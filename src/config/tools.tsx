@@ -13,14 +13,17 @@ import {
   FileProtectOutlined,
   FileTextOutlined,
   FontSizeOutlined,
+  FormatPainterOutlined,
   GlobalOutlined,
   KeyOutlined,
   LinkOutlined,
   LockOutlined,
   NumberOutlined,
+  PictureOutlined,
   QrcodeOutlined,
   SafetyCertificateOutlined,
   ScheduleOutlined,
+  SwapOutlined,
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
@@ -55,7 +58,10 @@ export type ToolKey =
   | 'datecalc'
   | 'totp'
   | 'texttools'
-  | 'reference';
+  | 'reference'
+  | 'image'
+  | 'converter'
+  | 'css';
 
 export interface ToolMeta {
   /** Route segment and menu key. Must match the last segment of `path`. */
@@ -371,6 +377,67 @@ export const tools: ToolMeta[] = [
       '速查',
       '权限',
       '命令',
+    ],
+  },
+  {
+    key: 'image',
+    path: '/tools/image',
+    category: 'design',
+    icon: <PictureOutlined />,
+    keywords: [
+      'image',
+      'photo',
+      'compress',
+      'resize',
+      'convert',
+      'webp',
+      'favicon',
+      'base64',
+      '图片',
+      '压缩',
+      '缩放',
+      '格式转换',
+      '图标',
+    ],
+  },
+  {
+    key: 'converter',
+    path: '/tools/converter',
+    category: 'data',
+    icon: <SwapOutlined />,
+    keywords: [
+      'json',
+      'yaml',
+      'toml',
+      'csv',
+      'markdown',
+      'convert',
+      'typescript',
+      'golang',
+      'java',
+      '转换',
+      '数据',
+      '代码生成',
+      '类型',
+    ],
+  },
+  {
+    key: 'css',
+    path: '/tools/css',
+    category: 'design',
+    icon: <FormatPainterOutlined />,
+    keywords: [
+      'css',
+      'gradient',
+      'shadow',
+      'border-radius',
+      'filter',
+      'style',
+      '渐变',
+      '阴影',
+      '圆角',
+      '滤镜',
+      '样式',
     ],
   },
 ];

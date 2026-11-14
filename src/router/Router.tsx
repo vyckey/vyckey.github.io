@@ -25,6 +25,9 @@ import DateCalcTool from '../components/tools/DateCalcTool';
 import TotpTool from '../components/tools/TotpTool';
 import TextTools from '../components/tools/TextTools';
 import ReferenceTool from '../components/tools/ReferenceTool';
+import ImageTool from '../components/tools/ImageTool';
+import ConverterTool from '../components/tools/ConverterTool';
+import CssTool from '../components/tools/CssTool';
 
 const router = createBrowserRouter([
   {
@@ -126,6 +129,18 @@ const router = createBrowserRouter([
       {
         path: 'reference',
         element: <ReferenceTool />,
+      },
+      {
+        path: 'image',
+        element: <ImageTool />,
+      },
+      {
+        path: 'converter',
+        element: <ConverterTool />,
+      },
+      {
+        path: 'css',
+        element: <CssTool />,
       },
     ],
   },

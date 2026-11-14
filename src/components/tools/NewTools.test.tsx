@@ -12,6 +12,9 @@ import TotpTool from './TotpTool';
 import TextTools from './TextTools';
 import ReferenceTool from './ReferenceTool';
 import EncryptionTabs from './Encryption';
+import ImageTool from './ImageTool';
+import ConverterTool from './ConverterTool';
+import CssTool from './CssTool';
 
 describe('new tools render', () => {
   beforeEach(async () => {
@@ -85,6 +88,30 @@ describe('new tools render', () => {
     await user.click(screen.getByRole('tab', { name: 'AES加密/解密' }));
     expect(
       await screen.findByPlaceholderText('请输入需要加密或解密的文本')
+    ).toBeInTheDocument();
+  });
+
+  it('renders the image toolkit', () => {
+    render(<ImageTool />);
+    expect(
+      screen.getByText('拖拽图片到这里，或点击选择文件')
+    ).toBeInTheDocument();
+    expect(screen.getByText('Base64')).toBeInTheDocument();
+  });
+
+  it('renders the data converter with a sample output', () => {
+    render(<ConverterTool />);
+    expect(screen.getByText('格式转换')).toBeInTheDocument();
+    expect(screen.getByText('YAML')).toBeInTheDocument();
+  });
+
+  it('renders the CSS generator', () => {
+    render(<CssTool />);
+    expect(screen.getByText('实时预览')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);'
+      )
     ).toBeInTheDocument();
   });
 });

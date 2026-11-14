@@ -3,6 +3,7 @@
 
 const common = {
   copy: '复制',
+  download: '下载',
   copySuccess: '复制成功',
   copyFailed: '复制失败',
   copyEmpty: '内容为空',
@@ -207,6 +208,18 @@ const tool = {
     reference: {
       label: '速查参考',
       description: 'HTTP 状态码、MIME、ASCII、chmod 与 Git 速查',
+    },
+    image: {
+      label: '图片工具箱',
+      description: '图片压缩、缩放、格式转换、Base64 与 favicon 生成',
+    },
+    converter: {
+      label: '数据转换',
+      description: 'JSON、YAML、TOML、CSV、Markdown 互转与代码生成',
+    },
+    css: {
+      label: 'CSS 生成器',
+      description: '可视化生成渐变、阴影、圆角与滤镜代码',
     },
   },
 };
@@ -980,6 +993,135 @@ const reference = {
   },
 };
 
+const image = {
+  dropTitle: '拖拽图片到这里，或点击选择文件',
+  dropHint: '支持 JPG、PNG、WebP、GIF 等格式，图片只在浏览器本地处理',
+  invalidType: '请选择图片文件',
+  loading: '正在加载图片…',
+  noFile: '请先选择一张图片',
+  tabs: {
+    compress: '压缩与缩放',
+    base64: 'Base64',
+    favicon: 'Favicon',
+  },
+  format: '输出格式',
+  quality: '质量',
+  width: '宽度',
+  height: '高度',
+  keepRatio: '锁定比例',
+  presets: '快速缩放',
+  backgroundHint: 'JPEG 不支持透明，透明区域会填充为白色。',
+  output: '处理结果',
+  processing: '处理中…',
+  dimensions: '输出尺寸',
+  resultSize: '输出大小',
+  saved: '比原图小 {{percent}}%',
+  increased: '比原图大 {{percent}}%',
+  sameSize: '与原图大小相同',
+  download: '下载',
+  base64: {
+    dataUrl: 'Data URL',
+    raw: '纯 Base64',
+    hint: 'Data URL 可直接用于 <img src>，体积约为原图的 4/3。',
+  },
+  favicon: {
+    hint: '图标会自动居中裁剪为正方形，并生成常用尺寸。',
+    generating: '正在生成图标…',
+    sizeLabel: '{{size}} × {{size}}',
+    download: '下载',
+    downloadIco: '下载 favicon.ico',
+    icoHint: 'ICO 包含 16、32、48、256 像素。',
+  },
+  errors: {
+    loadFailed: '图片加载失败',
+    canvasUnavailable: '当前浏览器不支持 Canvas',
+    encodeFailed: '图片编码失败',
+    readFailed: '读取图片失败',
+    icoSize: 'ICO 图标数量必须在 1 到 255 之间',
+  },
+};
+
+const converter = {
+  tabs: {
+    formats: '格式转换',
+    code: '代码生成',
+  },
+  inputFormat: '输入格式',
+  outputFormat: '输出格式',
+  input: '输入内容',
+  output: '转换结果',
+  convert: '转换',
+  sample: '载入示例',
+  inputPlaceholder: '粘贴或输入需要转换的内容',
+  emptyOutput: '点击“转换”生成结果',
+  recordsHint: 'CSV 和 Markdown 表格要求根节点是对象或对象数组。',
+  jsonInput: 'JSON 输入',
+  rootName: '根类型名',
+  generated: '生成代码',
+  codeHint: '目前支持从 JSON 生成 TypeScript、Go 和 Java 类型。',
+  errors: {
+    emptyInput: '请输入要转换的内容',
+    invalidJSON: 'JSON 解析失败：{{message}}',
+    invalidYAML: 'YAML 解析失败：{{message}}',
+    invalidTOML: 'TOML 解析失败：{{message}}',
+    invalidCSV: 'CSV 解析失败：{{message}}',
+    invalidMARKDOWN: 'Markdown 表格解析失败：{{message}}',
+    tomlRoot: 'TOML 根节点必须是对象',
+    recordsRequired: 'CSV / Markdown 只支持对象或对象数组',
+    serializeFailed: '序列化为 {{format}} 失败：{{message}}',
+    javaRoot: 'Java 代码生成要求 JSON 根节点是对象',
+  },
+};
+
+const css = {
+  tabs: {
+    gradient: '渐变',
+    shadow: '阴影',
+    radius: '圆角',
+    filter: '滤镜',
+  },
+  preview: '实时预览',
+  code: 'CSS 代码',
+  gradient: {
+    linear: '线性',
+    radial: '径向',
+    conic: '锥形',
+    angle: '角度',
+    stops: '色标',
+    addStop: '添加色标',
+    color: '颜色',
+  },
+  shadow: {
+    layers: '阴影层',
+    addLayer: '添加阴影',
+    layer: '阴影',
+    inset: '内阴影',
+    x: 'X 偏移',
+    y: 'Y 偏移',
+    blur: '模糊',
+    spread: '扩散',
+    color: '颜色',
+  },
+  radius: {
+    linked: '四角联动',
+    topLeft: '左上',
+    topRight: '右上',
+    bottomRight: '右下',
+    bottomLeft: '左下',
+  },
+  filter: {
+    blur: '模糊',
+    brightness: '亮度',
+    contrast: '对比度',
+    grayscale: '灰度',
+    saturate: '饱和度',
+    sepia: '褐色',
+    hueRotate: '色相旋转',
+    invert: '反色',
+    opacity: '不透明度',
+  },
+};
+
 const zhCN = {
   translation: {
     common,
@@ -1010,6 +1152,9 @@ const zhCN = {
     totp,
     textTools,
     reference,
+    image,
+    converter,
+    css,
   },
 };
 

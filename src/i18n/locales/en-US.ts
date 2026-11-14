@@ -128,6 +128,8 @@ const tool = {
     data: 'Data Formats',
     network: 'Network',
     generator: 'Generators',
+    design: 'Design & Color',
+    reference: 'Reference',
   },
   registry: {
     timestamp: {
@@ -162,7 +164,8 @@ const tool = {
     },
     encryption: {
       label: 'Encrypt / Decrypt',
-      description: 'MD5, SHA-256, Base64 and RSA encryption and decryption',
+      description:
+        'MD5, SHA-256, Base64, RSA and AES encryption and decryption',
     },
     json: {
       label: 'JSON',
@@ -179,6 +182,43 @@ const tool = {
     password: {
       label: 'Password Generator',
       description: 'Generate strong random passwords and score their strength',
+    },
+    uuid: {
+      label: 'UUID / NanoID',
+      description: 'Generate UUID v4, v7 and NanoID values in bulk',
+    },
+    color: {
+      label: 'Color Tool',
+      description: 'HEX, RGB and HSL conversion, palettes and WCAG contrast',
+    },
+    cidr: {
+      label: 'Subnet Calculator',
+      description: 'IPv4 CIDR network, host range and membership checks',
+    },
+    url: {
+      label: 'URL Parser',
+      description: 'Break down a URL and edit its query parameters',
+    },
+    filehash: {
+      label: 'File Hash',
+      description: 'Compute MD5, SHA-1, SHA-256 and SHA-512 locally',
+    },
+    datecalc: {
+      label: 'Date Calculator',
+      description: 'Date intervals and date arithmetic',
+    },
+    totp: {
+      label: 'TOTP Code',
+      description:
+        'Generate time-based one-time passwords from a Base32 secret',
+    },
+    texttools: {
+      label: 'Text Stats',
+      description: 'Character, word and byte counts plus line operations',
+    },
+    reference: {
+      label: 'Reference',
+      description: 'HTTP status codes, MIME types, ASCII, chmod and Git',
     },
   },
 };
@@ -385,6 +425,7 @@ const encryption = {
     sha256: 'SHA-256 signature',
     base64: 'Base64 encode/decode',
     rsa: 'RSA encrypt/decrypt',
+    aes: 'AES encrypt/decrypt',
   },
   outputPlaceholder: 'Output text',
   md5: {
@@ -424,6 +465,32 @@ const encryption = {
     encryptDetail: 'Encryption failed; check the public key or text length',
     decryptFailed: 'Decryption failed',
     decryptDetail: 'Decryption failed; check the private key or ciphertext',
+  },
+  aes: {
+    mode: {
+      passphrase: 'Passphrase',
+      raw: 'Raw key',
+    },
+    inputPlaceholder: 'Enter the text to encrypt or decrypt',
+    passphrase: 'Passphrase',
+    passphrasePlaceholder:
+      'Enter a passphrase; the same one is needed to decrypt',
+    keyBits: 'Key size',
+    generateKey: 'Generate key and IV',
+    key: 'Key (hex)',
+    iv: 'IV (hex)',
+    encrypt: 'Encrypt',
+    decrypt: 'Decrypt',
+    passphraseHint:
+      'Passphrase mode uses OpenSSL-compatible AES-256-CBC with a random salt and outputs Base64.',
+    rawHint:
+      'Raw key mode uses AES-CBC + PKCS#7 with a 32/48/64 hex-character key and a 32 hex-character IV.',
+    inputRequired: 'Please enter the text to encrypt or decrypt',
+    passphraseRequired: 'Please enter a passphrase',
+    invalidKey: 'The key must be 32, 48 or 64 hex characters',
+    invalidIv: 'The IV must be 32 hex characters',
+    decryptFailed:
+      'Decryption failed; check the passphrase, key, IV or ciphertext',
   },
 };
 
@@ -753,6 +820,196 @@ const password = {
   copyPassword: 'Copy password',
 };
 
+const uuid = {
+  count: 'Count',
+  uppercase: 'Uppercase',
+  hyphens: 'Hyphens',
+  generate: 'Generate',
+  hint: {
+    v4: 'UUID v4 is fully random and works well as a general unique identifier.',
+    v7: 'UUID v7 starts with a 48-bit millisecond timestamp, so it sorts by time and suits database keys.',
+    nano: 'NanoID is a shorter URL-safe random ID with a fixed length of 21 characters.',
+  },
+};
+
+const fileHash = {
+  dropTitle: 'Drop a file here, or click to choose one',
+  dropHint: 'Files are read locally in the browser and never uploaded',
+  verifyTitle: 'Verify a checksum',
+  verifyPlaceholder: 'Paste the official MD5 / SHA-256 checksum to compare',
+  match: 'Checksum matches',
+  mismatch: 'Checksum does not match',
+  privacy:
+    'Large files are hashed in chunks, so the page may pause briefly. The file never leaves your device.',
+  readFailed: 'Failed to read the file',
+};
+
+const color = {
+  pick: 'Pick a color',
+  red: 'Red R',
+  green: 'Green G',
+  blue: 'Blue B',
+  palette: 'Tints, shades and complement',
+  contrast: 'WCAG contrast checker',
+  foreground: 'Text color',
+  background: 'Background color',
+  sample: 'Sample text',
+  ratio: 'Contrast',
+  pass: 'Pass',
+  fail: 'Fail',
+  aaHint: 'Normal text needs ≥ 4.5:1 for AA and ≥ 7:1 for AAA.',
+};
+
+const cidr = {
+  calculate: 'Calculate',
+  network: 'Network address',
+  broadcast: 'Broadcast address',
+  netmask: 'Subnet mask',
+  wildcard: 'Wildcard mask',
+  hostRange: 'Usable host range',
+  noHost: 'This prefix has no assignable host addresses',
+  usableHosts: 'Usable hosts',
+  totalAddresses: 'Total addresses',
+  prefix: 'Prefix length',
+  containsTitle: 'Check whether an IP belongs to this subnet',
+  ipPlaceholder: 'Enter an IPv4 address to check',
+  inRange: '{{ip}} is inside {{cidr}}',
+  notInRange: '{{ip}} is outside {{cidr}}',
+  ipv4Only: 'Only IPv4 subnet calculations are supported for now.',
+  invalidCidr: 'Invalid CIDR; example: 192.168.1.0/24',
+  invalidIp: 'Invalid IPv4 address',
+  invalidPrefix: 'The prefix length must be an integer from 0 to 32',
+};
+
+const url = {
+  placeholder: 'Paste a full URL, or type example.com/path',
+  parse: 'Parse',
+  parts: 'URL parts',
+  protocol: 'Protocol',
+  hostname: 'Host',
+  port: 'Port',
+  username: 'Username',
+  password: 'Password',
+  pathname: 'Path',
+  hash: 'Fragment',
+  params: 'Query parameters',
+  paramsHint:
+    'Keys and values are encoded automatically; duplicate keys are kept.',
+  addParam: 'Add parameter',
+  result: 'Generated URL',
+  open: 'Open',
+  invalid: 'Could not parse this URL; check the format',
+};
+
+const dateCalc = {
+  tabs: {
+    interval: 'Date interval',
+    add: 'Add / subtract',
+  },
+  start: 'Start date',
+  end: 'End date',
+  totalDays: 'Difference',
+  dayCount: '{{count}} days',
+  weeks: 'In weeks',
+  weekDayCount: '{{weeks}} weeks {{days}} days',
+  calendar: 'Calendar difference',
+  yearMonthDayCount: '{{years}} years {{months}} months {{days}} days',
+  hours: 'In hours',
+  hourCount: '{{count}} hours',
+  negativeHint:
+    'The end date is before the start date, so the result is shown as an absolute value.',
+  after: 'After',
+  before: 'Before',
+  result: 'Result',
+  unit: {
+    day: 'Days',
+    week: 'Weeks',
+    month: 'Months',
+    year: 'Years',
+  },
+  weekdays: {
+    sun: 'Sunday',
+    mon: 'Monday',
+    tue: 'Tuesday',
+    wed: 'Wednesday',
+    thu: 'Thursday',
+    fri: 'Friday',
+    sat: 'Saturday',
+  },
+};
+
+const totp = {
+  secret: 'Secret',
+  secretPlaceholder: 'Base32 secret, e.g. JBSWY3DPEHPK3PXP',
+  digits: 'digits',
+  currentCode: 'Current one-time password',
+  refreshHint: 'Refreshes in {{seconds}}s ({{time}})',
+  issuer: 'Service',
+  issuerPlaceholder: 'e.g. GitHub',
+  account: 'Account',
+  accountPlaceholder: 'e.g. you@example.com',
+  otpAuthUrl: 'otpauth URL',
+  privacy: 'The secret is only held in memory on this page and is never saved.',
+  secretRequired: 'Please enter a Base32 secret',
+  invalidSecret: 'The secret contains an invalid character "{{char}}"',
+  invalidDigits: 'The code length must be between 6 and 8 digits',
+  invalidPeriod: 'The refresh period must be a positive integer',
+};
+
+const textTools = {
+  characters: 'Characters',
+  charactersNoSpaces: 'No spaces',
+  words: 'Words',
+  lines: 'Lines',
+  nonEmptyLines: 'Non-empty lines',
+  bytes: 'UTF-8 bytes',
+  readingTime: 'Reading time',
+  minutes: '{{count}} min',
+  inputPlaceholder: 'Paste or type text; the stats update as you type',
+  operations: 'Line operations (output below)',
+  operation: {
+    trim: 'Trim lines',
+    removeEmpty: 'Remove empty lines',
+    dedupe: 'Remove duplicates',
+    sortAsc: 'Sort ascending',
+    sortDesc: 'Sort descending',
+    reverse: 'Reverse lines',
+    number: 'Number lines',
+    collapseSpaces: 'Collapse spaces',
+    copy: 'Copy as-is',
+  },
+  output: 'Result',
+};
+
+const reference = {
+  tabs: {
+    http: 'HTTP status',
+    mime: 'MIME types',
+    ascii: 'ASCII table',
+    chmod: 'chmod',
+    git: 'Git commands',
+  },
+  search: 'Search codes, names or descriptions',
+  code: 'Code',
+  name: 'Name',
+  description: 'Description',
+  ascii: {
+    decimal: 'Decimal',
+    hex: 'Hex',
+    binary: 'Binary',
+    char: 'Char',
+    entity: 'HTML entity',
+  },
+  chmod: {
+    owner: 'Owner',
+    group: 'Group',
+    other: 'Others',
+    octal: 'Octal',
+    symbolic: 'Symbolic',
+    file: 'File name',
+  },
+};
+
 const enUS = {
   translation: {
     common,
@@ -774,6 +1031,15 @@ const enUS = {
     cron,
     regex,
     password,
+    uuid,
+    fileHash,
+    color,
+    cidr,
+    url,
+    dateCalc,
+    totp,
+    textTools,
+    reference,
   },
 } satisfies typeof zhCN;
 

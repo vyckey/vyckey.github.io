@@ -1,0 +1,1 @@
+var e=class extends Error{key;params;constructor(e,t){super(e),this.name=`I18nError`,this.key=e,this.params=t}};function t(t,n){return n instanceof e?t(n.key,n.params):n instanceof Error?n.message:String(n)}export{e as n,t};
